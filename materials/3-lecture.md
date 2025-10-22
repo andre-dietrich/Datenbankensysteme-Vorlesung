@@ -7,8 +7,6 @@ logo:     ../assets/img/logo/3-lecture.jpg
 import:   https://raw.githubusercontent.com/LiaTemplates/PouchDB/main/README.md
 -->
 
-import: https://raw.githubusercontent.com/liaTemplates/PyScript/main/README.md
-        https://raw.githubusercontent.com/LiaScript/CodeRunner/master/README.md
 
 # Document Stores: JSON Persistenz, Queries & Offline-Sync
 

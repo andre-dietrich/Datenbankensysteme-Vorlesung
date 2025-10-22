@@ -2,6 +2,7 @@
 author:   André Dietrich; GitHub CoPilot
 language: de
 narrator: German Male
+comment:  Grundlagen der Datenspeicherung: Von der DIKW-Pyramide (Daten → Informationen → Wissen → Weisheit) über Serialisierungsformate (CSV, JSON, YAML, XML) bis zur praktischen Motivation für Datenbanksysteme. Hands-on Ad-hoc-Analyse von CSV/JSON-Daten direkt im Browser.
 
 logo:     ../assets/img/logo/1-lecture.jpg
 

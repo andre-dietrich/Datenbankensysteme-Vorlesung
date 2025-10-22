@@ -1,62 +1,62 @@
 name: Generate and Deploy Project Website
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  build_and_deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Install LiaScript-Exporter
-        run: npm install -g @liascript/exporter
+    build_and_deploy:
+        runs-on: ubuntu-latest
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+        steps:
+            - name: Install LiaScript-Exporter
+              run: npm install -g @liascript/exporter
 
-      - name: Generate Project Website with PDFs and SCORM
-        run: |
-          echo "🚀 Generating project website with resources..."
-          liaex -i project.yaml --format project --output index --project-generate-pdf --project-generate-scrom12
-          echo "✅ Generation completed successfully."
+            - name: Checkout Repository
+              uses: actions/checkout@v4
 
-      - name: Prepare Deployment Directory
-        run: |
-          echo "📦 Preparing deployment directory..."
-          mkdir -p gh-pages-deploy
-          
-          # Copy main index file
-          cp index.html gh-pages-deploy/
-          
-          # Copy all generated PDFs
-          echo "📄 Copying PDFs..."
-          find . -name "*.pdf" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/ \;
-          
-          # Copy all generated SCORM packages (ZIP files)
-          echo "📦 Copying SCORM packages..."
-          find . -name "*.zip" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/ \;
-          
-          # List what will be deployed
-          echo "📋 Files to be deployed:"
-          ls -lh gh-pages-deploy/
-          
-          echo "✅ Deployment directory prepared successfully."
+            - name: Generate Project Website with PDFs and SCORM
+              run: |
+                  echo "🚀 Generating project website with resources..."
+                  liaex -i project.yaml --format project --output index --project-generate-pdf --project-generate-scrom12
+                  echo "✅ Generation completed successfully."
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: gh-pages-deploy
-          force_orphan: true
-          commit_message: "Deploy: ${{ github.event.head_commit.message }}"
+            - name: Prepare Deployment Directory
+              run: |
+                  echo "📦 Preparing deployment directory..."
+                  mkdir -p gh-pages-deploy
 
-      - name: Output Website URL
-        run: |
-          echo "✅ Website deployed successfully!"
-          echo "🌐 Visit: https://${{ github.repository_owner }}.github.io/Datenbankensysteme-Vorlesung/"
+                  # Copy main index file
+                  cp index.html gh-pages-deploy/
+
+                  # Copy all generated PDFs
+                  echo "📄 Copying PDFs..."
+                  find . -name "*.pdf" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/ \;
+
+                  # Copy all generated SCORM packages (ZIP files)
+                  echo "📦 Copying SCORM packages..."
+                  find . -name "*.zip" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/ \;
+
+                  # List what will be deployed
+                  echo "📋 Files to be deployed:"
+                  ls -lh gh-pages-deploy/
+
+                  echo "✅ Deployment directory prepared successfully."
+
+            - name: Deploy to GitHub Pages
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_branch: gh-pages
+                  publish_dir: gh-pages-deploy
+                  force_orphan: true
+                  commit_message: "Deploy: ${{ github.event.head_commit.message }}"
+
+            - name: Output Website URL
+              run: |
+                  echo "✅ Website deployed successfully!"
+                  echo "🌐 Visit: https://${{ github.repository_owner }}.github.io/Datenbankensysteme-Vorlesung/"

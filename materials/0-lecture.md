@@ -4,7 +4,9 @@ email:    andre.dietrich@informatik.tu-freiberg.de
 version:  1.0.0
 language: de
 narrator: Deutsch Female
-comment:  Session 0 – Vorstellung: Mein Weg zu Datenbanken & interaktivem OER
+
+comment:  Persönliche Vorstellung des Dozenten: Von der Promotion in Robotik über NoSQL-Systeme (Cassandra), deklarative Abfragesprachen (SelectScript), Remote Labs (Industrial eLab) bis zur Entwicklung von LiaScript und Edrys-Lite. Diese Session erklärt den Hintergrund der Vorlesung, warum Browser-basierte Technologien (IndexedDB, DuckDB-Wasm, SQLite-Wasm) im Fokus stehen und wie GitHub Copilot als Co-Autor für interaktive OER-Materialien eingesetzt wird.
+
 logo:     ../assets/img/logo/0-lecture.jpg
 
 edit:    true

@@ -3,10 +3,14 @@ author:    André Dietrich; GitHub CoPilot
 language:  de
 narrator:  German Male
 
+comment:   Key-Value Stores als Lösung für das O(n)-Suchproblem: Von Hash-Maps über TTL (Time-To-Live) bis zu Atomic Operations. Praktische Patterns für Session-Storage, Caching und Rate-Limiting mit Redis-Beispielen. Einführung in Big-O-Notation zur Performance-Analyse. Trade-offs: O(1) Zugriff vs. fehlende Bereichsabfragen und limitierte Ausdrucksstärke. Hands-on mit Redis im Browser und JavaScript Map/Set APIs.
+
 logo:     ../assets/img/logo/2-lecture.jpg
 
 import:    https://raw.githubusercontent.com/LiaTemplates/Redis/main/README.md
            https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md
+
+
 
 
 @onload
