@@ -3,7 +3,8 @@ author:   GitHub CoPilot; André Dietrich
 language: de
 narrator: German Male
 version:  1.0.0
-comment:  JavaScript Primer für Database-Beispiele
+comment:  Kompakter JavaScript-Primer für Studierende ohne JS-Vorkenntnisse: Variablen (const/let), Datentypen (primitiv & komplex), Kontrollstrukturen (if/loops), Funktionen (klassisch & Arrow), Objekte & Arrays (mit wichtigen Methoden wie map/filter/reduce), Asynchronität (async/await, Promises, fetch), JSON-Parsing und Classes. Fokus auf Code-Verständnis für Browser-basierte Datenbankbeispiele – keine Frontend-Entwicklung, keine Frameworks. Alle Beispiele direkt ausführbar in der Browser Console.
+
 email:    and.dietrich@informatik.tu-freiberg.de
 
 logo:     ../assets/img/logo/javascript-primer.jpg
