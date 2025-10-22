@@ -1,11 +1,13 @@
 <!--
-author:   André Dietrich
+author:   André Dietrich; ; GitHub CoPilot
 email:    andre.dietrich@informatik.tu-freiberg.de
-version:  0.1.0
+version:  1.0.0
 language: de
 narrator: Deutsch Female
 comment:  Session 0 – Vorstellung: Mein Weg zu Datenbanken & interaktivem OER
-logo:     ../assets/img/logo/databases-unlocked-logo.png
+logo:     ../assets/img/logo/0-lecture.jpg
+
+edit:    true
 
 import:   https://raw.githubusercontent.com/LiaScript/CodeRunner/master/README.md
           https://raw.githubusercontent.com/LiaTemplates/Communica/0.0.2/README.md

@@ -44,7 +44,7 @@ Diese Session ist **kein Pflichtbestandteil der Vorlesung**, sondern eine persö
 
 **Was ich gelernt habe:**
 
-- **Column Stores** bieten flexible Schemas und horizontale Skalierbarkeit
+- **Wide Column Stores** bieten flexible Schemas und horizontale Skalierbarkeit
 - **CQL** ermöglicht SQL-ähnliche Abfragen auf NoSQL-Systemen
 - **Trade-offs:** Eventual Consistency vs. starke Konsistenz (CAP-Theorem)
 
@@ -68,7 +68,7 @@ Diese Session ist **kein Pflichtbestandteil der Vorlesung**, sondern eine persö
 #### **Industrial eLab – Remote Labs & Web-Technologien**
 
 - **Projekt:** BMBF-gefördertes Projekt (2017–2020) für **Remote Labs** in der Ingenieurausbildung
-- **Technologie:** **Elixir Backend** + **Elm Frontend** + **WebRTC**
+- **Technologie:** **Elixir Backend** + **Elm Frontend** + **WebSockets**
 - **Ziel:** Studierende arbeiten zeit- und ortsunabhängig mit realer Hardware (Roboter, Mikrocontroller)
 - **Link:** [Industrial eLab Projektseite](https://www.wihoforschung.de/wihoforschung/de/bmbf-projektfoerderung/foerderlinien/forschung-zur-digitalen-hochschulbildung/erste-foerderlinie-zur-digitalen-hochschulbildung/industrial-elab/industrial-elab.html)
 
@@ -204,3 +204,18 @@ Nach dieser Vorstellung starten wir in **Session 1** mit der eigentlichen Vorles
 ---
 
 *Ende Session 0 – Willkommen zur Vorlesung!* 🎓
+
+
+## Logo - Prompt
+
+Wide aspect 16:9 flat minimal educational tech illustration. Mittelpunkt: aufgeschlagenes Buch oder stilisierte Roadmap (horizontal), aus dem eine Reise-Linie mit 5 kleinen Icons aufsteigt (von links nach rechts):
+
+1) Roboter-Silhouette (Embedded Systems),
+2) Datenbank-Zylinder (Cassandra/NoSQL),
+3) Browser-Fenster (Web-Technologien),
+4) LiaScript-Icon (interaktive OER, Markdown-Symbol),
+5) Peer-to-Peer-Netzwerk (verbundene Knoten).
+
+Die Reise-Linie endet in einer stilisierten geöffneten Tür mit Licht dahinter (Einladung zum Kurs). Rechts subtiler Datenfluss (soft curves) als angedeutetes "Unlocking". Schriftzug (optional) "Session 0" dezent, sans-serif, nicht dominant. Farbschema: Petrol (#0B6E75), Warm Orange (#FF8C42 – stärker betont), Sand (#F2E9DC), neutrale Off-White-Flächen. Keine Gradients, klare Konturen, weiche Rundungen, hoher Kontrast, kein Photorealismus, einladend & persönlich, clean edges, negative space sinnvoll nutzen.
+
+![Session 0 Logo](../assets/img/logo/0-lecture.jpg)

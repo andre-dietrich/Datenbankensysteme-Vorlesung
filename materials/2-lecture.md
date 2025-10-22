@@ -1,7 +1,9 @@
 <!--
-author:    André Dietrich, Claude Sonnet
+author:    André Dietrich; GitHub CoPilot
 language:  de
 narrator:  German Male
+
+logo:     ../assets/img/logo/2-lecture.jpg
 
 import:    https://raw.githubusercontent.com/LiaTemplates/Redis/main/README.md
            https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md

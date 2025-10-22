@@ -1,12 +1,15 @@
 <!--
+author:   André Dietrich; GitHub CoPilot
 language: de
 narrator: German Male
 
-
--->
+logo:     ../assets/img/logo/1-lecture.jpg
 
 import: https://raw.githubusercontent.com/liaTemplates/PyScript/main/README.md
         https://raw.githubusercontent.com/LiaScript/CodeRunner/master/README.md
+-->
+
+
 
 
 # Daten & Serialisierung + DIKW + Vergleichsachsen Teaser

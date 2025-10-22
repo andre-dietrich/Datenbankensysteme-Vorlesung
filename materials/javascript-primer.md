@@ -1,9 +1,14 @@
 <!--
+author:   GitHub CoPilot; André Dietrich
 language: de
 narrator: German Male
+version:  1.0.0
+comment:  JavaScript Primer für Database-Beispiele
+email:    and.dietrich@informatik.tu-freiberg.de
 
-script:   https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js
-link:     https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.css
+logo:     ../assets/img/logo/javascript-primer.jpg
+
+edit:     true
 
 @eval
 <script>@input

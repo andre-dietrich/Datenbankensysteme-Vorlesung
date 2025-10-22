@@ -2,6 +2,8 @@
 language: de
 narrator: German Male
 
+logo:     ../assets/img/logo/3-lecture.jpg
+
 import:   https://raw.githubusercontent.com/LiaTemplates/PouchDB/main/README.md
 -->
 
