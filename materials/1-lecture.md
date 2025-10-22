@@ -764,7 +764,7 @@ async def fetch_data(url):
     return df
 
 # Funktion direkt aufrufen mit `await` (NICHT `asyncio.run()`)
-url = "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
+url = "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/titanic.csv"
 Titanic = await fetch_data(url)
 
 # Ausgabe
@@ -799,7 +799,7 @@ library(ggplot2)
 library(dplyr)
 
 # CSV-Datei einlesen
-df <- read.csv("https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv")
+df <- read.csv("https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/titanic.csv")
 
 # Alter bereinigen (NA-Werte entfernen)
 df <- df %>% filter(!is.na(Age))
@@ -1795,11 +1795,13 @@ parsed = json.loads(json_str)
 ```
 
 **REST-APIs Standard:**
+
 - 95% aller modernen APIs nutzen JSON
 - `Content-Type: application/json`
 - Kleinere Payloads als XML (3x Faktor)
 
 **NoSQL-Datenbanken:**
+
 - MongoDB speichert BSON (Binary JSON)
 - CouchDB, RethinkDB, Firebase - alle JSON-nativ
 - Queries direkt auf JSON-Struktur
@@ -1959,6 +1961,7 @@ Lassen Sie uns den direkten Vergleich sehen. Hier ist dieselbe Kubernetes-Config
 ### 📊 JSON vs. YAML - Derselbe Inhalt
 
 **JSON (verbose, viele Sonderzeichen):**
+
 ```json
 {
   "apiVersion": "v1",
@@ -1984,6 +1987,7 @@ Lassen Sie uns den direkten Vergleich sehen. Hier ist dieselbe Kubernetes-Config
 ```
 
 **YAML (clean, lesbar):**
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -2018,6 +2022,7 @@ YAML hat aber auch Tücken! Einrückung mit Spaces ist Pflicht - ein Tab bricht 
 ### ⚠️ YAML-Fallen & Best Practices
 
 **1. Einrückung ist kritisch:**
+
 ```yaml
 # ✅ RICHTIG (2 Spaces)
 parent:
@@ -2029,6 +2034,7 @@ parent:
 ```
 
 **2. Implizite Typen (können überraschen):**
+
 ```yaml
 # Vorsicht: Diese werden zu Booleans!
 boolean_yes: yes      # → true
@@ -2169,6 +2175,7 @@ Lassen Sie uns die Reise zusammenfassen. Wir haben heute die Grundlagen gelegt -
 ### 📚 Was Sie heute gelernt haben
 
 **1. Die DIKW-Pyramide als Analyserahmen:**
+
 - **Data:** Rohe Fakten (Federn zählen, Bytes speichern)
 - **Information:** Kontextualisierte Daten (Kriegshäuptling-Status)
 - **Knowledge:** Vernetzte Informationen (Gefahreneinschätzung)
@@ -2177,6 +2184,7 @@ Lassen Sie uns die Reise zusammenfassen. Wir haben heute die Grundlagen gelegt -
 → Datenbanken bewegen sich zwischen Data und Information!
 
 **2. Historische DNA moderner Systeme:**
+
 - **Pacioli's Soll/Haben** → ACID-Transaktionen (Session L15!)
 - **Karteikarten-Katalog** → B-Tree-Indizes (Session L16!)
 - **Schiffstagebücher** → Write-Ahead-Logs (Session L22!)
@@ -2337,6 +2345,7 @@ Zum Abschluss: Nehmen Sie die Paradigmen-Matrix ernst! Wir aktualisieren sie in 
 **Vorbereitung auf Key-Value Stores:**
 
 1. **Installieren Sie Redis lokal:**
+
    ```bash
    # macOS
    brew install redis
@@ -2349,6 +2358,7 @@ Zum Abschluss: Nehmen Sie die Paradigmen-Matrix ernst! Wir aktualisieren sie in 
    ```
 
 2. **Spielen Sie mit redis-cli:**
+
    ```bash
    redis-cli
    > SET user:1 "Alice"
@@ -2358,6 +2368,7 @@ Zum Abschluss: Nehmen Sie die Paradigmen-Matrix ernst! Wir aktualisieren sie in 
    ```
 
 3. **Fragen Sie sich:**
+
    - Wie würde ich eine "Freundesliste" in Key-Value speichern?
    - Was ist der Unterschied zwischen Redis und einer CSV-Datei?
    - Warum ist `GET` in O(1), aber CSV-Suche in O(n)?
@@ -2375,155 +2386,4 @@ Zum Abschluss: Nehmen Sie die Paradigmen-Matrix ernst! Wir aktualisieren sie in 
 - [CSV vs. JSON vs. XML Performance Benchmark](https://github.com/benchmarks)
 
 </section>
-
----
-
-
-## Session-Notizen für die Lehrenden
-
-### Didaktische Brücke: Von manuellen Kontrollmechanismen zu formalen Garantien
-
-Frühe Systeme nutzten Redundanz & menschliche Prüfung (vier Augen, doppelte Bücher) als Integritätsersatz. Moderne Datenbanken externalisieren diese Sicherheiten in Mechanismen wie Constraints, Transaktionen und Logs.
-
-### Historische Patterns → Moderne Konzepte
-
-| Historisches Pattern | Moderne Entsprechung | Warum relevant heute? |
-|----------------------|----------------------|----------------------|
-| Doppelte Buchführung (Soll/Haben) | Atomic Commit (Transaktion) | Fehler zeigt sich als Unbalanciertheit → Invariante |
-| Karteikarten-Katalog | B-Baum / Hash Index | Beschleunigte Selektion gegenüber linearem Durchgang |
-| Logbuch (Append-only) | Write-Ahead Log / Event Log | Rekonstruktion & Recovery |
-| Lochkarten-Layout | Striktes Schema | Vorab-Validierung gegen Formatfehler |
-| Manuelle Querverweise | Fremdschlüssel | Referenzielle Integrität statt Gedächtnis |
-
-### Kurz-Narrativ zum Einsatz in der Vorlesung
-
-Wir referenzieren diese Beispiele später erneut:
-
-- Bei Transaktionen (Session L15): Rückgriff auf doppelte Buchführung als intuitive Invariante.
-- Bei Indizes (L16): Karteikarten-Metapher → Ziel: O(log n) vs. lineares Blättern.
-- Bei Replikation & Logs (L22): Schiffstagebuch & Append-only als Robustheitsanker.
-
-### Reflexionsimpuls
-
-Welche analoge Praxis (Papier, Whiteboard, Excel) nutzt ihr heute, die implizit ein später formalisiertes Pattern verkörpert? (Notieren für Matrix-Rückgriff L3.)
-
-> Optional [Deep Dive]: Hollerith-Maschinen – physische Kodierung als früher „Schema-Enforcer“. (Auslagerbar als Anhang oder Bonusfolie.)
-
-
-
-## 0. Lehrziel-Fokus & Aktivierung (5m)
-
-- Frage an Publikum: "Wie viele verschiedene Formate habt ihr letzte Woche schon verarbeitet?"
-- Kurze Handzeichen-Abfrage (CSV, JSON, XML, YAML, Sonstiges)
-- Zieltransparenz Slide: Heute: Rohdatenformen → erste Vergleichsachsen → Motivation Struktur
-
-## 1. Problemkontext & Rohdatenrealität (10m)
-
-- Story: Historischer Umgang (Karteikarten → Flat Files)
-- Pain Points: Redundanz, uneinheitliche Kategorien, fehlende Validierung
-- Beispiel: Titanic-Datensatz Rohansicht (unbereinigte Zeilen)
-
-## 2. Formate im Vergleich (12m)
-
-| Format | Strukturgrad | Toleranz für Fehler | Typische Nutzung | Vorteil | Grenze |
-|--------|--------------|--------------------|------------------|--------|--------|
-| CSV | minimal | hoch (Silent Fail) | Austausch, Tabellendumps | Einfach | Keine eingebettete Struktur |
-| JSON | mittel (Baum) | mittel | APIs, Konfiguration | Verschachtelung | Uneinheitliche Schemas |
-| YAML | mittel | hoch (Whitespace Risiken) | Config, Infra | Lesbarkeit | Parser-Fallen |
-| XML | formal (Schema möglich) | gering | Legacy, Dokumente | Validierbarkeit | Verbose |
-| NDJSON | zeilenorientiert | mittel | Streaming, Logs | Inkrementell | Validierung pro Zeile |
-
-Hinweis: Parquet nur teasernd (später in Column Block) → besserer Scan/Kompression.
-
-## 3. Mini-Demo (10m)
-
-- Live: CSV in DuckDB-Wasm laden → einfache Aggregation (Überlebensrate nach Klasse)
-- Live: JSON Laden (ein Objekt extrahieren, Feld Normalisierung zeigen)
-- Gemeinsam herausarbeiten: Wo verlieren wir Zeit? Wo können Fehler unerkannt bleiben?
-
--## 4. DIKW Pyramide angewandt (8m)
-
-- Daten (Rohzeilen) → Information (Aggregierte Überlebensrate) → Wissen (Risikofaktoren Klasse/Geschlecht) → Entscheidung (Welche weiteren Attribute brauchen wir?)
-- Reflexionsfrage: "Welche zusätzlichen Variablen würden eure Hypothesen testen?"
-
-## 5. Vergleichsachsen Teaser (12m)
-
-Einführung der Achsen als wiederkehrendes Meta-Werkzeug:
-
-- Strukturgrad
-- Integrität
-- Replizierbarkeit / Konfliktpotenzial
-- Ausdruck (Abfrageflexibilität)
-- Performanceprofil
-
-Kurze Einordnung Rohdaten (nur qualitative Skizze, keine Matrix-Tabelle jetzt ausfüllen) → Erwartungsfrage: "Was wird ein 'Paradigma' verbessern?"
-
-## 6. Guided Exploration / Pair (10m)
-
-- Aufgabe: In Kleingruppen 2 Formate beschreiben: Wie würden Fehler entstehen? Was fehlt für konsistente Auswertung?
-- Einsammeln von 3 Stichpunkten pro Gruppe → Whiteboard cluster
-
-## 7. Micro-Consistency Check (5m)
-
-- Schnelle Einschätzung: Welche Inkonsistenzquellen haben wir identifiziert? (Skala 1–5 Unsicherheit)
-- Ergebnis protokollieren (für späteren Vergleich in L4, L6)
-
-## 8. Wrap-up & Ausblick (8m)
-
-- Zusammenfassung: Rohdaten sind flexibel aber fragil → Brücke: Kontrollierter Zugriff / Schlüssel
-- Teaser auf Session 2: "Vom Format zur Struktur – Keyed Access"
-- Hausaufgabe (freiwillig): 1 Beispiel eigener Rohdaten + potentielle Normalisierungsfrage mitbringen
-
-## 9. Referenzen
-
-- JSON / YAML Spezifikationen (Kurz)
-- DIKW Modell Überblick
-- Titanic Datensatz (Öffentliche Quelle)
-
-## 10. Material-Log & Changelog
-
-| Version | Datum | Änderung | Hinweis |
-|---------|-------|----------|---------|
-| 0.1 | 2025-09-29 | Erste Promotion aus Skeleton | Draft |
-| 0.2 | 2025-09-29 | Historischer Abschnitt + Bullet-Narrativ | Erweiterung Inhalt |
-
-## 11. Offene Punkte
-
-- Ergänzen: Screenshot Demo (noch aufnehmen)
-- Optional Deep Dive: NDJSON Streaming Beispiel (verschieben bis Column Block)
-
-
-
-## Backup
-
-**Datenstruktur:**
-
-- **Datensatz**: Jeder Eintrag (eine Seite)
-- **Attribute**: Name, Datum, Spruch, Ort, evtl. Zeichnung
-- **Schema**: Meist vordefinierte Felder ("Name:", "Spruch:", "Datum:")
-- **Primärschlüssel**: Implizit die Position/Seitennummer
-
-**Datenbankoperationen:**
-
-- **INSERT**: Neuen Freund eintragen lassen
-- **SELECT**: "Zeig mir alle Einträge von 1995" oder "Wer hat den Spruch über Freundschaft?"
-- **UPDATE**: Praktisch unmöglich (historische Persistenz!)
-- **DELETE**: Ebenfalls schwierig (würde Löcher reißen)
-
-**Integritätsbedingungen:**
-
-- **Eindeutigkeit**: Meist nur ein Eintrag pro Person
-- **Vollständigkeit**: Datum und Name sind Pflichtfelder
-- **Referenzielle Integrität**: Eintrag sollte zu realer Person gehören
-
-**Herausforderungen (typische DB-Probleme):**
-
-- **Inkonsistente Formate**: Jeder schreibt anders
-- **Doppelte Einträge**: Was wenn derselbe Freund Jahre später nochmal schreibt?
-- **Skalierungsprobleme**: Album wird voll
-- **Versionskonflikte**: Nur eine Person kann gleichzeitig schreiben
-- **Backup-Problem**: Verlust = Totalausfall
-
-
-## Test
 

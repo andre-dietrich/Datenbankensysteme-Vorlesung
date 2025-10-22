@@ -91,7 +91,7 @@ Eine typische Produkt-CSV mit ID, Name, Kategorie, Preis, Lagerbestand. Nichts B
 **Naive Implementierung: Lineare Suche**
 
 ```js
-const response = await fetch("http://localhost:8000/assets/dat/products.csv");
+const response = await fetch("https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv");
 const text = await response.text();
 const rows = Papa.parse(text, { header: true }).data;
 
@@ -360,7 +360,7 @@ Jetzt kommt der Aha-Moment: Was wäre, wenn wir die CSV einmal einlesen, aber da
 **Optimierte Implementierung: Hash-Lookup**
 
 ```js
-const response = await fetch("http://localhost:8000/assets/dat/products.csv");
+const response = await fetch("https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv");
 const text = await response.text();
 const rows = Papa.parse(text, { header: true }).data;
 
@@ -391,7 +391,7 @@ searchProductById("P00567");
 ```
 <script>
 async function execute() {
-  const response = await fetch("http://localhost:8000/assets/dat/products.csv");
+  const response = await fetch("https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv");
   const text = await response.text();
   const rows = Papa.parse(text, { header: true }).data;
 
@@ -676,7 +676,7 @@ filterProductsBy(p => parseInt(p.stock) < 10);
 ```
 <script>
 async function execute() {
-  const response = await fetch("http://localhost:8000/assets/dat/products.csv");
+  const response = await fetch("https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv");
   const text = await response.text();
   const rows = Papa.parse(text, { header: true }).data;
 
