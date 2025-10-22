@@ -28,22 +28,30 @@ jobs:
             - name: Prepare Deployment Directory
               run: |
                   echo "📦 Preparing deployment directory..."
-                  mkdir -p gh-pages-deploy
+                  mkdir -p gh-pages-deploy/assets/pdf
+                  mkdir -p gh-pages-deploy/assets/scorm
 
                   # Copy main index file
                   cp index.html gh-pages-deploy/
 
-                  # Copy all generated PDFs
-                  echo "📄 Copying PDFs..."
-                  find . -name "*.pdf" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/ \;
+                  # Copy all generated PDFs to assets/pdf/
+                  echo "📄 Copying PDFs to assets/pdf/..."
+                  find . -name "*.pdf" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/assets/pdf/ \;
 
-                  # Copy all generated SCORM packages (ZIP files)
-                  echo "📦 Copying SCORM packages..."
-                  find . -name "*.zip" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/ \;
+                  # Copy all generated SCORM packages to assets/scorm/
+                  echo "📦 Copying SCORM packages to assets/scorm/..."
+                  find . -name "*.zip" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/assets/scorm/ \;
 
                   # List what will be deployed
                   echo "📋 Files to be deployed:"
+                  echo "Root files:"
                   ls -lh gh-pages-deploy/
+                  echo ""
+                  echo "PDFs in assets/pdf/:"
+                  ls -lh gh-pages-deploy/assets/pdf/ || echo "No PDFs found"
+                  echo ""
+                  echo "SCORM packages in assets/scorm/:"
+                  ls -lh gh-pages-deploy/assets/scorm/ || echo "No SCORM packages found"
 
                   echo "✅ Deployment directory prepared successfully."
 
