@@ -69,7 +69,6 @@ collection:
  
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/1-lecture.md
     title: "L1: Daten & Serialisierung + DIKW"
-    comment: "CSV, JSON, YAML, XML – Ad-hoc Analyse und Motivation für Datenbanken"
     tags:
       - CSV
       - JSON
@@ -80,7 +79,6 @@ collection:
 
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/2-lecture.md
     title: "L2: Key-Value Stores"
-    comment: "Redis & Co: Zugriff, Patterns, TTL, Atomic Keys und Grenzen"
     tags:
       - Key-Value
       - Redis
@@ -105,7 +103,6 @@ collection:
 
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md
     title: "JavaScript Primer"
-    comment: "Grundlagen JavaScript für die Browser-basierten Datenbankbeispiele"
     tags:
       - JavaScript
       - Primer
