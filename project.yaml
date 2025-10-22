@@ -1,0 +1,128 @@
+title: >
+  <span style="background-color: rgba(11, 110, 117, 0.75); padding: 10px; color: white; border-radius: 5px;">
+    Databases Unlocked: A Beginner's Journey
+  </span>
+
+comment: >
+  <br>
+  <span style="background-color: rgba(255, 140, 66, 0.75); padding: 8px; color: white; border-radius: 5px;">
+    Interactive Database Systems Course with LiaScript
+  </span>
+
+logo: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/main.jpg
+
+footer: >
+  <hr>
+  <p>
+    <strong>Databases Unlocked</strong> – Eine praxisnahe Einführung in die Welt der Datenbanken<br>
+    Bachelor-Studierende der Informatik (3.–5. Semester)<br>
+    <br>
+    Erstellt mit <a href="https://liascript.github.io" target="_blank">LiaScript</a> – 
+    Markup für interaktive Open Educational Resources
+  </p>
+
+meta:
+  title: Databases Unlocked - Interactive Database Systems Course
+  description: >
+    Praxisnahe Einführung in Datenbanksysteme: Von Dateiformaten über Key-Value, 
+    Document und Column Stores bis zu relationalen Datenbanken mit SQL. 
+    Alle Konzepte direkt im Browser mit Hands-on-Beispielen.
+
+# Main course collection
+collection:
+  # Introduction section
+  - html: >
+      <div style="padding: 20px; background-color: rgba(11, 110, 117, 0.1); border-radius: 8px; margin: 20px 0;">
+        <h2>📚 Über diesen Kurs</h2>
+        <p>
+          Diese Vorlesung bietet eine <strong>praxisnahe Einführung in die Welt der Datenbanken</strong> 
+          und vermittelt einen systematischen Überblick über unterschiedliche Paradigmen und ihre Einsatzszenarien.
+        </p>
+        <p>
+          Beginnend bei einfachen Datenquellen wie Textdateien, CSV, JSON, YAML oder TOML werden schrittweise 
+          moderne Systeme vorgestellt – von Key-Value Stores über Object Stores und Column Stores bis hin zu 
+          <strong>relationalen Datenbanken mit SQL</strong> und graphbasierten Ansätzen.
+        </p>
+        <p>
+          <strong>Besonderheit:</strong> Alle Paradigmen werden mit Hands-on-Beispielen direkt im Browser 
+          erlebbar (über LiaScript und DBMS wie DuckDB-Wasm, SQLite-Wasm, IndexedDB, PouchDB).
+        </p>
+      </div>
+
+  # Course Start / Orientation
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/0-lecture.md
+    tags:
+      - Einführung
+      - Übersicht
+      - Organisatorisches
+      
+  # Block 1: Paradigmen-Überblick (kompakt)
+  - html: >
+      <hr>
+      <h2 style="color: #0B6E75;">Block 1: Daten-Paradigmen – Vom File zum Column Store</h2>
+      <p>
+        In diesem Block lernen Sie verschiedene Datenbank-Paradigmen kennen: 
+        Von einfachen Dateiformaten über Key-Value und Document Stores bis zu Column Stores.
+        Jedes Paradigma wird mit praktischen Beispielen im Browser demonstriert.
+      </p>
+
+ 
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/1-lecture.md
+    title: "L1: Daten & Serialisierung + DIKW"
+    comment: "CSV, JSON, YAML, XML – Ad-hoc Analyse und Motivation für Datenbanken"
+    tags:
+      - CSV
+      - JSON
+      - YAML
+      - Serialisierung
+      - DIKW
+      - Grundlagen
+
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/2-lecture.md
+    title: "L2: Key-Value Stores"
+    comment: "Redis & Co: Zugriff, Patterns, TTL, Atomic Keys und Grenzen"
+    tags:
+      - Key-Value
+      - Redis
+      - NoSQL
+      - Cache
+      - Performance
+
+  # Block 2: Relationale Grundlagen (coming soon)
+  - html: >
+      <hr>
+      <h2 style="color: #0B6E75;">Block 2: Relationale Grundlagen</h2>
+      <p>
+        <em>Coming Soon:</em> Relationales Modell, Relationale Algebra und SQL Basics<br>
+        Die Materialien für Block 2 werden nach und nach ergänzt.
+      </p>
+
+  # Additional Resources
+  - html: >
+      <hr>
+      <h2 style="color: #FF8C42;">📖 Zusatzmaterialien</h2>
+      <p>Weitere Ressourcen und Primer für die Vorlesung</p>
+
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md
+    title: "JavaScript Primer"
+    comment: "Grundlagen JavaScript für die Browser-basierten Datenbankbeispiele"
+    tags:
+      - JavaScript
+      - Primer
+      - Grundlagen
+      - Browser
+
+  # Learning Objectives Summary
+  - html: >
+      <hr>
+      <div style="padding: 20px; background-color: rgba(255, 140, 66, 0.1); border-radius: 8px; margin: 20px 0;">
+        <h2>🎯 Lernziele</h2>
+        <p>Nach Abschluss der Vorlesung können Sie:</p>
+        <ol>
+          <li><strong>Grundlagen der Datenbank-Paradigmen</strong> verstehen und typische Einsatzszenarien erklären</li>
+          <li><strong>Relationale Datenbanken mit SQL anwenden</strong>, einschließlich Datenmodellierung und Normalisierung</li>
+          <li><strong>Praktische Erfahrung sammeln</strong> mit verschiedenen Datenbanksystemen direkt im Browser</li>
+          <li><strong>Kernkonzepte wie ACID und Transaktionen</strong> analysieren und vergleichen</li>
+          <li><strong>Stärken und Schwächen</strong> unterschiedlicher Ansätze kritisch beurteilen</li>
+        </ol>
+      </div>
