@@ -22,7 +22,7 @@ jobs:
             - name: Generate Project Website with PDFs and SCORM
               run: |
                   echo "🚀 Generating project website with resources..."
-                  liaex -i project.yaml --format project --output index --project-generate-pdf --project-generate-scrom12
+                  liaex -i project.yaml --format project --output index --project-generate-pdf --pdf-timeout 60000 --project-generate-scrom12
                   echo "✅ Generation completed successfully."
 
             - name: Prepare Deployment Directory
