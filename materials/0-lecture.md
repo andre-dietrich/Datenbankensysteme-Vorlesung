@@ -13,6 +13,7 @@ edit:    true
 
 import:   https://raw.githubusercontent.com/LiaScript/CodeRunner/master/README.md
           https://raw.githubusercontent.com/LiaTemplates/Communica/0.0.2/README.md
+          https://raw.githubusercontent.com/liaTemplates/SQLite/main/README.md
 -->
 
 # Session 0 – Vorstellung: Mein Weg zu Datenbanken & interaktivem OER
@@ -635,94 +636,73 @@ Ich nutze GitHub Copilot als Co-Autor für diese Vorlesung. Der Ansatz: Spec-Dri
 Ich bin Dozent für Datenbanken im Wintersemester zweitausendfünfundzwanzig-sechsundzwanzig an der TU Bergakademie Freiberg. Mein Ziel: Eine praxisnahe, vergleichende Vorlesung mit Fokus auf Browser-basierte Technologien.
 
       {{0}}
-<div>
+<section>
 
 **Vorlesungsziele:**
 
-1. **Paradigmen verstehen:** File, KV, Document, Column, Relational, Graph
-2. **Relationale Datenbanken meistern:** SQL, Normalisierung, Transaktionen, Indexe
-3. **Praktisch arbeiten:** DuckDB, SQLite, IndexedDB – alles im Browser
-4. **Vergleichen & bewerten:** ACID, CAP, Trade-offs
-5. **Anwenden:** Polyglot Persistence Projekt
-
 > **Diese Vorlesung ist anders:** Browser-first, interaktiv, OER, spec-driven mit Copilot.
 
-</div>
+```SQL  -populate
+-- Erstelle Vorlesungsziele-Tabelle
+DROP TABLE IF EXISTS course_objectives;
+CREATE TABLE course_objectives (
+  id INTEGER PRIMARY KEY,
+  category TEXT NOT NULL,
+  objective TEXT NOT NULL,
+  keywords TEXT NOT NULL,
+  description TEXT
+);
 
----
+-- Füge Vorlesungsziele ein
+INSERT INTO course_objectives (id, category, objective, keywords, description) VALUES
+  (1, 'Paradigmen', 'Paradigmen verstehen', 'File, KV, Document, Column, Relational, Graph', 
+   'Verschiedene Datenbank-Paradigmen kennen und deren Einsatzszenarien verstehen'),
+  (2, 'Relationale DB', 'Relationale Datenbanken meistern', 'SQL, Normalisierung, Transaktionen, Indexe', 
+   'Tiefes Verständnis relationaler Systeme mit praktischer SQL-Kompetenz'),
+  (3, 'Praxis', 'Praktisch arbeiten', 'DuckDB, SQLite, IndexedDB, Browser', 
+   'Hands-on Erfahrung mit modernen Browser-basierten Datenbanksystemen'),
+  (4, 'Bewertung', 'Vergleichen & bewerten', 'ACID, CAP, Trade-offs', 
+   'Kritische Analyse und Bewertung verschiedener Datenbankansätze'),
+  (5, 'Anwendung', 'Anwenden', 'Polyglot Persistence, Architektur', 
+   'Praktische Anwendung in einem durchgängigen Projekt');
 
-## Reflexion & Diskussion
+-- Zeige alle Vorlesungsziele mit ihren Kategorien
+SELECT
+  id,
+  category,
+  objective,
+  keywords,
+  description
+FROM course_objectives
+ORDER BY id;
+```
+@SQL.run(course_objectives)
 
-    --{{0}}--
-Nun sind Sie dran! Lassen Sie uns über Ihre Erfahrungen und Erwartungen sprechen.
+    --{{1}}--
+Diese Tabelle zeigt alle fünf Lernziele der Vorlesung strukturiert als Datenbank. Probieren Sie eigene Abfragen aus!
 
-      {{0}}
+    {{1}}
 <div>
 
-### Reflexionsfrage
+**Interaktive Exploration:**
 
-> Was ist Ihnen bei Ihren bisherigen Erfahrungen mit Datenbanken begegnet?
->
-> Haben Sie schon mit SQL, NoSQL, IndexedDB oder anderen Systemen gearbeitet?
-
-**Mögliche Themen:**
-
-- Welche Datenbanken haben Sie bereits verwendet?
-- Was war besonders einfach oder schwierig?
-- Welche Fragen sind offengeblieben?
+```SQL
+-- Beispiel: Suche nach Paradigmen-bezogenen Zielen
+SELECT objective, keywords 
+FROM course_objectives 
+WHERE keywords LIKE '%Relational%';
+```
+@SQL.run(course_objectives)
 
 </div>
 
-      {{1}}
-<div>
+</section>
 
-### Diskussion
-
-> Welche Erwartungen haben Sie an diese Vorlesung?
->
-> Was möchten Sie über Datenbanken lernen?
-
-**Ideen für die Diskussion:**
-
-1. Praktische Anwendung vs. theoretische Fundierung
-2. Vergleich verschiedener Paradigmen
-3. Performance-Optimierung
-4. Neue Technologien (NoSQL, Distributed DBs)
-
-</div>
-
----
-
-## Referenzen & Quellen
-
-### Projekte
-
-- **cassandra_ros:** [http://mirror-ap.wiki.ros.org/cassandra_ros.html](http://mirror-ap.wiki.ros.org/cassandra_ros.html)
-- **SelectScript:** [https://github.com/andre-dietrich/SelectScript](https://github.com/andre-dietrich/SelectScript)
-- **Industrial eLab:** [Projektseite](https://www.wihoforschung.de/wihoforschung/de/bmbf-projektfoerderung/foerderlinien/forschung-zur-digitalen-hochschulbildung/erste-foerderlinie-zur-digitalen-hochschulbildung/industrial-elab/industrial-elab.html)
-- **LiaScript:** [https://liascript.github.io/](https://liascript.github.io/)
-- **Edrys-Lite:** [https://edrys-labs.github.io/](https://edrys-labs.github.io/)
-
-### Publikationen (Industrial eLab)
-
-- Hawlitschek, A., Berndt, S., Dietrich, A. & Zug, S. (2020). *Iterative Adaption eines Remote-Labors unter Berücksichtigung des Feedbacks der Studierenden*. In C. Terkowsky et al. (Hrsg.). *Labore in der Hochschullehre: Labordidaktik, Digitalisierung, Organisation*. wbv-Media.
-- Hawlitschek, A., Köppen, V., Dietrich, A., & Zug, S. (2019). *Drop-out in programming courses – prediction and prevention*. *Journal of Applied Research in Higher Education*, 12(1), 124-136. [https://doi.org/10.1108/JARHE-02-2019-0035](https://doi.org/10.1108/JARHE-02-2019-0035)
-- Hawlitschek, A., Krenz, T., & Zug, S. (2019). *When students get stuck: Adaptive remote labs as a way to support students in practical engineering education*. In D. Ifenthaler, D.-K. Mah, & J. Y.-K, Yau (Hrsg.). *Utilizing Learning Analytics to Support Study Success* (pp. 73-88), New York: Springer. [https://doi.org/10.1007/978-3-319-64792-0_5](https://doi.org/10.1007/978-3-319-64792-0_5)
-
-### Weitere Links
-
-- **LiaScript YouTube-Kanal:** [https://www.youtube.com/@liascript4180](https://www.youtube.com/@liascript4180)
-- **LiaScript Dokumentation:** [https://liascript.github.io/course/?https://raw.githubusercontent.com/liaScript/docs/master/README.md](https://liascript.github.io/course/?https://raw.githubusercontent.com/liaScript/docs/master/README.md)
-
----
 
 ## Nächste Schritte
 
     --{{0}}--
 Nach dieser Vorstellung starten wir in Session eins mit der eigentlichen Vorlesung.
-
-      {{0}}
-<div>
 
 **Session 1 Vorschau:**
 
@@ -732,8 +712,5 @@ Nach dieser Vorstellung starten wir in Session eins mit der eigentlichen Vorlesu
 
 > **Bereit für die Reise?** Lassen Sie uns gemeinsam Datenbanken "unlocken"! 🎓
 
-</div>
-
----
 
 *Willkommen zur Vorlesung "Databases Unlocked: A Beginner's Journey"!* 🚀
