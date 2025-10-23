@@ -28,59 +28,55 @@ Willkommen zu "Databases Unlocked" – einer strukturierten Reise durch die Evol
 </section>
 
     --{{1}}--
-Lassen Sie uns die Reise durch die Datenspeicher-Paradigmen skizzieren – von primitiv bis hochentwickelt. Wir durchlaufen acht Blöcke, wobei jeder Block auf den Schwächen des vorherigen aufbaut. Block 1 und 2 zeigen uns die rohe Realität: CSV-Dateien sind einfach, aber fehleranfällig. Key-Value Stores lösen das Zugriffsproblem, schaffen aber neue Limitationen. In Block 3 und 4 erkunden wir die Flexibilität von Document Stores und die analytische Power von Column Stores. Die Blöcke 5 und 6 bringen uns zur formalen Integrität relationaler Systeme, während Block 7 und 8 Semantik und Verteilung hinzufügen.
+Lassen Sie uns die Reise durch die Datenspeicher-Paradigmen skizzieren – von primitiv bis hochentwickelt. Wir durchlaufen sieben Blöcke, wobei jeder Block auf den Schwächen des vorherigen aufbaut. Block 1 zeigt uns die rohe Realität: Serialisierungsformate sind einfach, aber fehleranfällig. Die Blöcke 2 bis 6 führen uns durch verschiedene Paradigmen – vom kompakten Paradigmen-Überblick über den relationalen Kern (Algebra, SQL, Performance) bis zu fortgeschrittenen Konzepten. Block 7 vereint schließlich Graph-Datenbanken und polyglotte Architekturen mit verteilten Systemen.
 
     {{1}}
 <section>
 
 ## 🗺️ Unsere Reise durch die Datenspeicher-Evolution
 
-**Block 1-2: Die rohe Realität**
+**Block 1: Die rohe Realität**
 
-- 📄 **Rohdaten & Serialisierung** ← *Heute*
-- 🔑 **Key-Value Speicher** (gezielter Zugriff)
+- 📄 **Daten & Serialisierung** ← *Heute: L1*
+- �️ **Paradigmen-Überblick** (L2–L6: KV, Document, Wide Column, Column, Trade-offs)
 
-**Block 3-4: Flexibilität vs. Analyse**  
+**Block 2: Relationale Grundlagen**
 
-- 📋 **Document Stores** (Schema-freie Flexibilität)
-- 📊 **Column Stores** (analytische Effizienz)
+- 🏛️ **Relationale Algebra & SQL Basics** (L7–L9 + Exercises)
+- 📐 **FROM σ, π, ⨝ TO SELECT, JOIN, CTE**
 
-**Block 5-6: Formale Integrität**
+**Block 3: Relationale Integrität**
 
-- 🏛️ **Relationale Datenbanken** (ACID & SQL)
-- ⚡ **Performance & Indexierung**
+- � **Normalisierung & Constraints** (L10–L11)
+- ⚛️ **Transaktionen & ACID** (L12 + Exercise)
 
-**Block 7-8: Semantik & Verteilung**
+**Block 4: Performance & Optimierung**
 
-- 🕸️ **Graph-Datenbanken** (Beziehungstiefe)
-- 🌐 **Verteilte Systeme** (CAP, Replikation, Sharding)
+- ⚡ **Indexe & Query-Optimierung** (L13–L15 + Exercise)
+- 📊 **B-Trees, EXPLAIN, Materialized Views**
+
+**Block 5: Fortgeschrittene Konzepte**
+
+- 🔄 **Locking vs. MVCC** (L16)
+- � **Views, Triggers, Stored Procedures** (L17)
+
+**Block 6: Graph & Polyglot**
+
+- 🕸️ **Graph Databases** (L18 + Exercise)
+- 🎯 **Property Graphs, Traversal, Pattern Matching**
+
+**Block 7: Polyglot & Verteilung**
+
+- 🌐 **Polyglot Persistence** (L19: CQRS, Event Sourcing)
+- ☁️ **Verteilte Systeme** (L20–L21: Replikation, CAP, Konsistenz)
 
 </section>
+
 
     --{{2}}--
-Unser didaktischer Ansatz ist anders: Statt isolierter Kapitel arbeiten wir mit Vergleichsachsen, die wir kontinuierlich verfeinern. Diese fünf Achsen sind Ihr analytisches Werkzeug für die gesamte Vorlesung. Strukturgrad fragt: Wie viel Flexibilität vs. Ordnung bietet das System? Integrität untersucht: Welche Konsistenzgarantien erhalten Sie? Konfliktpotenzial analysiert: Was passiert bei konkurrierenden Zugriffen? Ausdrucksstärke bewertet: Wie mächtig sind die Abfragesprachen? Und das Performanceprofil zeigt: Wo glänzt das System, wo schwächelt es? Mit diesen Achsen werden Sie nie wieder "MongoDB ist webscale" akzeptieren – Sie fragen stattdessen: "Auf welchen Achsen ist es überlegen, wo schwach?"
-
-    {{2}}
-<section>
-
-## 🎯 Unser Vergleichsachsen-Ansatz
-
-Jede neue Technologie bewerten wir entlang dieser **5 Achsen**:
-
-1. **Strukturgrad** – Wie rigide ist das Datenmodell?
-2. **Integrität** – Welche Konsistenzgarantien gibt es?
-3. **Konfliktpotenzial** – Wie gut skaliert das System?
-4. **Ausdrucksstärke** – Wie flexibel sind die Abfragen?
-5. **Performanceprofil** – Wo liegen die Stärken/Schwächen?
-
-**Ziel:** Sie lernen **funktionale Einordnung** statt Auswendiglernen von Buzzwords!
-
-</section>
-
-    --{{3}}--
 Begleitend durchlaufen Sie ein Mini-Projekt mit dokumentierten Designentscheidungen – von rohen CSV-Dateien bis zur polyglotten Architektur. Diese vier Meilensteine sind keine theoretischen Übungen, sondern praktische Erfahrungen mit echten Trade-offs. Meilenstein 1 konfrontiert Sie mit den Limitationen flacher Dateien. Meilenstein 2 zwingt Sie zur Schema-Evolution – was passiert, wenn sich Anforderungen ändern? Meilenstein 3 bringt Performance ins Spiel: Wann lohnt sich ein Index wirklich? Und Meilenstein 4 stellt die große Frage: Wann rechtfertigt Normalisierung ihren Aufwand? Die Micro-Consistency Checks sind Ihre Reflexionsmomente – explizite Pausen, um Ihr mentales Modell zu kalibrieren.
 
-    {{3}}
+    {{2}}
 <section>
 
 ## 🛠️ Hands-on: Mini-Projekt & Reflexion
@@ -97,15 +93,13 @@ Plus **Micro-Consistency Checks** nach jedem Block:
 
 </section>
 
-    --{{4}}--
-Am Ende verfügen Sie über ein begründbares Entscheidungsrepertoire: Sie können Anwendungsfälle auf Paradigmen abbilden, Trade-offs artikulieren und Risiken antizipieren. Das ist der Unterschied zwischen einem SQL-Kurs und einem Architektur-Kompass. Ein SQL-Kurs lehrt Syntax – "SELECT * FROM table". Ein Architektur-Kompass lehrt Entscheidungsfindung: "Für Session-Storage brauche ich O(1) Zugriff und TTL-Support – also Key-Value. Für Beziehungsanalyse brauche ich Traversierung – also Graph. Für Reportings brauche ich Aggregationen über Millionen Zeilen – also Column Store." Sie lernen nicht nur Tools, sondern wann und warum Sie sie einsetzen. Das ist polyglotte Denkweise: das richtige Werkzeug für den richtigen Job.
+    --{{3}}--
+Am Ende verfügen Sie über ein begründbares Entscheidungsrepertoire: Sie können Anwendungsfälle auf Paradigmen abbilden, Trade-offs artikulieren und Risiken antizipieren. Das ist der Unterschied zwischen einem SQL-Kurs und einem Architektur-Kompass. Ein SQL-Kurs lehrt Syntax – `SELECT * FROM table`. Ein Architektur-Kompass lehrt Entscheidungsfindung: "Für Session-Storage brauche ich $O(1)$ Zugriff und TTL-Support – also Key-Value. Für Beziehungsanalyse brauche ich Traversierung – also Graph. Für Reportings brauche ich Aggregationen über Millionen Zeilen – also Column Store." Sie lernen nicht nur Tools, sondern wann und warum Sie sie einsetzen. Das ist polyglotte Denkweise: das richtige Werkzeug für den richtigen Job.
 
-    {{4}}
+    {{3}}
 <section>
 
 ## 🧭 Ihr Kompass für datengetriebene Architektur
-
-**Diese Vorlesung ist weniger "SQL-Kurs" und mehr:**
 
 - ✅ **Trade-off Verständnis:** Wann nutze ich was?
 - ✅ **Risiko-Antizipation:** Schema Drift, Lock Contention, Replikationsverzögerung
@@ -217,9 +211,11 @@ Weisheit ist angewandtes Wissen für Entscheidungen. Alle Informationen über de
 └─────────────────────────────────────────┘
 ```
 
-"Würde ich mit diesem Typen das Pferd stehlen?" → __NEIN__
-"Würde ich ihn in meinem Team haben wollen?" → __DEFINITIV JA__
-"Würde ich ihm widersprechen?" → __Nur sehr höflich__
+{{6}} "Würde ich mit diesem Typen das Pferd stehlen?" → {7}{__NEIN__}
+
+{{8}} "Würde ich ihn in meinem Team haben wollen?" → {9}{__DEFINITIV JA__}
+
+{{10}} "Würde ich ihm widersprechen?" → {11}{__Nur sehr höflich__}
 
 </section>
 
@@ -276,7 +272,7 @@ Lassen Sie uns jede Ebene mit ihren Datenbank-Entsprechungen verstehen. Die Basi
 </section>
 
     --{{3}}--
-Unser Federkopf-Beispiel durchläuft genau diese Stufen: Rohe Pixel werden zu kulturellen Codes, diese zu systematischem Verständnis, und schließlich zu der weisen Entscheidung: "Besser nicht ärgern!" Jede Datenbank-Anwendung macht dieselbe Reise.
+Unser Indianer-Beispiel durchläuft genau diese Stufen: Rohe Pixel werden zu kulturellen Codes, diese zu systematischem Verständnis, und schließlich zu der weisen Entscheidung: "Besser nicht ärgern!" Jede Datenbank-Anwendung macht dieselbe Reise.
 
 ## Datenorganisation – Die Ewige Suche nach Ordnung
 
@@ -506,9 +502,7 @@ Holleriths Innovation war die physische Standardisierung: Jede Karte hatte exakt
 **Problem gelöst:** ✅ Maschinelle Auswertung, ❌ Schema-Flexibilität
 
 ```ascii
-
      🕳️  HOLLERITH CENSUS CARD (1890)
-
 ┌─────────────────────────────────────────┐
 │ Col 1-2: AGE     [●●]   = 42 Jahre      │
 │ Col 3:   SEX     [●]    = Male          │
@@ -517,9 +511,9 @@ Holleriths Innovation war die physische Standardisierung: Jede Karte hatte exakt
 │ Col 7-8: OCCUP   [●●]   = Farmer        │
 │ Col 9:   LITERATE[●]    = Can Read      │
 │ Col 10:  CITIZEN [●]    = Native Born   │
-│ ───────────────────────────────────────  │
+│ ─────────────────────────────────────── │
 │ 80 Spalten, fixes Format, Maschine liest│
-│ 500 Karten/Minute! (vs. Jahre manuell) │
+│ 500 Karten/Minute! (vs. Jahre manuell)  │
 └─────────────────────────────────────────┘
 ```
 
@@ -833,25 +827,6 @@ dev.off()
 
 </section>
 
-    --{{7}}--
-Jetzt bewerten wir CSV entlang unserer fünf Vergleichsachsen. Das wird später unser Benchmark für alle anderen Formate. CSV ist minimal strukturiert, bietet null Integrität, skaliert schlecht bei Konflikten, hat schwache Ausdruckskraft, aber ein interessantes Performanceprofil.
-
-    {{7}}
-<section>
-
-### 📊 CSV auf unseren 5 Vergleichsachsen
-
-| **Achse**             | **Bewertung**       | **Begründung**                                     |
-| --------------------- | ------------------- | -------------------------------------------------- |
-| **Strukturgrad**      | ⭐⭐ (Minimal)      | Flache Tabelle, keine Verschachtelung, no Schema   |
-| **Integrität**        | ⭐ (Praktisch null) | Keine Typen, keine Constraints, silent fails       |
-| **Konfliktpotenzial** | ⭐⭐⭐ (Mittel)     | File-Locking, aber keine Merge-Unterstützung       |
-| **Ausdrucksstärke**   | ⭐⭐ (Begrenzt)     | Nur SELECT-ähnlich, keine Joins, keine Aggregation |
-| **Performance**       | ⭐⭐⭐⭐ (Stark)    | Sequentieller Scan sehr schnell, kompakt           |
-
-> **CSV-Fazit:** Perfekt für **Datenexport/Datenaustausch**, katastrophal für **Datenhaltung**
-
-</section>
 
     --{{8}}--
 Zum Abschluss: CSV ist wie ein Schraubendreher - für manche Aufgaben perfekt, für andere völlig ungeeignet. Nutzen Sie es für Datenexporte, ETL-Zwischenschritte und schnelle Analysen. Aber bauen Sie nie eine Anwendung darauf auf. In der nächsten Session sehen wir, wie JSON versucht, CSVs Schwächen zu beheben.
@@ -1520,25 +1495,6 @@ return
 
 </section>
 
-    --{{7}}--
-Zeit für unsere Vergleichsachsen! XML bekommt Bestnoten bei Strukturgrad und Integrität - es war dafür gebaut. Aber Performance und praktische Nutzbarkeit leiden massiv. Das ist die XML-Tragödie: Technisch brillant, praktisch hinderlich.
-
-    {{7}}
-<section>
-
-### 📊 XML auf unseren 5 Vergleichsachsen
-
-| **Achse**             | **Bewertung**        | **Begründung**                              |
-| --------------------- | -------------------- | ------------------------------------------- |
-| **Strukturgrad**      | ⭐⭐⭐⭐⭐ (Maximal) | Hierarchie, Namespaces, strikte Validierung |
-| **Integrität**        | ⭐⭐⭐⭐ (Sehr gut)  | Schema-Validierung (XSD), Typsicherheit     |
-| **Konfliktpotenzial** | ⭐⭐ (Wie CSV)       | File-Locking, keine Merge-Unterstützung     |
-| **Ausdrucksstärke**   | ⭐⭐⭐⭐ (Sehr gut)  | XPath/XQuery sehr mächtig                   |
-| **Performance**       | ⭐⭐ (Schwach)       | Parsing teuer, 3-6x Overhead, verbose       |
-
-> **XML-Fazit:** Perfekt für **formale Dokumente & Validation**, katastrophal für **APIs & Performance**
-
-</section>
 
     --{{8}}--
 Warum existiert XML noch? Legacy! SOAP-APIs aus den 2000ern, Microsoft Office-Formate, SVG-Grafiken, RSS-Feeds - überall wo Kompatibilität wichtiger ist als Effizienz. Aber neue Projekte? Die starten mit JSON, nicht XML. Das ist die Lektion: Perfektion ist der Feind des Guten.
@@ -1808,34 +1764,6 @@ parsed = json.loads(json_str)
 
 </section>
 
-    --{{5}}--
-Lassen Sie uns JSON auf unseren fünf Vergleichsachsen bewerten. Strukturgrad: Drei Sterne - flexibler als XML, strukturierter als CSV. Integrität: Nur zwei Sterne - JSON hat keine Schemas im Standard, aber JSON Schema existiert als Add-on. Konfliktpotenzial: Drei Sterne - besser als XML durch kleinere Payloads, aber nicht so schlank wie CSV. Ausdrucksstärke: Vier Sterne - Verschachtelung, Arrays, verschiedene Typen. Performance: Vier Sterne - schnelles Parsing, kompakte Size.
-
-    {{5}}
-<section>
-
-### 📊 JSON auf den 5 Vergleichsachsen
-
-| Achse | Bewertung | Begründung |
-|-------|-----------|------------|
-| **1. Strukturgrad** | ⭐⭐⭐ | Flexibel: Verschachtelung + Arrays, aber kein Zwangs-Schema |
-| **2. Integrität** | ⭐⭐ | Keine native Schema-Validierung (nur JSON Schema als Add-on) |
-| **3. Konfliktpotenzial** | ⭐⭐⭐ | Kompakter als XML (3x Overhead vs. 6x), besseres Merge-Verhalten |
-| **4. Ausdrucksstärke** | ⭐⭐⭐⭐ | Arrays, Objekte, Nesting - aber keine Dates, keine Refs |
-| **5. Performanceprofil** | ⭐⭐⭐⭐ | Schnelles Parsing (10-50x schneller als XML), moderate Size |
-
-**JSON-Profil:** Der **pragmatische Allrounder** 🎯
-
-- Nicht perfekt (keine Schemas, keine Dates)
-- Aber **gut genug für 95% der Fälle**
-- Das ist der Sweet Spot: Einfach, schnell, flexibel
-
-**Vergleich:**
-- CSV: Zu simpel (keine Struktur)
-- JSON: Genau richtig (Struktur ohne Overhead)
-- XML: Zu komplex (Bürokratie-Overhead)
-
-</section>
 
     --{{6}}--
 Die JSON-Erfolgsformel in einem Satz: Es ist einfach genug, dass Sie es in 5 Minuten lernen, aber mächtig genug für komplexe APIs. Kein Zufall, dass REST-APIs JSON nutzen, nicht XML. Developer Experience schlägt formale Perfektion - das ist die Lektion!
