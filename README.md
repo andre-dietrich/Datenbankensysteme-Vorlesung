@@ -12,7 +12,7 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 **Kurs-Highlights:**
 
 - Einstieg über Dateiformate wie CSV, JSON, YAML
-- Moderne Paradigmen: Key-Value, Document, ()Column Stores
+- Moderne Paradigmen: Key-Value, Document, (Wide) Column Stores
 - Hauptfokus: Relationale Datenbanken & SQL
 - Hands-on-Beispiele direkt im Browser (DuckDB-Wasm, SQLite-Wasm, IndexedDB, PouchDB)
 - Bachelor-Studierende Informatik (3.–5. Semester)

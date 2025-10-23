@@ -163,7 +163,7 @@ Sie haben vermutlich Federn gezählt, Farben benannt, Materialien identifiziert.
     --{{3}}--
 Informationen entstehen, wenn wir Daten Kontext und Bedeutung geben. Die sieben Adlerfedern sind nicht nur "sieben gelbe Objekte" – sie sind kodierte Nachrichten mit spezifischer kultureller Bedeutung. In Datenbanken entspricht das der semantischen Ebene: Ein Feld "salary" mit Wert "50000" wird zur Information "Jahresgehalt: 50.000 Euro". Schauen Sie, wie sich rohe Beobachtungen in bedeutungsvolle Nachrichten verwandeln:
 
-Moment mal, was bedeutet das alles?
+__Moment mal, was bedeutet das alles?__
 
 - **Adlerfeder aufrecht:** Tapferkeit im Kampf (eine Feder je getötetem Feind)
 - **Falkenfeder schräg-links + rot:** Geschicklichkeit und Schnelligkeit (eine Feder je erfolgreichem Überraschungsangriff)
@@ -211,7 +211,7 @@ Weisheit ist angewandtes Wissen für Entscheidungen. Alle Informationen über de
 └─────────────────────────────────────────┘
 ```
 
-{{6}} "Würde ich mit diesem Typen das Pferd stehlen?" → {7}{__NEIN__}
+{{6}} "Würde ich diesem Typen das Pferd stehlen?" → {7}{__NEIN__}
 
 {{8}} "Würde ich ihn in meinem Team haben wollen?" → {9}{__DEFINITIV JA__}
 
@@ -534,73 +534,16 @@ Und damit schließt sich der Kreis zu unserem Eingangsbild: Edgar Codds "revolut
     --{{13}}--
 Schauen Sie zurück auf unsere Zeitreise: Jedes "neue" Datenbankkonzept hat historische Wurzeln. Append-Only Logs? Schiffstagebücher. ACID-Transaktionen? Doppelte Buchführung. Sekundärindizes? Katalogkarten. Die Innovation liegt nicht in der Erfindung neuer Prinzipien – sondern in deren maschineller Perfektionierung.
 
-      {{13}}
-<div>
-
-**Die Evolutionskette der Datenorganisation:**
-
-```ascii
-📜 Tontafeln → 📚 Doppelte Buchführung → ⚓ Logbücher
-      ↓              ↓                    ↓
-  Audit Trail   ACID-Transaktionen   Write-Ahead Log
-      ↓              ↓                    ↓
-🗂️ Katalogkarten → 🕳️ Lochkarten → 💾 Relationale DB
-      ↓              ↓                    ↓
- Sekundärindizes  Schema-Zwang     SQL & Flexibilität
-      ↓              ↓                    ↓
-📊 NoSQL (2000+) → ☁️ Cloud (2010+) → 🤖 AI-DB (2020+)
-      ↓              ↓                    ↓
-Spezialisierung  Elastic Scale    Autonomous Tuning
-```
-
-</div>
+![Codd Poesiealbum](../assets/img/codd-album-1970.jpg "Abb.: E. F. Codds Freundschaftsalbum-Eintrag 1970 – Relationale Datenbank -- erstellt mit ChatGPT")
 
 </section>
 
-## Wiederkehrende historische Anker für die Vorlesung
-
-    --{{14}}--
-Diese historischen Referenzen sind nicht nur interessante Anekdoten – sie werden uns als mentale Anker durch die gesamte Vorlesung begleiten. Wenn ich in Session 15 über komplexe ACID-Transaktionen spreche, werden Sie an Paciolis elegante Soll-Haben-Balance denken. Bei Performance-Optimierung in Session 16 erinnern Sie sich an die Yale-Bibliothek und ihre Millionen perfekt sortierter Karteikarten.
-
-    {{14-15}}
-<section>
-
-| **Session** | **Thema** | **Historischer Anker** | **Verbindung** |
-|-------------|-----------|------------------------|----------------|
-| **L15** | ACID-Transaktionen | Paciolis doppelte Buchführung | Invarianten-Prinzip |
-| **L16** | Indizes & Performance | Yale-Bibliotheks-Katalog | O(log n) Zugriff |
-| **L22** | Replikation & CAP | Schiffstagebuch-Chronologie | Append-Only Robustheit |
-
-</section>
-
-    --{{15}}--
-Und hier ist Ihre erste Reflexionsaufgabe für heute: Schauen Sie um sich – welche analoge Praxis nutzen Sie aktuell, die bereits ein später formalisiertes Datenbankpattern verkörpert? Ihre Excel-Tabelle mit mehreren Sheets? Ihr Notizbuch mit Index? Ihr Datei-Ordnungssystem? Notieren Sie sich das – wir werden in Session 3 darauf zurückkommen!
-
-    {{15}}
-<section>
-
-### 💭 Reflexionsimpuls für heute
-
-> **Ihre Aufgabe:** Welche analoge Praxis nutzen Sie aktuell (Papier, Whiteboard, Excel), die bereits ein später formalisiertes Datenbankpattern verkörpert?
-
-**Beispiele zur Inspiration:**
-
-- 📋 To-Do Listen mit Prioritäten = Indexierung
-- 📁 Ordnerstrukturen mit Shortcuts = Foreign Keys  
-- 📝 Versionierte Dokumente = Audit Trail
-- 🔄 Regelmäßige Backups = Replikation
-
-*Notieren Sie Ihre Beobachtung – wir greifen sie in Session L3 (Matrix-Update) wieder auf!*
-
-</section>
-
-## Nächste Session: Von der Geschichte zur Praxis
+## Datenformate im Vergleich: CSV, JSON, XML & Co.
 
     --{{0}}--
 Wir haben die historischen Grundlagen gelegt – jetzt wird es praktisch! In der nächsten Session nehmen wir uns reale Datenformate vor und sehen, wo sie uns im Stich lassen. CSV, JSON, XML – jedes Format hat seine Berechtigung, aber auch seine Tücken.
 
-## Datenformate im Vergleich: CSV, JSON, XML & Co.
-
+![](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzc2Y2gxMjc5ZWJlaGp2bjE4bTNqNmV0eHg4MW5ueGo2NzU5bWU3NCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT9C25UNTwfZuk85WP/giphy.gif)<!-- style="width: 100%" -->
 
 
 ### CSV - Das trojanische Pferd der Datenformate 🐴
@@ -1627,6 +1570,7 @@ PassengerId,Survived,Pclass,Name,Sex,Age,Fare,Cabin,Embarked
 ```
 
 **JSON (strukturiert, lesbar):**
+
 ```json
 {
   "passengerId": 2,
@@ -1652,6 +1596,7 @@ PassengerId,Survived,Pclass,Name,Sex,Age,Fare,Cabin,Embarked
 ```
 
 **XML (verbose, bürokratisch):**
+
 ```xml
 <passenger id="2">
   <survived>true</survived>
@@ -1679,6 +1624,7 @@ Ein kritischer Punkt: JSON hat keine Datumstypen! Das ist kein Fehler, sondern D
 ### ⚠️ JSON-Fallen: Was fehlt?
 
 **1. Keine Datumstypen:**
+
 ```json
 {
   "date": "2023-10-17",           // String, kein Date!
@@ -1688,6 +1634,7 @@ Ein kritischer Punkt: JSON hat keine Datumstypen! Das ist kein Fehler, sondern D
 ```
 
 **2. Keine Integer vs. Float Unterscheidung:**
+
 ```json
 {
   "integer": 42,      // Beides ist "number"
@@ -1697,6 +1644,7 @@ Ein kritischer Punkt: JSON hat keine Datumstypen! Das ist kein Fehler, sondern D
 ```
 
 **3. Keine Binärdaten:**
+
 ```json
 {
   "image": "base64encodedstring..."  // Muss als String kodiert werden
@@ -1704,6 +1652,7 @@ Ein kritischer Punkt: JSON hat keine Datumstypen! Das ist kein Fehler, sondern D
 ```
 
 **4. Keine Kommentare:**
+
 ```json
 {
   // "comment": "Das ist ein Error!"  ❌
@@ -1726,6 +1675,7 @@ Jetzt die gute Nachricht: JSON ist unglaublich praktisch in der Praxis. Jede mod
 ### ✅ JSON in der Praxis: Warum es dominiert
 
 **Native JavaScript-Integration:**
+
 ```javascript
 // JSON ist literale JavaScript-Syntax!
 const person = {
@@ -1736,10 +1686,17 @@ const person = {
 // Parsing & Serialisierung built-in
 const jsonString = JSON.stringify(person);
 const parsed = JSON.parse(jsonString);
+
+console.log(jsonString);
 ```
+<script>
+@input
+""
+</script>
 
 **Python (near-native):**
-```python
+
+```python @PyScript.repl
 import json
 
 # Dict → JSON
@@ -1748,6 +1705,8 @@ json_str = json.dumps(data)
 
 # JSON → Dict  
 parsed = json.loads(json_str)
+
+print(json_str)
 ```
 
 **REST-APIs Standard:**
@@ -1854,7 +1813,7 @@ fetch('https://restcountries.com/v3.1/name/germany')
 </script>
 
 
-#### YAML - JSON für Menschen 📝
+### YAML - JSON für Menschen 📝
 
     --{{0}}--
 YAML - YAML Ain't Markup Language - ist JSONs menschenfreundlicher Cousin. Es wurde 2001 entwickelt, kurz nach JSON, mit einem klaren Ziel: Konfigurationsdateien, die Menschen gerne schreiben. Weniger Syntax-Noise, mehr Lesbarkeit. Docker Compose, Kubernetes, GitHub Actions - überall wo Konfiguration king ist, finden Sie YAML.
@@ -2083,15 +2042,6 @@ YAML und JSON koexistieren, weil sie **unterschiedliche Probleme** lösen!
 </section>
 
 
-## Fazit
-
-
-
-
-
-
-
-
 ## 🎯 Fazit & Ausblick: Von Rohdaten zu strukturierten Systemen
 
     --{{0}}--
@@ -2121,17 +2071,6 @@ Lassen Sie uns die Reise zusammenfassen. Wir haben heute die Grundlagen gelegt -
 
 → Keine Konzepte sind wirklich neu - nur automatisiert!
 
-**3. Die 5 Vergleichsachsen - Ihr Analyse-Werkzeug:**
-
-| Achse | Frage | Beispiel |
-|-------|-------|----------|
-| **Strukturgrad** | Wie rigide ist das Modell? | CSV ⭐⭐ vs. XML ⭐⭐⭐⭐⭐ |
-| **Integrität** | Welche Garantien gibt es? | CSV ⭐ vs. XML ⭐⭐⭐⭐ |
-| **Konfliktpotenzial** | Wie skaliert Concurrency? | CSV ⭐⭐⭐ vs. JSON ⭐⭐⭐ |
-| **Ausdrucksstärke** | Welche Queries sind möglich? | CSV ⭐⭐ vs. XML ⭐⭐⭐⭐ |
-| **Performanceprofil** | Read/Write/Storage? | CSV ⭐⭐⭐⭐ vs. XML ⭐⭐ |
-
-→ Diese Matrix wird uns durch alle 22 Sessions begleiten!
 
 **4. Datenformate und ihre Trade-offs:**
 
@@ -2205,20 +2144,6 @@ Keine Persistierung     → Write-Ahead-Log
 Linear Scan             → Direkt-Zugriff
 ```
 
-**Was Sie in L2 erwartet:**
-
-- ⚡ **Redis Deep-Dive:** In-Memory Key-Value mit Persistierung
-- 🔑 **Hash-Maps verstehen:** Warum O(1) magisch ist
-- 💾 **Persistierung:** Wie Memory → Disk funktioniert
-- 🔒 **Transaktionen:** MULTI/EXEC in Redis
-- 📊 **5-Achsen-Bewertung:** Wo steht Key-Value?
-
-**Die Frage für L2:**
-
-> "Key-Value ist schnell und einfach - aber kann ich eine E-Commerce-App NUR mit Redis bauen?"
-
-(Spoiler: Nein. Und wir werden genau verstehen warum!)
-
 </section>
 
     --{{3}}--
@@ -2237,12 +2162,12 @@ Viele Datenbank-Kurse beginnen mit relationalen Systemen und SQL.\
 **Unser Ansatz:**
 
 ```
-Rohdaten (CSV)           → Verstehe das Problem
-Key-Value (Redis)        → Erste Lösung (schnell, simpel)
-Document (MongoDB)       → Zweite Lösung (flexibel)
-Column (Cassandra)       → Dritte Lösung (analytisch)
-Relational (PostgreSQL)  → Vierte Lösung (formal korrekt)
-Graph (Neo4j)            → Fünfte Lösung (semantisch)
+Rohdaten (CSV)                  → Verstehe das Problem
+Key-Value (Redis)               → Erste Lösung (schnell, simpel)
+Document (MongoDB)              → Zweite Lösung (flexibel)
+(Wide) Column (Cassandra)       → Dritte Lösung (analytisch)
+Relational (PostgreSQL)         → Vierte Lösung (formal korrekt)
+Graph (Neo4j)                   → Fünfte Lösung (semantisch)
 ```
 
 **Jedes System ist die Antwort auf die Schwächen des vorherigen!**
@@ -2250,68 +2175,7 @@ Graph (Neo4j)            → Fünfte Lösung (semantisch)
 **Die 5 Vergleichsachsen als Kompass:**
 
 - Sie haben jetzt ein **Werkzeug** zum Analysieren
-- In jeder Session: **Matrix erweitern** (L3, L6, L9, L12, L16, L18, L21)
 - Am Ende: **Vollständige Übersicht** aller Paradigmen
 - Ziel: **Entscheidungsfähigkeit**, keine Dogmen!
 
-**Professor Freinets Versprechen:**
-
-> Nach 22 Sessions können Sie jedes Datenbank-System in 10 Minuten einordnen:\
-> Strukturgrad? Integrität? Konfliktpotenzial? Ausdrucksstärke? Performance?\
-> → Sie denken wie ein Architekt, nicht wie ein Werkzeug-Fan!
-
 </section>
-
-    --{{4}}--
-Zum Abschluss: Nehmen Sie die Paradigmen-Matrix ernst! Wir aktualisieren sie in L3, L6, L9, L12, L16, L18 und L21. Das ist kein Formalismus - das ist Ihr Werkzeug zur Entscheidungsfindung. Wenn jemand sagt "MongoDB ist besser als PostgreSQL" - fragen Sie: Besser *wofür*? Entlang welcher Achse? Das ist funktionales Denken. Bis zur nächsten Session: Schauen Sie sich Redis an, experimentieren Sie mit redis-cli. Die nächste Evolutionsstufe wartet!
-
-    {{4}}
-<section>
-
-### ✅ Hausaufgabe bis Session L2
-
-**Vorbereitung auf Key-Value Stores:**
-
-1. **Installieren Sie Redis lokal:**
-
-   ```bash
-   # macOS
-   brew install redis
-   
-   # Linux
-   sudo apt-get install redis-server
-   
-   # Windows
-   # Download von https://redis.io/download
-   ```
-
-2. **Spielen Sie mit redis-cli:**
-
-   ```bash
-   redis-cli
-   > SET user:1 "Alice"
-   > GET user:1
-   > INCR counter
-   > KEYS *
-   ```
-
-3. **Fragen Sie sich:**
-
-   - Wie würde ich eine "Freundesliste" in Key-Value speichern?
-   - Was ist der Unterschied zwischen Redis und einer CSV-Datei?
-   - Warum ist `GET` in O(1), aber CSV-Suche in O(n)?
-
-**Reflexionsfragen:**
-
-- Welches Datenformat (CSV/JSON/XML/YAML) nutzen Sie aktuell am meisten? Warum?
-- Welche Schwächen haben Sie bei Datei-basierten Systemen erlebt?
-- Was erwarten Sie von Key-Value Stores?
-
-**Ressourcen:**
-
-- [Redis Dokumentation](https://redis.io/docs/)
-- [Try Redis Online](https://try.redis.io/)
-- [CSV vs. JSON vs. XML Performance Benchmark](https://github.com/benchmarks)
-
-</section>
-
