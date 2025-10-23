@@ -57,32 +57,30 @@ Willkommen zurück! Bevor wir in Key-Value Stores eintauchen, lasst uns kurz rek
 **Session 1 Recap**
 
 - ✅ **Rohdaten-Formate**: CSV, JSON, YAML, XML
-- ✅ **Ad-hoc Analysen**: DuckDB direkt auf CSV
-- ✅ **Problem erkannt**: Lineare Suche = O(n) Zeitkomplexität
+- ✅ **Ad-hoc Analysen**: Programmiersprachen direkt auf CSV
+- ✅ **Problem erkannt**: Lineare Suche = $O(n)$ Zeitkomplexität
 - ✅ **Inkonsistenzen**: Keine Validierung, keine Integrität
 
     --{{1}}--
 Wir haben gesehen, dass Dateien flexibel sind, aber bei strukturierten Zugriffen schnell an Grenzen stoßen. Heute schauen wir uns an, wie Key-Value Stores dieses Problem lösen.
 
     {{2}}
-> **Zentrale Frage aus Session 1**: Wie können wir schneller als O(n) auf Daten zugreifen?
+> **Zentrale Frage aus**: Wie können wir schneller als $O(n)$ auf Daten zugreifen?
 
-**Referenzen**
+    --{{2}}--
+Wie dargestellt, benötigen wir linearen Zeitaufwand, um in eine Datei nach einem Eintrag zu suchen zu durchsuchen. Wenn ihr noch nicht wisst, was $O(n)$ bedeutet, keine Sorge – wir werden das gleich im Detail besprechen!
 
-- Session 1 Materials: Daten & Serialisierung
-
----
 
 ## Das Problem: CSV-Suche ist langsam
 
     --{{0}}--
-Erinnert euch an unsere Produktdatenbank aus Session 1. Schauen wir uns an, was passiert, wenn wir ein einzelnes Produkt suchen müssen.
+Nehmen wir eine Produktdatenbank als Beispiel und schauen wir uns an, was passiert, wenn wir ein einzelnes Produkt suchen müssen.
 
     {{1}}
 **Szenario**: Wir haben eine [CSV-Datei mit Produkten](../assets/dat/products.csv) und wollen Details zu Produkt `P00567` finden.
 
     {{2}}
-@CSV(../assets/dat/products.csv)
+@CSV(https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv)
 
     --{{2}}--
 Eine typische Produkt-CSV mit ID, Name, Kategorie, Preis, Lagerbestand. Nichts Besonderes – aber schauen wir uns die Performance an!
@@ -139,10 +137,10 @@ execute();
 Probiert verschiedene Produkt-IDs aus! Beobachtet: Je weiter hinten das Produkt in der Datei steht, desto länger dauert die Suche. Im schlimmsten Fall müssen wir die gesamte Datei durchsuchen!
 
     {{4}}
-> **Problem**: Lineare Suche = **O(n) Zeitkomplexität**
+> **Problem**: Lineare Suche = **$O(n)$ Zeitkomplexität**
 > 
 > - 1\.000 Produkte? Noch ok (~1 Sekunde)
-> - 1\.000\.000 Produkte? **Nicht mehr praktikabel** (~17 Minuten!)
+> - 1\.000\.000 Produkte? **Nicht mehr praktikabel (\~17 Minuten)**
 > - **Skalierungsproblem**: Verdoppelung der Daten = Verdoppelung der Suchzeit
 
 ### Big-O Notation: Kurzer Exkurs
@@ -153,8 +151,10 @@ Big-O Notation ist eine mathematische Notation, die verwendet wird, um die Leist
     {{1}}
 **Alltags-Analogie: Bücher im Regal finden**
 
+    --{{1}}--
 Stellt euch vor, ihr sucht ein bestimmtes Buch in einem Regal:
 
+     {{1}}
 - **$O(1)$ – Konstant**: Ihr wisst genau, wo das Buch steht (Position 42). Egal ob 10 oder 10.000 Bücher im Regal – ihr greift direkt zu. **Wie ein Hash-Lookup!**
 
 - **$O(\log n)$ – Logarithmisch**: Die Bücher sind alphabetisch sortiert. Ihr schaut in die Mitte, wisst ob links oder rechts, halbiert wieder – wie beim Telefonbuch. Bei 1.000 Büchern nur ~10 Schritte!
@@ -172,7 +172,7 @@ Diese Analogie macht klar: Die Wahl der richtigen Datenstruktur und des richtige
     {{2}}
 **Visualisierung: Wachstum bei steigender Datenmenge**
 
-
+    {{2}}
 <script style='width: 100%; display: block; padding: 3rem'>
 // Big-O Complexity Chart mit ECharts
 const n = [100, 500, 1000, 5000, 10000];
@@ -286,25 +286,26 @@ const option = {
 
 
     --{{2}}--
-Seht ihr den Unterschied? O(1) bleibt flach – egal wie viele Daten. O(n²) explodiert förmlich! Das ist der Grund, warum Hash-Tables so wertvoll sind. Bewegt die Maus über die Linien, um die genauen Werte zu sehen!
+Seht ihr den Unterschied? $O(1)$ bleibt flach – egal wie viele Daten. $O(n^2)$ explodiert förmlich! Das ist der Grund, warum Hash-Tables so wertvoll sind. Bewegt die Maus über die Linien, um die genauen Werte zu sehen!
 
     {{3}}
 **Die häufigsten Big-O-Klassen im Überblick**
 
-| Komplexität    | Name           | Beispiel                            | 100 Elemente | 1.000 Elemente | 1.000.000 Elemente |
-| -------------- | -------------- | ----------------------------------- | -----------: | -------------: | -----------------: |
-| **O(1)**       | Konstant       | Hash-Lookup, Array[index]           |         1 ms |           1 ms |               1 ms |
-| **O(log n)**   | Logarithmisch  | Binäre Suche, Baum-Traversierung    |       \~7 ms |        \~10 ms |            \~20 ms |
-| **O(n)**       | Linear         | Array durchsuchen, CSV scannen      |       100 ms |            1 s |           \~17 min |
-| **O(n log n)** | Linearithmisch | Gute Sortieralgorithmen (Mergesort) |     \~700 ms |         \~10 s |              \~6 h |
-| **O(n²)**      | Quadratisch    | Nested Loops, Bubble Sort           |         10 s |       \~17 min |        \~32 Jahre! |
+| Komplexität       | Name           | Beispiel                            | 100 Elemente | 1.000 Elemente | 1.000.000 Elemente |
+| ----------------- | -------------- | ----------------------------------- | -----------: | -------------: | -----------------: |
+| **$O(1)$**        | Konstant       | Hash-Lookup, Array[index]           |         1 ms |           1 ms |               1 ms |
+| **$O(\log n)$**    | Logarithmisch  | Binäre Suche, Baum-Traversierung    |       \~7 ms |        \~10 ms |            \~20 ms |
+| **$O(n)$**        | Linear         | Array durchsuchen, CSV scannen      |       100 ms |            1 s |           \~17 min |
+| **$O(n \log n)$** | Linearithmisch | Gute Sortieralgorithmen (Mergesort) |     \~700 ms |         \~10 s |              \~6 h |
+| **$O(n^2)$**      | Quadratisch    | Nested Loops, Bubble Sort           |         10 s |       \~17 min |        \~32 Jahre! |
 
     --{{3}}--
-Diese Tabelle zeigt: Ab einer bestimmten Datenmenge wird der Algorithmus zum Flaschenhals. O(n²) ist bei 1 Million Elementen praktisch unbenutzbar!
+Diese Tabelle zeigt: Ab einer bestimmten Datenmenge wird der Algorithmus zum Flaschenhals. $O(n^2)$ ist bei 1 Million Elementen praktisch unbenutzbar!
 
     {{4}}
 **Konkrete Code-Beispiele**
 
+    {{4}}
 ```js
 // O(1) - Konstant: Direkter Zugriff
 const product = db["P00567"];  // Immer gleich schnell!
@@ -344,12 +345,9 @@ Der Code macht den Unterschied deutlich: Ein Hash-Lookup ist eine einzige Zeile.
 > - **Akzeptabel**: $O(n)$, $O(n \log n)$
 > - **Problematisch**: $O(n^2)$, $O(2^n)$, $O(n!)$
 
-**Referenzen**
 
-- Big-O Cheat Sheet: [https://www.bigocheatsheet.com/](https://www.bigocheatsheet.com/)
-- *Introduction to Algorithms* (Cormen, Leiserson, Rivest, Stein – "CLRS"), Chapter 3
-
----
+    {{6}}
+Big-O Cheat Sheet: [https://www.bigocheatsheet.com/](https://www.bigocheatsheet.com/)
 
 ## Die Lösung: Hash-basierter Index (Key-Value!)
 
@@ -359,6 +357,7 @@ Jetzt kommt der Aha-Moment: Was wäre, wenn wir die CSV einmal einlesen, aber da
     {{1}}
 **Optimierte Implementierung: Hash-Lookup**
 
+    {{1}}
 ```js
 const response = await fetch("https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv");
 const text = await response.text();
@@ -372,8 +371,9 @@ rows.forEach((row) => {
 
 function searchProductById(productId) {
   const start = performance.now();
-  
+
   // O(1) Lookup! 🚀
+  sleep(1); // Simuliere minimale Latenz
   const product = db[productId];
   
   const end = performance.now();
@@ -416,10 +416,10 @@ Boom! Von mehreren Sekunden auf unter 1 Millisekunde! Der Index macht den Unters
     {{2}}
 **Performance-Vergleich**
 
-| Methode         | Zeitkomplexität | 1.000 Produkte | 1.000.000 Produkte |
-| --------------- | --------------- | -------------- | ------------------ |
-| Lineare Suche   | O(n)            | ~1 s           | ~17 min            |
-| Hash-Lookup     | **O(1)**        | **< 1 ms**     | **< 1 ms**         |
+| Methode       | Zeitkomplexität | 1.000 Produkte      | 1.000.000 Produkte  |
+| ------------- | --------------- | ------------------- | ------------------- |
+| Lineare Suche | $O(n)$          | $~1 \text{s}$       | $~17 \text{min}$    |
+| Hash-Lookup   | $O(1)$          | **$< 1 \text{ms}$** | **$< 1 \text{ms}$** |
 
     --{{2}}--
 Das ist die Superkraft von Key-Value: Konstante Zugriffszeit, egal wie viele Daten ihr habt!
@@ -432,6 +432,7 @@ Aber wie kann ein Hash-basierter Index so schnell sein? Die Antwort: Hash-Funkti
     {{1}}
 **Das Prinzip: Von Key zu Array-Index**
 
+    {{1}}
 ```mermaid   @mermaid
 graph TD
     A["🔑 Key: 'P00567'"] --> B["⚙️ Hash-Funktion<br/>hash('P00567')"]
@@ -447,11 +448,12 @@ graph TD
 ```
 
     --{{1}}--
-Eine Hash-Funktion nimmt einen beliebigen Key (String, Number) und berechnet daraus eine Zahl – den Hash-Code. Diese Zahl wird als Array-Index verwendet. Direkter Array-Zugriff ist O(1)!
+Eine Hash-Funktion nimmt einen beliebigen Key (String, Number) und berechnet daraus eine Zahl – den Hash-Code. Diese Zahl wird als Array-Index verwendet. Direkter Array-Zugriff ist $O(1)$!
 
     {{2}}
 **Schritt-für-Schritt: Einfache Hash-Table Implementation**
 
+    {{2}}
 ```js
 // Vereinfachte Hash-Table (zum Verständnis)
 class SimpleHashTable {
@@ -517,11 +519,12 @@ send.handle("input", input => {
 </script>
 
     --{{2}}--
-Seht ihr? Die Hash-Funktion berechnet aus dem Key einen Index. Dann greifen wir direkt auf `buckets[index]` zu – O(1)! Das ist die Magie hinter Hash-Tables.
+Seht ihr? Die Hash-Funktion berechnet aus dem Key einen Index. Dann greifen wir direkt auf `buckets[index]` zu – $O(1)$! Das ist die Magie hinter Hash-Tables.
 
     {{3}}
 **Problem: Hash-Kollisionen**
 
+    {{3}}
 ```mermaid   @mermaid
 graph TD
     A["🔑 Key: 'P00123'"] --> B["⚙️ hash('P00123')"]
@@ -551,6 +554,7 @@ Hash-Kollisionen sind unvermeidbar! Die Lösung: Chaining. Jeder Bucket speicher
     {{4}}
 **Verbesserte Implementation mit Collision-Handling**
 
+    {{4}}
 ```js
 class HashTableWithChaining {
   constructor(size = 10) {
@@ -634,7 +638,7 @@ console.log("Unknown:", ht.get("XXXXX"));
 </script>
 
     --{{4}}--
-Diese Implementation zeigt: Selbst mit Kollisionen ist der Lookup extrem schnell! Solange die Bucket-Listen kurz bleiben (gute Hash-Funktion + ausreichende Größe), haben wir praktisch O(1).
+Diese Implementation zeigt: Selbst mit Kollisionen ist der Lookup extrem schnell! Solange die Bucket-Listen kurz bleiben (gute Hash-Funktion + ausreichende Größe), haben wir praktisch $O(1)$.
 
     {{5}}
 > **In der Praxis**: JavaScript-Objekte, Redis, Python Dictionaries – alle nutzen Hash-Tables mit ausgeklügelten Hash-Funktionen und automatischer Größenanpassung (Rehashing).
@@ -647,6 +651,7 @@ Jetzt kommt der Haken: Key-Value ist perfekt für ID-Lookups, aber was ist mit k
     {{1}}
 **Szenario**: Finde alle Produkte mit Lagerbestand < 10 (Low Stock Alert)
 
+    {{1}}
 ```js
 function filterProductsBy(filter) {
   const start = performance.now();
@@ -698,18 +703,12 @@ execute();
 </script>
 
     --{{1}}--
-Und schon sind wir wieder bei O(n)! Key-Value ist fantastisch für exakte ID-Lookups, aber für Range-Queries oder Filter brauchen wir andere Paradigmen. Das ist der Trade-off!
+Und schon sind wir wieder bei $O(n)$! Key-Value ist fantastisch für exakte ID-Lookups, aber für Range-Queries oder Filter brauchen wir andere Paradigmen. Das ist der Trade-off!
 
-    {{2}}
+
     {{2}}
 > **Key Insight**: Key-Value ist kein Allheilmittel – es ist ein Werkzeug für einen spezifischen Use Case: **schneller Key-basierter Zugriff**.
 
-**Referenzen**
-
-- Big-O Notation: Introduction to Algorithms (CLRS), Chapter 3
-- Hash Tables vs. Trees: Database Internals (Petrov), Chapter 3
-
----
 
 ## Das Key-Value Prinzip: Formalisiert
 
@@ -717,29 +716,29 @@ Und schon sind wir wieder bei O(n)! Key-Value ist fantastisch für exakte ID-Loo
 Gut! Wir haben gesehen, dass Hash-basierte Indizes blitzschnell sind. Jetzt formalisieren wir das Ganze: Was genau ist ein Key-Value Store?
 
     {{1}}
+<section>
+
 **Definition**
 
 Ein Key-Value Store ist eine Datenstruktur, die:
 
 - **Keys** (eindeutige Identifikatoren, meist Strings) auf **Values** (beliebige Daten) abbildet
-- **O(1) Lookup** garantiert (durchschnittlicher Fall)
+- **$O(1)$ Lookup** garantiert (durchschnittlicher Fall)
 - **Keine Struktur** für Values vorgibt (Blobs, JSON, Strings, ...)
 - **Kein Schema** erzwingt
+
+</section>
 
     --{{1}}--
 Heute schauen wir uns an, wie professionelle Key-Value Stores wie Redis diese Prinzipien umsetzen – und welche zusätzlichen Features sie bieten.
 
     {{2}}
-> **Kernfrage**: Warum brauchen wir Redis, wenn JavaScript-Objekte doch schon Hash-Tables sind?
-
 **Referenzen**
 
+    {{2}}
 - Redis Documentation: [Commands Overview](https://redis.io/commands)
 - MDN Web Docs: [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
 
----
-
----
 
 ## Visualisierung: Key → Value Mapping
 
@@ -761,6 +760,8 @@ Das Grundprinzip ist denkbar einfach: Jeder Wert wird über einen eindeutigen Sc
 Der Clou: Der Zugriff erfolgt in konstanter Zeit – O von 1. Egal ob ihr 100 oder 100 Millionen Keys habt, der Lookup ist gleich schnell. Das ist die Superkraft von Key-Value Stores.
 
     {{2}}
+<div>
+
 **Grundoperationen**
 
 | Operation | Beschreibung            | Beispiel                         |
@@ -770,9 +771,10 @@ Der Clou: Der Zugriff erfolgt in konstanter Zeit – O von 1. Egal ob ihr 100 od
 | `DELETE`  | Wert löschen            | `DELETE user:42`                 |
 | `EXISTS`  | Prüfen ob Key existiert | `EXISTS user:42`                 |
 
+</div>
+
     --{{2}}--
 Diese vier Operationen sind das Rückgrat jedes Key-Value Stores. Simpel, aber mächtig.
-
 
 ## Redis in Action
 
@@ -782,6 +784,7 @@ Schauen wir uns das Ganze in Aktion an. Ich zeige euch echte Redis-Operationen, 
     {{1}}
 **Redis Basics: SET & GET**
 
+    {{1}}
 ```js
 const redis = new Redis();
 
@@ -813,6 +816,8 @@ console.log('Page Views:', views);
 Redis ist der Klassiker: In-Memory, blitzschnell, mit optionaler Persistierung. Perfekt für Caching, Session Stores, Leaderboards. Hier läuft es direkt im Browser – probiert es aus!
 
     {{2}}
+<div>
+
 **Hash Operations: Strukturierte Objekte**
 
 ```js
@@ -838,15 +843,10 @@ console.log('Has Phone:', hasPhone === 1);
 ```
 @Redis.eval
 
+</div>
+
     --{{2}}--
 Redis Hashes sind effizienter als JSON-Strings, wenn ihr nur einzelne Felder abrufen oder ändern wollt. Jedes Feld ist separat zugreifbar – perfekt für User-Profile!
-
-**Referenzen**
-
-- Redis Quickstart: [Try Redis](https://try.redis.io/)
-- Can I Use: [Web Storage Browser Support](https://caniuse.com/namevalue-storage)
-
----
 
 ### TTL & Expiration: Selbstlöschende Daten
 
@@ -854,6 +854,8 @@ Redis Hashes sind effizienter als JSON-Strings, wenn ihr nur einzelne Felder abr
 Eine der Killer-Features von Key-Value Stores: Time-To-Live oder TTL. Keys können automatisch ablaufen – perfekt für Sessions, Caches, Rate Limiting.
 
     {{1}}
+</div>
+
 **TTL in Action**
 
 ```js
@@ -879,18 +881,13 @@ console.log('Session exists:', exists === 1);
 ```
 @Redis.terminal
 
+</div>
+
     --{{1}}--
 Nach Ablauf der Zeit ist der Key einfach weg. Keine manuellen Cleanup-Jobs nötig – der Store kümmert sich selbst darum. In diesem Beispiel seht ihr, wie TTL funktioniert.
 
     {{2}}
 > **Use Case**: Session Store – nach 1 Stunde Inaktivität wird die Session automatisch gelöscht. Perfekt für Web-Apps!
-
-**Referenzen**
-
-- Redis TTL: [EXPIRE Command](https://redis.io/commands/expire/)
-- Caching Patterns: Martin Fowler, [Cache-Aside Pattern](https://martinfowler.com/bliki/TwoHardThings.html)
-
----
 
 ### Atomic Operations: Race Conditions vermeiden
 
@@ -900,6 +897,7 @@ Jetzt wird's interessant: Was passiert, wenn zwei Prozesse gleichzeitig denselbe
     {{1}}
 **Das Problem: Lost Update**
 
+    {{1}}
 ```js
 // Simulation: Zwei "Prozesse" versuchen gleichzeitig zu inkrementieren
 const redis = new Redis();
@@ -931,9 +929,10 @@ console.log('Final value:', final, '(should be 12, but is 11!)');
     --{{1}}--
 Das ist eine klassische Race Condition: Beide lesen denselben Wert, beide schreiben denselben Wert plus 1 – ein Inkrement geht verloren. Lost Update!
 
-    {{2}}
+      {{2}}
 **Die Lösung: Atomic INCR**
 
+      {{2}}
 ```js
 const redis = new Redis();
 await redis.set('counter', '10');
@@ -961,6 +960,7 @@ Redis garantiert: INCR ist atomar. Mehrere Prozesse können parallel inkrementie
     {{3}}
 **Weitere atomare Operationen**
 
+    {{3}}
 | Operation    | Beschreibung                                 |
 | ------------ | -------------------------------------------- |
 | `INCR`       | Atomares Inkrementieren um 1                 |
@@ -972,11 +972,6 @@ Redis garantiert: INCR ist atomar. Mehrere Prozesse können parallel inkrementie
 
     --{{3}}--
 Diese Operationen sind eure Waffen gegen Race Conditions. Nutzt sie!
-
-**Referenzen**
-
-- Redis Atomicity: [Transactions](https://redis.io/docs/manual/transactions/)
-- Concurrency Control: Database Systems Concepts (Silberschatz), Chapter 15
 
 ### Key-Design Patterns: Organisation ist alles
 
@@ -1048,8 +1043,10 @@ console.log(`Alice's new score: ${newScore}`);
     --{{3}}--
 Redis Sorted Sets sind perfekt für Ranglisten, Top-N Queries, Zeitreihen. Jedes Element hat einen Score, die Sortierung erfolgt automatisch. Ideal für Gaming, Analytics, Trending Topics!
 
+    {{4}}
 **Referenzen**
 
+    {{4}}
 - Key Design: [Redis Best Practices](https://redis.io/docs/manual/patterns/)
 - Sorted Sets: [ZADD Command](https://redis.io/commands/zadd/)
 
@@ -1066,9 +1063,10 @@ Jetzt wissen wir, WIE Key-Value funktioniert. Aber WANN sollten wir es einsetzen
     {{1}}
 **Use Case Matrix**
 
+    {{1}}
 | Use Case          | Warum KV?                        | Beispiel                     |
 | ----------------- | -------------------------------- | ---------------------------- |
-| **Caching**       | O(1) Lookup, TTL                 | Seiten-Cache, API-Responses  |
+| **Caching**       | $O(1)$ Lookup, TTL               | Seiten-Cache, API-Responses  |
 | **Session Store** | Schneller Zugriff, Expiration    | User Sessions, JWT           |
 | **Rate Limiting** | Atomic Counters, TTL             | API Rate Limits (pro Minute) |
 | **Leaderboards**  | Sorted Sets                      | Gaming, Analytics            |
@@ -1077,8 +1075,10 @@ Jetzt wissen wir, WIE Key-Value funktioniert. Aber WANN sollten wir es einsetzen
     --{{1}}--
 Überall dort, wo ihr schnellen Key-basierten Zugriff braucht und keine komplexen Queries, ist Key-Value ideal.
 
+    {{2}}
 **Referenzen**
 
+    {{2}}
 - Caching Strategies: [Cache Stampede Problem](https://en.wikipedia.org/wiki/Cache_stampede)
 - Rate Limiting: [Token Bucket Algorithm](https://en.wikipedia.org/wiki/Token_bucket)
 
@@ -1090,6 +1090,7 @@ Kein Paradigma ist perfekt. Schauen wir uns an, wo Key-Value an seine Grenzen st
     {{1}}
 **Problem 1: Keine Range Queries**
 
+    {{1}}
 ```js
 // Ich will alle User mit IDs zwischen 100 und 200
 // ❌ Nicht möglich mit Standard Key-Value!
@@ -1104,6 +1105,7 @@ Key-Value kennt nur exakte Lookups. Bereichsabfragen? Fehlanzeige. Dafür bräuc
     {{2}}
 **Problem 2: Keine Joins**
 
+    {{2}}
 ```js
 // Ich will alle Bestellungen eines Users UND die Produktdetails
 // ❌ Keine Joins in KV!
@@ -1121,6 +1123,7 @@ Jede Relation muss manuell aufgelöst werden. Bei komplexen Datenmodellen wird d
     {{3}}
 **Problem 3: Keine Ad-hoc Analysen**
 
+    {{3}}
 ```js
 // "Zeige alle User, die in den letzten 7 Tagen aktiv waren"
 // ❌ Ohne Secondary Indexes nicht möglich
@@ -1132,25 +1135,347 @@ Analytische Abfragen erfordern Strukturinformationen, die Key-Value nicht hat. D
     {{4}}
 > **Trade-off**: KV ist simpel und schnell, aber unflexibel. Für komplexe Queries brauchen wir reichhaltigere Paradigmen.
 
+
+## Parallelisierung und Skalierung
+
+    --{{0}}--
+Ein letzter Punkt: Wie skaliert Key-Value, wenn die Datenmengen wachsen? Key-Value Stores haben hier einen entscheidenden Vorteil: Sie sind von Natur aus horizontal skalierbar.
+
+### Sharding: Daten auf mehrere Knoten verteilen
+
+    --{{0}}--
+Sharding bedeutet, dass wir unsere Keys auf mehrere Nodes verteilen. Jeder Node ist für einen bestimmten Key-Bereich verantwortlich.
+
+    {{1}}
+**Visualisierung: Hash-based Sharding**
+
+    {{1}}
+```mermaid   @mermaid
+graph TD
+    A["Client Request<br/>GET user:42"] --> B["Consistent Hashing"]
+    
+    B --> C["🔢 hash('user:42') % 3 = 0"]
+    
+    C --> D["Node 0<br/>Keys: user:1-50"]
+    C --> E["Node 1<br/>Keys: user:51-100"]
+    C --> F["Node 2<br/>Keys: user:101-150"]
+    
+    D --> G["✅ Return Value"]
+    
+    style A fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    style B fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style C fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style D fill:#c8e6c9,stroke:#388e3c,stroke-width:3px
+    style E fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style F fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style G fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+```
+
+    --{{1}}--
+Mit Consistent Hashing berechnen wir aus jedem Key, auf welchem Node die Daten liegen. Das ermöglicht horizontale Skalierung: Mehr Nodes = mehr Kapazität!
+
+    {{2}}
+**Beispiel: Sharding in der Praxis**
+
+    {{2}}
+```js
+// Simulation eines einfachen Sharding-Clients
+class ShardedKeyValueClient {
+  constructor(nodes) {
+    this.nodes = nodes;  // Array von Node-IDs
+  }
+  
+  // Consistent Hashing: Key → Node
+  getNodeForKey(key) {
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash += key.charCodeAt(i);
+    }
+    const nodeIndex = hash % this.nodes.length;
+    return this.nodes[nodeIndex];
+  }
+  
+  // GET: Ermittle Node und hole Wert
+  get(key) {
+    const node = this.getNodeForKey(key);
+    console.log(`GET "${key}" → routed to ${node}`);
+    // In der Realität: HTTP Request an den Node
+    return `[Value from ${node}]`;
+  }
+  
+  // SET: Ermittle Node und speichere Wert
+  set(key, value) {
+    const node = this.getNodeForKey(key);
+    console.log(`SET "${key}" → routed to ${node}`);
+    // In der Realität: HTTP Request an den Node
+    return `OK (stored on ${node})`;
+  }
+}
+
+// Demo: 3 Nodes
+const client = new ShardedKeyValueClient(['node-0', 'node-1', 'node-2']);
+
+console.log('=== Sharding Demo ===\n');
+
+// Verschiedene Keys werden auf unterschiedliche Nodes verteilt
+client.set('user:42', '{"name":"Alice"}');
+client.set('user:99', '{"name":"Bob"}');
+client.set('product:123', '{"name":"Laptop"}');
+client.set('session:abc', '{"user_id":42}');
+client.set('cart:xyz', '{"items":[1,2,3]}');
+
+console.log('\n--- Retrieving Data ---\n');
+
+client.get('user:42');
+client.get('product:123');
+client.get('session:abc');
+
+console.log('\n💡 Jeder Key landet auf einem bestimmten Node!');
+console.log('   → Mehr Nodes = mehr Parallelität und Kapazität');
+```
+<script>
+@input
+""
+</script>
+
+    --{{2}}--
+Seht ihr? Jeder Key wird automatisch einem Node zugeordnet. Das System skaliert linear: 3 Nodes können 3x so viele Requests parallel verarbeiten wie 1 Node!
+
+### Replication: Ausfallsicherheit durch Redundanz
+
+    --{{0}}--
+Sharding allein reicht nicht – was passiert, wenn ein Node ausfällt? Hier kommt Replication ins Spiel.
+
+    {{1}}
+**Master-Replica Architektur**
+
+    {{1}}
+```mermaid   @mermaid
+graph TD
+    A["Client WRITE<br/>SET user:42"] --> B["Master Node 0"]
+    
+    B --> C["📝 Write to Master"]
+    B --> D["Replicate →"]
+    
+    D --> E["Replica 0-1"]
+    D --> F["Replica 0-2"]
+    
+    G["Client READ<br/>GET user:42"] --> H["Load Balancer"]
+    
+    H --> B
+    H --> E
+    H --> F
+    
+    style A fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    style B fill:#4caf50,stroke:#2e7d32,stroke-width:3px
+    style C fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+    style D fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style E fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+    style F fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+    style G fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    style H fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+```
+
+    --{{1}}--
+Schreiboperationen gehen an den Master, der dann asynchron an Replicas repliziert. Lesezugriffe können vom Master oder von beliebigen Replicas bedient werden – das verteilt die Last!
+
+    {{2}}
+**Trade-offs bei Replication**
+
+    {{2}}
+| Replikations-Typ  | Konsistenz    | Performance  | Use Case                    |
+| ----------------- | ------------- | ------------ | --------------------------- |
+| **Synchron**      | ✅ Stark      | ⚠️ Langsam | Finanztransaktionen         |
+| **Asynchron**     | ⚠️ Eventual | ✅ Schnell   | Social Media Feeds, Caching |
+| **Semi-Synchron** | 🟡 Mittel    | 🟡 Mittel   | E-Commerce, Session Stores  |
+
+    --{{2}}--
+Der Klassiker: Konsistenz vs. Performance. Für Session Stores ist Eventual Consistency meist ok – für Banküberweisungen nicht!
+
+### Redis Enterprise & CRDTs
+
+    --{{0}}--
+Jetzt wird's spannend: Redis Enterprise nutzt **CRDTs** (Conflict-free Replicated Data Types) für Multi-Master-Replication ohne Konflikte!
+
+    {{1}}
+**Was sind CRDTs?**
+
+    --{{1}}--
+CRDTs sind Datenstrukturen, die **garantiert konfliktfrei** zusammengeführt werden können, selbst wenn mehrere Replicas gleichzeitig Updates erhalten.
+
+    {{2}}
+**Beispiel: Counter-CRDT**
+
+     {{2}}
+```js
+// Klassisches Problem: Zwei Replicas inkrementieren gleichzeitig
+// Replica 1: counter = 10 → 11
+// Replica 2: counter = 10 → 11
+// Merge: Was ist das Ergebnis? 11? 12? ❌ Konflikt!
+
+// CRDT-Lösung: G-Counter (Grow-only Counter)
+class GCounter {
+  constructor(replicaId) {
+    this.replicaId = replicaId;
+    this.counters = {};  // Pro Replica ein eigener Counter
+  }
+  
+  increment() {
+    if (!this.counters[this.replicaId]) {
+      this.counters[this.replicaId] = 0;
+    }
+    this.counters[this.replicaId]++;
+    console.log(`Replica ${this.replicaId}: local counter = ${this.counters[this.replicaId]}`);
+  }
+  
+  value() {
+    // Gesamtwert: Summe aller Replica-Counter
+    return Object.values(this.counters).reduce((sum, val) => sum + val, 0);
+  }
+  
+  merge(other) {
+    // Merge: Maximum pro Replica nehmen
+    for (const [replica, count] of Object.entries(other.counters)) {
+      if (!this.counters[replica] || this.counters[replica] < count) {
+        this.counters[replica] = count;
+      }
+    }
+    console.log(`Merged: total = ${this.value()}`);
+  }
+}
+
+// Simulation: Zwei Replicas inkrementieren unabhängig
+console.log('=== CRDT Counter Demo ===\n');
+
+const replica1 = new GCounter('replica-1');
+const replica2 = new GCounter('replica-2');
+
+replica1.increment();  // replica-1: 1
+replica1.increment();  // replica-1: 2
+
+replica2.increment();  // replica-2: 1
+replica2.increment();  // replica-2: 2
+replica2.increment();  // replica-2: 3
+
+console.log('\nBefore merge:');
+console.log(`  Replica 1 sees: ${replica1.value()}`);
+console.log(`  Replica 2 sees: ${replica2.value()}`);
+
+console.log('\nMerging Replica 2 → Replica 1:');
+replica1.merge(replica2);
+
+console.log('\nAfter merge:');
+console.log(`  Total: ${replica1.value()} ✅ (2 + 3 = 5, kein Verlust!)`);
+```
+<script>
+@input
+""
+</script>
+
+    --{{1}}--
+CRDTs lösen das Problem mathematisch: Jede Replica hat ihren eigenen Counter. Beim Merge nehmen wir das Maximum – garantiert konfliktfrei! Redis Enterprise nutzt dies für Active-Active Geo-Replication.
+
+    {{2}}
+**Redis Enterprise: Active-Active mit CRDTs**
+
+      {{2}}
+```mermaid   @mermaid
+graph TD
+    A["Client EU<br/>SET counter +1"] --> B["Redis EU"]
+    C["Client US<br/>SET counter +1"] --> D["Redis US"]
+    E["Client ASIA<br/>GET counter"] --> F["Redis ASIA"]
+    
+    B <--> G["Bi-directional<br/>Replication<br/>mit CRDTs"]
+    D <--> G
+    F <--> G
+    
+    G --> H["✅ Eventual Consistency<br/>Konfliktfrei dank CRDTs"]
+    
+    style A fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    style B fill:#4caf50,stroke:#2e7d32,stroke-width:2px
+    style C fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    style D fill:#4caf50,stroke:#2e7d32,stroke-width:2px
+    style E fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    style F fill:#4caf50,stroke:#2e7d32,stroke-width:2px
+    style G fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style H fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
+```
+
+    --{{2}}--
+Mit Redis Enterprise könnt ihr weltweit verteilte Master-Nodes haben, die alle Writes akzeptieren. CRDTs garantieren, dass alle Replicas konfliktfrei konvergieren – ohne manuelle Konfliktauflösung!
+
+    {{3}}
+**CRDT-Typen in Redis Enterprise**
+
+    {{3}}
+| CRDT-Typ            | Operationen              | Use Case                    |
+| ------------------- | ------------------------ | --------------------------- |
+| **Counter**         | INCR, DECR               | Page Views, Likes           |
+| **Register**        | SET (Last-Write-Wins)    | User Status, Config         |
+| **Set**             | SADD, SREM               | Tags, Permissions           |
+| **Sorted Set**      | ZADD (max score wins)    | Leaderboards                |
+| **Hash**            | HSET (per-field LWW)     | User Profiles               |
+
+    --{{3}}--
+Redis Enterprise unterstützt verschiedene CRDT-Typen out-of-the-box. Ihr schreibt normalen Redis-Code, das System kümmert sich um Konfliktauflösung!
+
+### Herausforderungen bei Skalierung
+
+    --{{0}}--
+Trotz aller Vorteile gibt es Herausforderungen:
+
+    {{1}}
+**Die Realität**
+
+    {{1}}
+- **Konsistenz**: Bei verteilten Systemen schwieriger zu gewährleisten
+
+  - CAP-Theorem: Consistency, Availability, Partition Tolerance – pick two!
+  - Eventual Consistency ist oft ein Kompromiss
+  
+- **Netzwerk-Latenz**: Mehr Nodes = mehr Kommunikation
+
+  - Cross-Region Replication: 100+ ms Latenz
+  - Lösung: Geo-Partitioning, lokale Caches
+  
+- **Rebalancing**: Bei Änderungen in der Datenverteilung aufwendig
+
+  - Neuer Node hinzufügen? → Keys müssen umverteilt werden
+  - Consistent Hashing minimiert Umverteilung (nur ~1/n der Keys bewegen sich)
+
+    --{{1}}--
+Verteilte Systeme sind komplex! Redis Enterprise und ähnliche Lösungen nehmen euch viel Arbeit ab, aber das Verständnis der Trade-offs bleibt essentiell.
+
+    {{2}}
+> **Best Practice**: Startet einfach (Single Node), skaliert bei Bedarf horizontal. Premature Optimization ist die Wurzel allen Übels!
+
+    {{3}}
 **Referenzen**
 
-- NoSQL Trade-offs: [CAP Theorem (Preview)](https://en.wikipedia.org/wiki/CAP_theorem)
-- Indexing: Database Internals (Petrov), Chapter 3
+    {{3}}
+- CRDTs Explained: [Conflict-free Replicated Data Types](https://crdt.tech/)
+- Redis Enterprise: [Active-Active Geo-Distribution](https://redis.io/docs/latest/operate/rs/databases/active-active/)
+- CAP Theorem: [Brewer's Conjecture](https://en.wikipedia.org/wiki/CAP_theorem)
+- Consistent Hashing: [Dynamo Paper (Amazon)](https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf)
 
----
 
 ## Zusammenfassung & Wrap-up
 
     --{{0}}--
 Fassen wir zusammen: Key-Value Stores sind das Schweizer Taschenmesser für schnelle, strukturierte Zugriffe. Simpel, robust, blitzschnell.
 
-    {{1}}
+
+  {{1}}
 **Key Takeaways**
 
-- ✅ **O(1) Lookup**: Konstante Zugriffszeit, egal bei welcher Datenmenge
+  {{1}}
+- ✅ **$O(1)$ Lookup**: Konstante Zugriffszeit, egal bei welcher Datenmenge
 - ✅ **TTL & Expiration**: Selbstlöschende Daten für Sessions, Caches
 - ✅ **Atomare Operationen**: Race Conditions vermeiden mit `INCR`, `SETNX`
 - ✅ **Key-Design Patterns**: Namespacing, Composite Keys, Sorted Sets
+- ✅ **Replikation**: Daten werden auf mehrere Knoten verteilt (Master-Replica, semi-synchron, asynchron) für Ausfallsicherheit und Skalierung
+- ✅ **Partitionierung (Sharding)**: Daten werden logisch oder technisch aufgeteilt, um große Datenmengen und viele Zugriffe zu bewältigen
+- ✅ **Konsistenzmodelle**: Von starker Konsistenz (alle sehen immer den aktuellen Stand) bis zu eventual consistency (Daten gleichen sich zeitverzögert ab)
 - ❌ **Keine Range Queries**: Nur exakte Lookups möglich
 - ❌ **Keine Joins**: Relationen manuell auflösen
 - ❌ **Keine Ad-hoc Analysen**: Strukturinformationen fehlen
@@ -1159,13 +1484,9 @@ Fassen wir zusammen: Key-Value Stores sind das Schweizer Taschenmesser für schn
 Key-Value ist perfekt für Caching, Sessions, Rate Limiting – überall dort, wo Geschwindigkeit und Einfachheit zählen. Für komplexere Datenmodelle schauen wir uns in den nächsten Sessions Document und Column Stores an.
 
     {{2}}
-**1-Minute-Paper**
-
-> Was ist heute klarer geworden? Wo seht ihr Key-Value in euren eigenen Projekten?
-
-    {{3}}
 **Interaktives Redis-Terminal**
 
+    {{2}}
 ```js
 // Redis Playground: Experimentiert selbst!
 redis = new Redis();
@@ -1186,31 +1507,6 @@ console.log('  await redis.keys("*")');
 ```
 @Redis.terminal
 
-    --{{3}}--
+    --{{2}}--
 Nutzt das Terminal, um selbst zu experimentieren! Probiert verschiedene Befehle aus, baut eigene Use Cases – Learning by Doing!
 
-**Referenzen**
-
-- Redis in Action (Carlson), Chapter 1–3
-- NoSQL Distilled (Fowler/Sadalage), Chapter 4
-- Try Redis Interactive: https://try.redis.io/
-
----
-
-## Ausblick: Parallelisierung & Skalierung
-
-    --{{0}}--
-Eine letzte wichtige Frage: Wie skaliert Key-Value, wenn die Datenmengen wachsen?
-
-    {{1}}
-> **� Weiterführendes Thema**: Sharding, Replication, CRDTs und verteilte Systeme werden ausführlich in **Session 21 "Distributed & Cloud Databases"** behandelt.
-> 
-> **Preview**: Key-Value Stores sind von Natur aus horizontal skalierbar:
-> 
-> - **Sharding**: Daten auf mehrere Nodes verteilen (Consistent Hashing)
-> - **Replication**: Master-Replica Architekturen für Ausfallsicherheit
-> - **CRDTs**: Konfliktfreie Replikation bei Redis Enterprise
-> - **CAP-Theorem**: Trade-offs zwischen Consistency, Availability, Partition Tolerance
-
-    --{{1}}--
-Verteilte Systeme sind ein komplexes Thema! Wir kommen in Session 21 ausführlich darauf zurück – dann nicht nur für Key-Value, sondern für alle Datenbankparadigmen.
