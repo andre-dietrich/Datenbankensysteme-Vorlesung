@@ -56,6 +56,7 @@ Willkommen zurück! Bevor wir in Key-Value Stores eintauchen, lasst uns kurz rek
     {{1}}
 **Session 1 Recap**
 
+    {{1}}
 - ✅ **Rohdaten-Formate**: CSV, JSON, YAML, XML
 - ✅ **Ad-hoc Analysen**: Programmiersprachen direkt auf CSV
 - ✅ **Problem erkannt**: Lineare Suche = $O(n)$ Zeitkomplexität
@@ -79,8 +80,10 @@ Nehmen wir eine Produktdatenbank als Beispiel und schauen wir uns an, was passie
     {{1}}
 **Szenario**: Wir haben eine [CSV-Datei mit Produkten](../assets/dat/products.csv) und wollen Details zu Produkt `P00567` finden.
 
-    {{2}}
+    {{1}}
+<div>
 @CSV(https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv)
+</div>
 
     --{{2}}--
 Eine typische Produkt-CSV mit ID, Name, Kategorie, Preis, Lagerbestand. Nichts Besonderes – aber schauen wir uns die Performance an!
@@ -88,6 +91,7 @@ Eine typische Produkt-CSV mit ID, Name, Kategorie, Preis, Lagerbestand. Nichts B
     {{3}}
 **Naive Implementierung: Lineare Suche**
 
+    {{3}}
 ```js
 const response = await fetch("https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.csv");
 const text = await response.text();
@@ -291,6 +295,7 @@ Seht ihr den Unterschied? $O(1)$ bleibt flach – egal wie viele Daten. $O(n^2)$
     {{3}}
 **Die häufigsten Big-O-Klassen im Überblick**
 
+     {{3}}
 | Komplexität       | Name           | Beispiel                            | 100 Elemente | 1.000 Elemente | 1.000.000 Elemente |
 | ----------------- | -------------- | ----------------------------------- | -----------: | -------------: | -----------------: |
 | **$O(1)$**        | Konstant       | Hash-Lookup, Array[index]           |         1 ms |           1 ms |               1 ms |
@@ -416,6 +421,7 @@ Boom! Von mehreren Sekunden auf unter 1 Millisekunde! Der Index macht den Unters
     {{2}}
 **Performance-Vergleich**
 
+    {{2}}
 | Methode       | Zeitkomplexität | 1.000 Produkte      | 1.000.000 Produkte  |
 | ------------- | --------------- | ------------------- | ------------------- |
 | Lineare Suche | $O(n)$          | $~1 \text{s}$       | $~17 \text{min}$    |
@@ -634,7 +640,7 @@ console.log("Unknown:", ht.get("XXXXX"));
 <script>
 @input
 
-"LIA: wait"
+""
 </script>
 
     --{{4}}--
@@ -854,7 +860,7 @@ Redis Hashes sind effizienter als JSON-Strings, wenn ihr nur einzelne Felder abr
 Eine der Killer-Features von Key-Value Stores: Time-To-Live oder TTL. Keys können automatisch ablaufen – perfekt für Sessions, Caches, Rate Limiting.
 
     {{1}}
-</div>
+<div>
 
 **TTL in Action**
 
