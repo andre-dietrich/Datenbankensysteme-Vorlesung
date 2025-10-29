@@ -48,6 +48,8 @@ script:   https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.j
 
 > **Lernziele**: Key-Value Paradigma verstehen | Zugriffsmuster & Patterns kennen | Grenzen & Trade-offs bewerten
 
+
+
 ## Rückblick: Was haben wir beim letzten Mal gelernt?
 
     --{{0}}--
@@ -744,6 +746,58 @@ Heute schauen wir uns an, wie professionelle Key-Value Stores wie Redis diese Pr
     {{2}}
 - Redis Documentation: [Commands Overview](https://redis.io/commands)
 - MDN Web Docs: [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
+
+
+## Historische Entwicklung der Key-Value Stores
+
+  --{{0}}--
+Bevor wir die technischen Details betrachten, lohnt sich ein Blick in die Geschichte: Wie entstand das Key-Value-Prinzip und warum ist es heute so wichtig?
+
+  {{1}}
+**Frühe Anfänge**
+
+  {{1}}
+- Schon in den 1960er/70er Jahren tauchten assoziative Arrays in Sprachen wie Lisp und Perl auf.
+- Betriebssysteme nutzten Key-Value-Konzepte für Konfigurationsdateien und Registries.
+
+  --{{1}}--
+Die Idee, Daten über eindeutige Schlüssel blitzschnell zu finden, ist also älter als die meisten modernen Datenbanksysteme.
+
+  {{2}}
+**Erste Datenbanksysteme & Web-Ära**
+
+  {{2}}
+- Mit Berkeley DB und später Memcached (Ende 1990er/2000er) wurde das Prinzip für Performance und horizontale Skalierung genutzt.
+- Die Web-Ära brachte neue Herausforderungen: Millionen von Nutzern, Sessions, Caching – Key-Value Stores wurden zum Rückgrat vieler Webanwendungen.
+
+  --{{2}}--
+Das CAP-Theorem (Consistency, Availability, Partition Tolerance) trieb die Entwicklung von verteilten Key-Value Stores wie DynamoDB und Redis voran.
+
+  {{3}}
+**Moderne Key-Value Stores**
+
+  {{3}}
+- Heute sind Redis, DynamoDB, RocksDB und LevelDB die Platzhirsche.
+- Features wie TTL, atomare Operationen, Replikation und Sharding machen sie unverzichtbar für Cloud, Microservices und Echtzeit-Anwendungen.
+
+  --{{3}}--
+Key-Value Stores sind nicht nur schnell, sondern auch extrem flexibel und skalierbar.
+
+  {{4}}
+```mermaid   @mermaid
+timeline
+  title Entwicklung der Key-Value Stores
+  1970 : Assoziative Arrays in Lisp/Perl
+  1991 : Berkeley DB
+  2003 : Memcached
+  2007 : Dynamo (Amazon)
+  2009 : Redis
+  2012 : RocksDB
+  2014 : DynamoDB (AWS)
+```
+
+  --{{4}}--
+Der Zeitstrahl zeigt: Die Entwicklung verlief parallel zu den Anforderungen an Skalierbarkeit und Performance im Web.
 
 
 ## Visualisierung: Key → Value Mapping
