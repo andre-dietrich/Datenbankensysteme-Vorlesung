@@ -3205,7 +3205,7 @@ R-Trees sind spezielle Datenstrukturen, die für die effiziente Verwaltung und S
 }
 ```
 ``` js  -RTree.js
-const mapDiv = document.getElementById('map');
+const mapDiv = document.getElementById('map2');
 if (mapDiv._leafletMap) {
   mapDiv._leafletMap.remove();
   mapDiv._leafletMap = null;
@@ -3530,7 +3530,7 @@ try {
 "LIA: stop"
 </script>
 
-<div id="map" style="height:60vh; width:100%;"></div>
+<div id="map2" style="height:60vh; width:100%;"></div>
 
 
 ## Block 7: Use Cases & Abgrenzung
