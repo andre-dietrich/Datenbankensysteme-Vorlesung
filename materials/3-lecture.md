@@ -1428,7 +1428,7 @@ GeoJSON definiert mehrere Geometrietypen, die in Dokumenten verwendet werden kö
 
     --{{2}}--
 Wenn Sie GeoJSON-Daten visualisieren möchten, können Sie Bibliotheken wie Leaflet verwenden. Hier ein einfaches Beispiel, das Punkte, Linien und Flächen auf einer Karte darstellt.
-    
+
     {{2}}
 ``` json
 {
