@@ -2,6 +2,8 @@
 language: de
 narrator: German Male
 
+author:   André Dietrich; GitHub Copilot
+
 logo:     ../assets/img/logo/3-lecture.jpg
 
 import:   https://raw.githubusercontent.com/LiaTemplates/PouchDB/main/README.md
@@ -9,6 +11,8 @@ import:   https://raw.githubusercontent.com/LiaTemplates/PouchDB/main/README.md
           https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md
 
 script:   https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js
+
+comment:  Die dritte Session behandelt die Grundlagen und Besonderheiten von Document Stores wie PouchDB und CouchDB. Sie lernen, wie strukturierte JSON-Dokumente effizient gespeichert, durchsucht und synchronisiert werden. Der Kurs zeigt die Vorteile gegenüber Key-Value Stores, erklärt Mango-Queries, Index-Strategien für Performance, Schema-Evolution und Validierung, sowie Offline-First-Architekturen mit Synchronisation und Konfliktmanagement. Abschließend werden typische Einsatzszenarien, Grenzen und Best Practices für Document Stores vorgestellt.
 
 @onload
 window.sleep = function (ms) {

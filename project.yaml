@@ -85,6 +85,17 @@ collection:
       - NoSQL
       - Cache
       - Performance
+      - 
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md
+    title: "L3: Document Stores"
+    tags:
+      - Document Store
+      - MongoDB
+      - PouchDB
+      - Indizes
+      - Abfragen
+      - NoSQL
+      - Synchronisation
 
   # Block 2: Relationale Grundlagen (coming soon)
   - html: >
