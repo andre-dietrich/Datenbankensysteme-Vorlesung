@@ -11,10 +11,16 @@ import:   https://raw.githubusercontent.com/LiaTemplates/PouchDB/main/README.md
           https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md
 
 script:   https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js
+          https://unpkg.com/leaflet@1.9.4/dist/leaflet.js
+          https://unpkg.com/rbush@3.0.1/rbush.min.js
+
+link:     https://unpkg.com/leaflet@1.9.4/dist/leaflet.css
 
 comment:  Die dritte Session behandelt die Grundlagen und Besonderheiten von Document Stores wie PouchDB und CouchDB. Sie lernen, wie strukturierte JSON-Dokumente effizient gespeichert, durchsucht und synchronisiert werden. Der Kurs zeigt die Vorteile gegenüber Key-Value Stores, erklärt Mango-Queries, Index-Strategien für Performance, Schema-Evolution und Validierung, sowie Offline-First-Architekturen mit Synchronisation und Konfliktmanagement. Abschließend werden typische Einsatzszenarien, Grenzen und Best Practices für Document Stores vorgestellt.
 
 @onload
+
+window.LIA.debug = true
 window.sleep = function (ms) {
   const end = Date.now() + ms;
   while (Date.now() < end) {}
@@ -1869,9 +1875,9 @@ async function resolveProductConflict(id) {
     --{{2}}--
 Konfliktauflösung ist komplex – es gibt keine universelle Lösung. Last-Write-Wins ist simpel, aber naiv. Operational Transformation (wie in Google Docs) ist mächtig, aber extrem komplex. CRDTs (Conflict-free Replicated Data Types) sind elegant, aber spezialisiert. Für die meisten Apps reicht: Konflikte erkennen, UI zeigen ("Alice und Bob haben gleichzeitig editiert"), Nutzer entscheiden lassen.
 
-### Sharding
+## Wissenswertes
 
-## Sharding & Skalierung in Document Stores
+### Sharding & Skalierung in Document Stores
 
     --{{0}}--
 Document Stores wie MongoDB und CouchDB sind für horizontale Skalierung ausgelegt. Sharding bedeutet, dass große Datenmengen auf mehrere Server (Shards) verteilt werden. Jeder Shard speichert einen Teil der Dokumente – so können Reads und Writes parallelisiert und die Kapazität beliebig erhöht werden.
@@ -1887,11 +1893,11 @@ Wir erinnern uns: Sharding ist das Aufteilen einer großen Datenbank in kleinere
 ```ascii
 +-------------------+      +-------------------+      +-------------------+
 |   Shard 1         |      |   Shard 2         |      |   Shard 3         |
-|  user_001 ...     |      |  user_100 ...     |      |  user_200 ...     |
+|  user_001 . . .   |      |  user_100 . . .   |      |  user_200 . . .   |
 +-------------------+      +-------------------+      +-------------------+
          |                        |                        |
          +----------+-------------+-------------+----------+
-                                |
+                                  |
                         Query Router / Mongos
 ```
 
@@ -1966,7 +1972,6 @@ graph TD
 
 **Best Practices für Sharding-Keys**
 
-    --{{5}}--
 - Wähle einen Sharding-Key, der die Last gleichmäßig verteilt.
 - Vermeide monoton wachsende Keys (z.B. Zeitstempel).
 - Plane für Wachstum: Sharding-Keys sollten auch bei Millionen Dokumenten skalieren.
@@ -1976,6 +1981,1557 @@ graph TD
 
     --{{6}}--
 Sharding ist mächtig, aber nicht trivial: Die Wahl des Sharding-Keys entscheidet über Performance und Skalierbarkeit. Document Stores bieten flexible Strategien – nutze sie bewusst!
+
+### GeoJSON
+
+**Was ist GeoJSON?**
+
+    --{{0}}--
+GeoJSON ist ein offener Standard zur Beschreibung geografischer Daten im JSON-Format. Es ermöglicht die einfache Speicherung, Übertragung und Visualisierung von Geodaten in Document Stores wie MongoDB oder CouchDB. GeoJSON ist besonders für Webanwendungen geeignet, da es auf dem weit verbreiteten JSON-Format basiert und von vielen Tools direkt unterstützt wird.
+
+- **GeoJSON** ist ein JSON-basiertes Format zur Darstellung von Geometrien und geografischen Features.
+- Es beschreibt Punkte, Linien, Flächen und deren Eigenschaften als strukturierte Objekte.
+
+    {{1}}
+<section>
+
+**Haupttypen in GeoJSON**
+
+    --{{1}}--
+GeoJSON definiert mehrere Geometrietypen, die in Dokumenten verwendet werden können. Mit diesen Typen lassen sich Standorte, Punkte, Wege und Flächen, Sehenswürdigkeiten präzise und strukturiert in JSON-Dokumenten abbilden.
+
+- **Point:** Ein einzelner geografischer Punkt, definiert durch Koordinaten (Länge, Breite).
+
+  ``` json
+  {
+    "type": "Point",
+    "coordinates": [13.4050, 52.5200] // Berlin
+  }
+  ```
+
+- **LineString:** Eine Linie, die aus einer Reihe von Punkten besteht.
+
+  ``` json
+  {
+    "type": "LineString",
+    "coordinates": [
+      [13.3426, 50.9106], // Freiberg
+      [13.4050, 52.5200], // Berlin
+      [11.5761, 48.1374]  // München
+    ]
+  }
+  ```
+
+- **Polygon:** Eine Fläche, die durch eine geschlossene Linie definiert ist.
+
+  ``` json
+  {
+    "type": "Polygon",
+    "coordinates": [[
+      [13.0, 50.5],
+      [13.0, 51.5],
+      [14.0, 51.5],
+      [14.0, 50.5],
+      [13.0, 50.5]
+    ]]
+  }
+  ```
+
+- **MultiPoint, MultiLineString, MultiPolygon:** Sammlungen der jeweiligen Geometrietypen.
+
+  ``` json
+  {
+    "type": "MultiPoint",
+    "coordinates": [
+      [13.4050, 52.5200], // Berlin
+      [11.5761, 48.1374]  // München
+    ]
+  }
+  ```
+
+- **Feature:** Ein einzelnes geografisches Objekt mit Geometrie und Eigenschaften.
+
+  ``` json
+  {
+    "type": "Feature",
+    "properties": { "name": "Berlin" },
+    "geometry": {
+      "type": "Point",
+      "coordinates": [13.4050, 52.5200]
+    }
+  }
+  ```
+
+- **FeatureCollection:** Eine Sammlung von Features.
+
+  ``` json
+  {
+    "type": "FeatureCollection",
+    "features": [
+      // Array von Feature-Objekten
+    ]
+  }
+  ```
+
+</section>
+
+    
+
+### Beispiel
+
+
+``` json
+{
+  "type": "FeatureCollection",
+  "features": [
+    // Punkt(e)
+    {
+      "type": "Feature",
+      "properties": { "name": "Freiberg" },
+      "geometry": { "type": "Point", "coordinates": [13.3426, 50.9106] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "Berlin" },
+      "geometry": { "type": "Point", "coordinates": [13.4050, 52.5200] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "name": "München" },
+      "geometry": { "type": "Point", "coordinates": [11.5761, 48.1374] }
+    },
+    // Linie
+    {
+      "type": "Feature",
+      "properties": { "name": "Beispiel-Linie" },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [13.3426, 50.9106], // Freiberg
+          [13.4050, 52.5200], // Berlin
+          [11.5761, 48.1374]  // München
+        ]
+      }
+    },
+    // Fläche
+    {
+      "type": "Feature",
+      "properties": { "name": "Beispiel-Polygon" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [13.0, 50.5],
+          [13.0, 51.5],
+          [14.0, 51.5],
+          [14.0, 50.5],
+          [13.0, 50.5]
+        ]]
+      }
+    }
+  ]
+}
+```
+<script>
+const mapDiv = document.getElementById('map');
+if (mapDiv._leafletMap) {
+  mapDiv._leafletMap.remove(); // Karte zerstören
+  mapDiv._leafletMap = null;
+}
+
+// Freiberg als Zentrum
+mapDiv._leafletMap = L.map(mapDiv).setView([50.9106, 13.3426], 8);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap-Mitwirkende'
+}).addTo(mapDiv._leafletMap);
+
+// Beispiel-GeoJSON-Daten
+const data = @input
+
+// Styling + Popups
+const style = (feature) => {
+  switch (feature.geometry.type) {
+    case 'Polygon':
+    case 'MultiPolygon':
+      return { color: '#2e7d32', weight: 2, fillColor: '#43a047', fillOpacity: 0.35 };
+    case 'LineString':
+    case 'MultiLineString':
+      return { color: '#1e88e5', weight: 4 };
+    default:
+      return { color: '#e53935' };
+  }
+};
+
+const onEachFeature = (feature, layer) => {
+  const name = feature.properties && feature.properties.name ? feature.properties.name : feature.geometry.type;
+  layer.bindPopup(`<strong>${name}</strong>`);
+};
+
+const pointToLayer = (feature, latlng) => {
+  return L.circleMarker(latlng, {
+    radius: 7,
+    color: '#b71c1c',
+    fillColor: '#e53935',
+    fillOpacity: 0.9,
+    weight: 2
+  });
+};
+
+// GeoJSON-Layer hinzufügen
+const geoJson = L.geoJSON(data, {
+  style,
+  onEachFeature,
+  pointToLayer
+}).addTo(mapDiv._leafletMap);
+
+// Karte auf die Daten zoomen
+if (geoJson.getLayers().length) {
+  mapDiv._leafletMap.fitBounds(geoJson.getBounds(), { padding: [20, 20] });
+}
+</script>
+
+<div id="map" style="height:60vh; width:100%;"></div>
+
+#### R-Tree
+
+    --{{0}}--
+R-Trees sind spezielle Datenstrukturen, die für die effiziente Verwaltung und Suche von räumlichen Objekten wie Punkten, Linien und Flächen entwickelt wurden. Sie werden häufig als Index für GeoJSON-Daten in Datenbanken und GIS-Systemen eingesetzt.
+
+    {{0}}
+<div>
+
+**Funktionsweise:**
+
+- Ein R-Tree organisiert räumliche Objekte in hierarchischen, überlappenden Rechtecken („Bounding Boxes“).
+- Jeder Knoten im Baum fasst nahe beieinander liegende Objekte zusammen.
+- Beim Suchen prüft das System zuerst die Bounding Boxes und kann große Bereiche schnell ausschließen, bevor es die eigentlichen Geometrien vergleicht.
+
+</div>
+
+    {{1}}
+<div>
+
+**Typische Abfragen:**
+
+- „Finde alle Punkte im Umkreis von X“ (Umkreissuche)
+- „Welche Flächen schneiden dieses Gebiet?“ (Schnittmengen)
+- „Welche Objekte liegen in einem bestimmten Rechteck?“ (Bereichssuche)
+- Nachbarschaftsabfragen und räumliche Filter
+
+</div>
+
+> R-Trees machen räumliche Suchen schnell und skalierbar – ein zentrales Werkzeug für Geo-Datenbanken und Kartenanwendungen.
+
+    {{2}}
+``` json  +Features.json
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg Area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.542599999999998,
+              50.110600000000005
+            ],
+            [
+              12.542599999999998,
+              51.7106
+            ],
+            [
+              14.1426,
+              51.7106
+            ],
+            [
+              14.1426,
+              50.110600000000005
+            ],
+            [
+              12.542599999999998,
+              50.110600000000005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3426,
+          50.9106
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.5926,
+          50.9106
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.0926,
+          50.9106
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3426,
+          51.1606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.3426,
+          50.6606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P6"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.5926,
+          51.1606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.5926,
+          50.6606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P8"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.0926,
+          51.1606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L1 P9"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.0926,
+          50.6606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L2 Hull E"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.5026,
+              50.8206
+            ],
+            [
+              13.5026,
+              51.0006
+            ],
+            [
+              13.6826,
+              51.0006
+            ],
+            [
+              13.6826,
+              50.8206
+            ],
+            [
+              13.5026,
+              50.8206
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L2 Hull W"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.912599999999999,
+              50.8206
+            ],
+            [
+              12.912599999999999,
+              51.0006
+            ],
+            [
+              13.0926,
+              51.0006
+            ],
+            [
+              13.0926,
+              50.8206
+            ],
+            [
+              12.912599999999999,
+              50.8206
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L2 Hull N"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.2526,
+              51.0706
+            ],
+            [
+              13.2526,
+              51.2506
+            ],
+            [
+              13.4326,
+              51.2506
+            ],
+            [
+              13.4326,
+              51.0706
+            ],
+            [
+              13.2526,
+              51.0706
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg L2 Hull S"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.2526,
+              50.5706
+            ],
+            [
+              13.2526,
+              50.7506
+            ],
+            [
+              13.4326,
+              50.7506
+            ],
+            [
+              13.4326,
+              50.5706
+            ],
+            [
+              13.2526,
+              50.5706
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg Spine"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            13.0926,
+            50.9106
+          ],
+          [
+            13.3426,
+            51.1606
+          ],
+          [
+            13.5926,
+            50.9106
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Freiberg Diagonal"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            12.542599999999998,
+            50.110600000000005
+          ],
+          [
+            14.1426,
+            51.7106
+          ]
+        ]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin Area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.605,
+              51.72
+            ],
+            [
+              12.605,
+              53.32
+            ],
+            [
+              14.205,
+              53.32
+            ],
+            [
+              14.205,
+              51.72
+            ],
+            [
+              12.605,
+              51.72
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.405,
+          52.52
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.655,
+          52.52
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.155,
+          52.52
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.405,
+          52.77
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.405,
+          52.27
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P6"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.655,
+          52.77
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.655,
+          52.27
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P8"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.155,
+          52.77
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L1 P9"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          13.155,
+          52.27
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L2 Hull E"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.565,
+              52.43
+            ],
+            [
+              13.565,
+              52.61
+            ],
+            [
+              13.745000000000001,
+              52.61
+            ],
+            [
+              13.745000000000001,
+              52.43
+            ],
+            [
+              13.565,
+              52.43
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L2 Hull W"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.975,
+              52.43
+            ],
+            [
+              12.975,
+              52.61
+            ],
+            [
+              13.155,
+              52.61
+            ],
+            [
+              13.155,
+              52.43
+            ],
+            [
+              12.975,
+              52.43
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L2 Hull N"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.315,
+              52.88
+            ],
+            [
+              13.315,
+              53.06
+            ],
+            [
+              13.495,
+              53.06
+            ],
+            [
+              13.495,
+              52.88
+            ],
+            [
+              13.315,
+              52.88
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin L2 Hull S"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.315,
+              52.18
+            ],
+            [
+              13.315,
+              52.36
+            ],
+            [
+              13.495,
+              52.36
+            ],
+            [
+              13.495,
+              52.18
+            ],
+            [
+              13.315,
+              52.18
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin Spine"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            13.155,
+            52.52
+          ],
+          [
+            13.405,
+            52.77
+          ],
+          [
+            13.655,
+            52.52
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Berlin Diagonal"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            12.605,
+            51.72
+          ],
+          [
+            14.205,
+            53.32
+          ]
+        ]
+      }
+    },
+
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München Area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              10.7761,
+              47.3374
+            ],
+            [
+              10.7761,
+              48.9374
+            ],
+            [
+              12.376100000000001,
+              48.9374
+            ],
+            [
+              12.376100000000001,
+              47.3374
+            ],
+            [
+              10.7761,
+              47.3374
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.5761,
+          48.1374
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.8261,
+          48.1374
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.326100000000001,
+          48.1374
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.5761,
+          48.3874
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.5761,
+          47.887399999999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P6"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.8261,
+          48.3874
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.8261,
+          47.887399999999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P8"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.326100000000001,
+          48.3874
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L1 P9"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          11.326100000000001,
+          47.887399999999996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L2 Hull E"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              11.7361,
+              48.047399999999996
+            ],
+            [
+              11.7361,
+              48.227399999999996
+            ],
+            [
+              11.916100000000001,
+              48.227399999999996
+            ],
+            [
+              11.916100000000001,
+              48.047399999999996
+            ],
+            [
+              11.7361,
+              48.047399999999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L2 Hull W"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              11.146100000000001,
+              48.047399999999996
+            ],
+            [
+              11.146100000000001,
+              48.227399999999996
+            ],
+            [
+              11.326100000000001,
+              48.227399999999996
+            ],
+            [
+              11.326100000000001,
+              48.047399999999996
+            ],
+            [
+              11.146100000000001,
+              48.047399999999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L2 Hull N"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              11.4861,
+              48.2974
+            ],
+            [
+              11.4861,
+              48.4774
+            ],
+            [
+              11.6661,
+              48.4774
+            ],
+            [
+              11.6661,
+              48.2974
+            ],
+            [
+              11.4861,
+              48.2974
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München L2 Hull S"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              11.4861,
+              47.797399999999996
+            ],
+            [
+              11.4861,
+              47.977399999999996
+            ],
+            [
+              11.6661,
+              47.977399999999996
+            ],
+            [
+              11.6661,
+              47.797399999999996
+            ],
+            [
+              11.4861,
+              47.797399999999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München Spine"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            11.326100000000001,
+            48.1374
+          ],
+          [
+            11.5761,
+            48.3874
+          ],
+          [
+            11.8261,
+            48.1374
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "München Diagonal"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            10.7761,
+            47.3374
+          ],
+          [
+            12.376100000000001,
+            48.9374
+          ]
+        ]
+      }
+    }
+  ]
+}
+```
+``` js  -RTree.js
+const mapDiv = document.getElementById('map');
+if (mapDiv._leafletMap) {
+  mapDiv._leafletMap.remove();
+  mapDiv._leafletMap = null;
+}
+
+// Freiberg als Zentrum
+mapDiv._leafletMap = L.map(mapDiv).setView([50.9106, 13.3426], 8);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap-Mitwirkende'
+}).addTo(mapDiv._leafletMap);
+
+// 3) Styling + Popups
+const style = (feature) => {
+  switch (feature.geometry.type) {
+    case 'Polygon':
+    case 'MultiPolygon':
+      return { color: '#2e7d32', weight: 2, fillColor: '#43a047', fillOpacity: 0.35 };
+    case 'LineString':
+    case 'MultiLineString':
+      return { color: '#1e88e5', weight: 4 };
+    default:
+      return { color: '#e53935' };
+  }
+};
+
+const onEachFeature = (feature, layer) => {
+  const name = feature.properties && feature.properties.name ? feature.properties.name : feature.geometry.type;
+  layer.bindPopup(`<strong>${name}</strong>`);
+};
+
+const pointToLayer = (feature, latlng) => {
+  return L.circleMarker(latlng, {
+    radius: 7,
+    color: '#b71c1c',
+    fillColor: '#e53935',
+    fillOpacity: 0.9,
+    weight: 2
+  });
+};
+
+// 4) GeoJSON-Layer
+const geoJson = L.geoJSON(data, { style, onEachFeature, pointToLayer }).addTo(mapDiv._leafletMap);
+
+if (geoJson.getLayers().length) {
+  mapDiv._leafletMap.fitBounds(geoJson.getBounds(), { padding: [20, 20] });
+}
+
+// ======================
+// 5) R-TREE AUFBAU
+// ======================
+
+// Hilfsfunktionen
+const bboxOfCoords = (coords) => {
+  // coords = Array von [lon, lat] oder verschachtelt
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+  const walk = (c) => {
+    if (typeof c[0] === 'number' && typeof c[1] === 'number') {
+      const [lon, lat] = c;
+      if (lon < minX) minX = lon;
+      if (lat < minY) minY = lat;
+      if (lon > maxX) maxX = lon;
+      if (lat > maxY) maxY = lat;
+    } else {
+      for (const cc of c) walk(cc);
+    }
+  };
+
+  walk(coords);
+  return { minX, minY, maxX, maxY };
+};
+
+const bboxOfFeature = (feature) => {
+  const { geometry } = feature;
+  if (!geometry) return null;
+
+  switch (geometry.type) {
+    case 'Point': {
+      const [lon, lat] = geometry.coordinates;
+      return { minX: lon, minY: lat, maxX: lon, maxY: lat };
+    }
+    case 'MultiPoint':
+    case 'LineString':
+    case 'MultiLineString':
+    case 'Polygon':
+    case 'MultiPolygon': {
+      return bboxOfCoords(geometry.coordinates);
+    }
+    default:
+      return null;
+  }
+};
+
+// Alle Features aus dem GeoJSON extrahieren (auch wenn mehrere FeatureCollections möglich wären)
+const features = (data.type === 'FeatureCollection')
+  ? data.features
+  : (data.type === 'Feature' ? [data] : []);
+
+// R-Tree initialisieren
+const tree = new RBush(); // Standard (maxEntries ~9)
+
+// Einfügen: rbush erwartet {minX, minY, maxX, maxY, ...}
+const items = [];
+features.forEach((f, idx) => {
+  const bb = bboxOfFeature(f);
+  if (!bb) return;
+  items.push({
+    ...bb,
+    id: idx,
+    name: (f.properties && f.properties.name) || f.geometry.type,
+    feature: f
+  });
+});
+
+tree.load(items);
+
+// ============
+// 6) LOGGING
+// ============
+const json = tree.toJSON(); // Struktur mit Kindern, BBox und Höhe
+console.log('Einträge:', items.length);
+console.log('Höhe:', json.height);
+console.log('Struktur (JSON):', JSON.stringify(json, null, 2));
+
+// Ebenen-Statistik sammeln
+const levelStats = [];
+(function collect(node, depth = 1) {
+  if (!levelStats[depth]) levelStats[depth] = { nodes: 0, leaves: 0 };
+  levelStats[depth].nodes += 1;
+  if (node.leaf) levelStats[depth].leaves += node.children.length;
+  if (node.children) node.children.forEach(ch => collect(ch, depth + 1));
+})(json, 1);
+
+console.log('Ebenen-Stats (Tiefe -> {nodes, leaves}):', levelStats);
+
+// ... dein bisherer Code bis inkl. "VISUALISIERUNG DER BBOX" ersetzen wir ab hier
+
+// ============================
+// 7) VISUALISIERUNG DER BBOX
+// ============================
+
+// Pro Baum-Ebene LayerGroup UND zusätzlich "Subtree"-Gruppen für rekursives Ein-/Ausblenden
+const levelColors = ['#f44336', '#ffa000', '#43a047', '#1e88e5', '#8e24aa', '#00897b', '#6d4c41'];
+const levelGroups = [];
+const subtreeGroups = new Map(); // key: nodeId, value: L.LayerGroup (enthält alle Nachfahren dieses Knotens)
+
+const lonLatToBounds = (minX, minY, maxX, maxY) => L.latLngBounds([minY, minX], [maxY, maxX]);
+
+// Maximale Tiefe ermitteln, um Panes anzulegen
+let maxDepth = 1;
+(function getMaxDepth(node, d = 1) {
+  maxDepth = Math.max(maxDepth, d);
+  if (node.children) node.children.forEach(ch => getMaxDepth(ch, d + 1));
+})(json, 1);
+
+// Leaflet-Panes je Tiefe (höhere Tiefe = darüber liegend)
+for (let d = 1; d <= maxDepth + 2; d++) {
+  const paneName = `rtree-depth-${d}`;
+  if (!mapDiv._leafletMap.getPane(paneName)) {
+    const pane = mapDiv._leafletMap.createPane(paneName);
+    pane.style.zIndex = String(650 + d * 10);
+    pane.style.mixBlendMode = 'multiply'; // Überlagerungen besser erkennbar
+  }
+}
+
+// Stil-Helfer
+const styleFor = (depth, isLeaf) => ({
+  color: levelColors[(depth - 1) % levelColors.length],
+  weight: isLeaf ? 1.5 : 2.5,
+  dashArray: isLeaf ? '2,4' : '6,6',
+  fill: false,
+  opacity: 0.9,
+  pane: `rtree-depth-${depth}`
+});
+
+// Knoten zeichnen und Subtree-Gruppen vorbereiten
+let _autoNodeId = 0;
+const nodeMeta = new Map(); // nodeId -> { depth, leaf, rect, parentId, childrenIds: [] }
+
+const drawSubtreePrepared = (node, depth = 1, parentId = null) => {
+  const nodeId = ++_autoNodeId;
+  const isLeaf = !!node.leaf;
+
+  if (!levelGroups[depth]) levelGroups[depth] = L.layerGroup();
+
+  // Rechteck (aktueller Knoten)
+  const rect = L.rectangle(lonLatToBounds(node.minX, node.minY, node.maxX, node.maxY), styleFor(depth, isLeaf))
+    .bindTooltip(() => {
+      const kind = isLeaf ? 'Leaf' : 'Node';
+      const kids = node.children ? node.children.length : 0;
+      return `R-Tree Ebene ${depth} • ${kind} • Kinder: ${kids}`;
+    });
+
+  rect.addTo(levelGroups[depth]);
+
+  // Subtree-Gruppe für diesen Knoten (enthält NUR Nachfahren, nicht den Knoten selbst)
+  const group = L.layerGroup();
+  subtreeGroups.set(nodeId, group);
+
+  // Meta merken
+  nodeMeta.set(nodeId, { depth, leaf: isLeaf, rect, parentId, childrenIds: [] });
+
+  // Interaktionen: Hover hebt diesen Knoten + direkte Kinder hervor
+  rect.on('mouseover', () => {
+    rect.setStyle({ weight: isLeaf ? 2 : 3.5, opacity: 1 });
+  });
+  rect.on('mouseout', () => {
+    rect.setStyle(styleFor(depth, isLeaf));
+  });
+
+  // Klick toggelt den vorbereiteten Subtree (Nachfahren) ein/aus
+  rect.on('click', () => {
+    const g = subtreeGroups.get(nodeId);
+    if (mapDiv._leafletMap.hasLayer(g)) g.removeFrom(mapDiv._leafletMap);
+    else g.addTo(mapDiv._leafletMap);
+  });
+
+  // Kinder vorbereiten (werden NICHT automatisch der Karte hinzugefügt,
+  // sondern nur der Subtree-Gruppe dieses Knotens)
+  if (node.children && node.children.length) {
+    node.children.forEach(ch => {
+      const childId = drawSubtreePrepared(ch, depth + 1, nodeId);
+
+      // Rechteck des Kindes erzeugen (separates Layer-Objekt für die Subtree-Ansicht)
+      const childIsLeaf = !!ch.leaf;
+      const childRect = L.rectangle(
+        lonLatToBounds(ch.minX, ch.minY, ch.maxX, ch.maxY),
+        styleFor(depth + 1, childIsLeaf)
+      ).bindTooltip(() => {
+        const kind = childIsLeaf ? 'Leaf' : 'Node';
+        const kids = ch.children ? ch.children.length : 0;
+        return `R-Tree Ebene ${depth + 1} • ${kind} • Kinder: ${kids}`;
+      });
+
+      // Hover-Effekt in Subtree-Ansicht
+      childRect.on('mouseover', () => childRect.setStyle({ weight: childIsLeaf ? 2 : 3.5, opacity: 1 }));
+      childRect.on('mouseout', () => childRect.setStyle(styleFor(depth + 1, childIsLeaf)));
+
+      // Auch ein Klick auf das Kind toggelt dessen Subtree
+      childRect.on('click', () => {
+        const cg = subtreeGroups.get(childId);
+        if (mapDiv._leafletMap.hasLayer(cg)) cg.removeFrom(mapDiv._leafletMap);
+        else cg.addTo(mapDiv._leafletMap);
+      });
+
+      // Kind-Rechteck in die Subtree-Gruppe des Elternknotens
+      childRect.addTo(group);
+
+      // Beziehung merken
+      nodeMeta.get(nodeId).childrenIds.push(childId);
+    });
+  }
+
+  return nodeId;
+};
+
+// Baum vorbereiten
+const rootId = drawSubtreePrepared(json, 1, null);
+
+// Alle Ebenen-Gruppen standardmäßig anzeigen (mehrere „Felder“ gleichzeitig sichtbar)
+const overlays = {};
+levelGroups.forEach((lg, depth) => {
+  if (!lg) return;
+  const label = `R-Tree Ebene ${depth}`;
+  overlays[label] = lg;
+  lg.addTo(mapDiv._leafletMap);
+});
+
+// Separate Overlay-Option, um die interaktiven Subtrees schnell zu leeren
+const interactiveOverlay = L.layerGroup();
+overlays['Subtrees (interaktiv, Klick auf BBox)'] = interactiveOverlay;
+// (Leeres Dummy-Layer nur für den Schalter in der Kontrolle)
+// Das tatsächliche Hinzufügen/Entfernen passiert pro Knoten-Gruppe beim Klick
+
+// Leaf-BBoxes der eigentlichen Einträge (dein ursprünglicher feingestrichelter Layer)
+const leafBoxes = L.layerGroup();
+items.forEach(it => {
+  L.rectangle(lonLatToBounds(it.minX, it.minY, it.maxX, it.maxY), {
+    color: '#000',
+    weight: 1,
+    dashArray: '1,6',
+    fill: false,
+    opacity: 0.45,
+    pane: `rtree-depth-${maxDepth + 2}`
+  }).bindTooltip(`Leaf: ${it.name}`).addTo(leafBoxes);
+});
+overlays['Leaf-BBoxes (Einträge)'] = leafBoxes;
+
+// Layer-Kontrolle
+L.control.layers(null, overlays, { collapsed: false }).addTo(mapDiv._leafletMap);
+
+// Hinweis-Box (kleine UI) – erklärt die Interaktion
+const HelpControl = L.Control.extend({
+  onAdd() {
+    const div = L.DomUtil.create('div', 'leaflet-bar');
+    div.style.padding = '8px';
+    div.style.background = 'white';
+    div.style.lineHeight = '1.2';
+    div.style.font = '12px/1.2 system-ui, sans-serif';
+    div.innerHTML = `
+      <div><strong>R-Tree Ansicht</strong></div>
+      <div>• Alle Ebenen sind sichtbar.</div>
+      <div>• <em>Klick</em> auf BBox: Subtree ein/aus.</div>
+      <div>• <em>Hover</em>: BBox hervorheben.</div>
+      <div>• Layer-Kontrolle: Ebenen/Leafs schalten.</div>
+    `;
+    return div;
+  },
+  onRemove() {}
+});
+mapDiv._leafletMap.addControl(new HelpControl({ position: 'topright' }));
+```
+<script>
+try {
+  const data = @input(0)
+  @input(1)
+} catch (e) {
+  console.error("Fehler beim Hinzufügen der Leaf-BBoxes:", e.message, "\n", e.stack);
+}
+"LIA: stop"
+</script>
+
+<div id="map" style="height:60vh; width:100%;"></div>
 
 
 ## Block 7: Use Cases & Abgrenzung
