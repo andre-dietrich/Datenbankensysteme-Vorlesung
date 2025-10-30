@@ -385,7 +385,6 @@ Bevor wir in die Details von Mango-Queries einsteigen, sollten wir einen Moment 
 **Rückblick Session (CSV):**
 
     --{{0}}--
-
 Auch wenn wir die CSV-Daten in ein Dictionary, eine assoziative Map oder eine Hash-Tabelle umwandeln, sodass wir einzelne Werte blitzschnell – meist in $O(1)$, im schlechtesten Fall in $O(\log n)$ – abrufen können, bleibt ein zentrales Problem bestehen: Sobald wir nach Produkten mit stock < 10 suchen, müssen wir trotzdem jedes einzelne Produkt prüfen. Das bedeutet: Die Suche ist $O(n)$ – also linear in der Anzahl der Produkte, unabhängig davon, wie effizient der Zugriff auf einzelne Werte ist.
 
 ```js
