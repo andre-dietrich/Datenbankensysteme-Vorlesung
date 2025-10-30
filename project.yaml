@@ -85,7 +85,7 @@ collection:
       - NoSQL
       - Cache
       - Performance
-      - 
+
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md
     title: "L3: Document Stores"
     tags:
