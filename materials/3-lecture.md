@@ -352,7 +352,7 @@ const doc = await db.get('P00001');
 console.log(JSON.stringify(doc, null, 2));
 
 // Alle Dokumente auflisten
-const result = await db.allDocs({ include_docs: true });
+const result = await db.allDocs({ include_docs: true, limit: 3 });
 console.log(JSON.stringify(result.rows, null, 2));
 ```
 @PouchDB.eval
@@ -2108,7 +2108,7 @@ R-Trees sind spezielle Datenstrukturen, die für die effiziente Verwaltung und S
   ]
 }
 ```
-``` js  -RTree.js
+<script>
 const mapDiv = document.getElementById('map2');
 if (mapDiv._leafletMap) {
   mapDiv._leafletMap.remove();
@@ -2151,6 +2151,8 @@ const pointToLayer = (feature, latlng) => {
     weight: 2
   });
 };
+
+const data = @input
 
 // 4) GeoJSON-Layer
 const geoJson = L.geoJSON(data, { style, onEachFeature, pointToLayer }).addTo(mapDiv._leafletMap);
@@ -2423,14 +2425,7 @@ const HelpControl = L.Control.extend({
   onRemove() {}
 });
 mapDiv._leafletMap.addControl(new HelpControl({ position: 'topright' }));
-```
-<script>
-try {
-  const data = @input(0)
-  @input(1)
-} catch (e) {
-  console.error("Fehler beim Hinzufügen der Leaf-BBoxes:", e.message, "\n", e.stack);
-}
+
 "LIA: stop"
 </script>
 
