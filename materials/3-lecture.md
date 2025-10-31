@@ -1574,7 +1574,7 @@ R-Trees sind spezielle Datenstrukturen, die für die effiziente Verwaltung und S
 > R-Trees machen räumliche Suchen schnell und skalierbar – ein zentrales Werkzeug für Geo-Datenbanken und Kartenanwendungen.
 
     {{2}}
-``` json  +Features.json
+``` json  -Features.json
 {
   "type": "FeatureCollection",
   "features": [
@@ -2236,7 +2236,7 @@ tree.load(items);
 const json = tree.toJSON(); // Struktur mit Kindern, BBox und Höhe
 console.log('Einträge:', items.length);
 console.log('Höhe:', json.height);
-console.log('Struktur (JSON):', JSON.stringify(json, null, 2));
+//console.log('Struktur (JSON):', JSON.stringify(json, null, 2));
 
 // Ebenen-Statistik sammeln
 const levelStats = [];
