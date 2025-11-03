@@ -1,109 +1,93 @@
 # Lecture Agenda
 
-> Draft v2.0 – Fokus auf Relationale Datenbanken, SQL & Relationale Algebra. Andere Paradigmen (KV, Document, Column, Graph) jeweils kompakt in 1 Lektion. Polyglot-Projekt bleibt erhalten. Tags: [MSx] = Projekt-Meilenstein.
-
 ## Überblick
 
-Die Agenda führt kompakt durch verschiedene DB-Paradigmen (File, KV, Document, Column, Graph), legt aber den **Hauptfokus auf Relationale Datenbanken**: Relationale Algebra, SQL (Grundlagen & Vertiefung), Normalisierung, Transaktionen, Indexe, Query-Optimierung und Nebenläufigkeit. Das Polyglot-Projekt vergleicht Paradigmen in der Praxis.
+Diese Vorlesung führt systematisch in Datenbanksysteme ein – von kompakten Paradigmen-Überblicken über eine tiefgehende relationale Ausbildung bis hin zu modernen Polyglot-Persistence-Architekturen.
 
-## Lernziele Mapping
+**Struktur:**
 
-| Lernziel                       | Primäre Phasen                                        |
-| ------------------------------ | ----------------------------------------------------- |
-| 1 Paradigmen verstehen         | L1–L6 (kompakt) + L18 (Graph) + L20 (Polyglot)       |
-| 2 Relationale DB & SQL         | **L7–L17** (Hauptfokus: 11 Lektionen + 4 Exercises)  |
-| 3 Praktische Erfahrung         | Alle Exercises (E1–E7)                                |
-| 4 ACID/Konsistenz/Verteiltheit | L10 (ACID formal), L16–L17 (MVCC/Locking), L21 (CAP) |
-| 5 Bewertung & Trade-offs       | L6, L20 (Polyglot), L21 (Abschluss)                   |
-
-## Projekt-Meilensteine (Polyglot)
-
-| Code  | Zeitpunkt | Inhalt                                                        |
-| ----- | --------- | ------------------------------------------------------------- |
-| MS1   | Nach L6   | Rohdaten + KV/Document/Wide-Column/Column Layer (Vergleich)   |
-| MS2   | Nach L11  | Relational Redesign + Normalisierung + DDL                    |
-| MS3   | Nach L15  | Index-Design + Query-Optimierung + Performance-Analyse        |
-| MS4   | Nach L18  | Graph-Extension (Beziehungsanalyse)                           |
-| Final | L20/L21   | Polyglot Architektur + Konsistenz-Narrativ + Trade-off Report |
+- **Block 1**: Paradigmen-Überblick (kompakt) – Key-Value, Document, Wide Column, Column Stores
+- **Block 2**: SQL Einführung & Grundlagen – SELECT, DDL, DML, Filtering, Joins
+- **Block 3**: SQL Vertiefung – Row-Level Functions, Aggregation, Window Functions, Advanced Techniques
+- **Block 4**: Theorie, Optimierung & Polyglot – Relationale Algebra, Performance, Graph/Time Series, Polyglot Persistence
+- **Block 5**: Projektabschluss – Präsentation, DSGVO, Ausblick
 
 ---
 
-## Sessions im Detail
+## Sessions & Module
 
 ### Block 1 – Paradigmen-Überblick (kompakt)
 
-| Nr  | Type      | Titel                                      | Dauer | Lernziele | Tags | Summary                                                                  | Material                |
-| --- | --------- | ------------------------------------------ | ----- | --------- | ---- | ------------------------------------------------------------------------ | ----------------------- |
-| L1  | lecture   | Daten & Serialisierung + DIKW              | 90m   | 1,4       |      | CSV/JSON/YAML/XML, Ad-hoc Analyse, Inkonsistenz-Motivation              | materials/1-lecture.md  |
-| E1  | exercise  | Hands-on: CSV→DuckDB & JSON Flatten        | 90m   | 1,3       |      | Querying CSV direkt, JSON Feldextraktion, Inkonsistenz-Fahndung          | materials/1-exercise.md |
-| L2  | lecture   | Key-Value Stores (kompakt)                 | 90m   | 1         |      | Zugriff, Patterns, TTL, Atomic Keys, Grenzen (keine Range Queries)      | materials/2-lecture.md  |
-| L3  | lecture   | Document Stores (kompakt)                  | 90m   | 1         |      | JSON Persistenz, Schema-Evolution, Sync & Konflikte                      | materials/3-lecture.md  |
-| L4  | lecture   | Wide Column Stores (kompakt)               | 90m   | 1         |      | Column Families, Distributed, Write-Heavy, Cassandra/HBase/Bigtable      | materials/4-lecture.md  |
-| L5  | lecture   | Column Stores (kompakt)                    | 90m   | 1         |      | Kompression, Analytics, Aggregations-Performance, DuckDB/Parquet         | materials/5-lecture.md  |
-| L6  | lecture   | Paradigmen im Vergleich & Trade-offs       | 90m   | 1,5       |      | Strukturgrad, Konsistenz, Abfrageausdruck, Performance-Profile           | materials/6-lecture.md  |
-| -   | milestone | MS1 nach L6                                | -     | 1,5       | MS1  | Rohdaten + KV/Document/Wide-Column/Column Artefakt & Vergleichsnotizen   | project/ms1.md          |
-
-### Block 2 – Relationale Grundlagen (Algebra & SQL Basics)
-
-| Nr  | Type     | Titel                                                     | Dauer | Lernziele | Tags | Summary                                                              | Material                |
-| --- | -------- | --------------------------------------------------------- | ----- | --------- | ---- | -------------------------------------------------------------------- | ----------------------- |
-| L7  | lecture  | Relationales Modell & Relationale Algebra                 | 90m   | 2         |      | Tabellen, Keys, Relationale Operationen (σ, π, ⨝, ∪, −), Äquivalenz | materials/7-lecture.md  |
-| E2  | exercise | Relationale Algebra & SQL Translation                     | 90m   | 2,3       |      | Formale Notation, Äquivalenzen, Übersetzung in SQL                   | materials/2-exercise.md |
-| L8  | lecture  | SQL Basics: SELECT, FROM, WHERE, JOIN                     | 90m   | 2         |      | Grundlegende Abfragen, Inner/Outer Joins, Aggregate (COUNT, SUM)    | materials/8-lecture.md  |
-| E3  | exercise | SQL Basics: Praktische Abfragen                           | 90m   | 2,3       |      | Queries auf Beispielschema, Joins, Gruppierungen                     | materials/3-exercise.md |
-| L9  | lecture  | SQL Vertiefung: Subqueries, CTEs, Window Functions        | 90m   | 2         |      | Korrelierte Subqueries, WITH-Klausel, ROW_NUMBER, PARTITION BY       | materials/9-lecture.md  |
-| E4  | exercise | SQL Vertiefung: Komplexe Queries                          | 90m   | 2,3       |      | Mehrstufige CTEs, Window Functions, analytische Abfragen             | materials/4-exercise.md |
-
-### Block 3 – Relationale Integrität & Transaktionen
-
-| Nr  | Type      | Titel                                                | Dauer | Lernziele | Tags | Summary                                                      | Material                 |
-| --- | --------- | ---------------------------------------------------- | ----- | --------- | ---- | ------------------------------------------------------------ | ------------------------ |
-| L10 | lecture   | Normalisierung (1NF–BCNF) + Denormalisierung         | 90m   | 2,5       |      | Redundanzabbau, funktionale Abhängigkeiten, Trade-offs      | materials/10-lecture.md  |
-| L11 | lecture   | Constraints & Referentielle Integrität               | 90m   | 2,4       |      | PRIMARY KEY, FOREIGN KEY, CHECK, UNIQUE, NOT NULL            | materials/11-lecture.md  |
-| L12 | lecture   | Transaktionen & ACID (formal)                        | 90m   | 2,4       |      | Atomicität, Konsistenz, Isolation, Durability (formalisiert) | materials/12-lecture.md  |
-| E5  | exercise  | ACID & Isolation Levels: Anomalie-Simulation         | 90m   | 2,4       |      | Lost Update, Dirty Read, Phantom Read (praktische Szenarien) | materials/5-exercise.md  |
-| -   | milestone | MS2 nach L11                                         | -     | 2,4,5     | MS2  | Relational Redesign + Normalisierung + DDL                   | project/ms2.md           |
-
-### Block 4 – Query-Optimierung & Performance
-
-| Nr  | Type      | Titel                                         | Dauer | Lernziele | Tags | Summary                                                       | Material                |
-| --- | --------- | --------------------------------------------- | ----- | --------- | ---- | ------------------------------------------------------------- | ----------------------- |
-| L13 | lecture   | Indexe: B-Trees, Hash, Bitmap                 | 90m   | 2,4,5     |      | Indexstrukturen, Kosten, Covering Indexes                     | materials/13-lecture.md |
-| L14 | lecture   | Query Optimization & EXPLAIN                  | 90m   | 2,4,5     |      | Abfragepfade, Kostenschätzung, Join Order, Optimierungshebel | materials/14-lecture.md |
-| E6  | exercise  | Index-Design & Performance-Analyse            | 90m   | 2,3,4,5   |      | Index an/aus, EXPLAIN Plan lesen, Benchmark-Vergleich        | materials/6-exercise.md |
-| L15 | lecture   | Performance Strategien: Denormalisierung & Co | 90m   | 2,5       |      | Materialized Views, Partitioning, Query Rewriting             | materials/15-lecture.md |
-| -   | milestone | MS3 nach L15                                  | -     | 2,4,5     | MS3  | Index-Design + Query-Optimierung + Performance-Report         | project/ms3.md          |
-
-### Block 5 – Nebenläufigkeit & Fortgeschrittene Konzepte
-
-| Nr  | Type    | Titel                                                        | Dauer | Lernziele | Tags | Summary                                                 | Material                |
-| --- | ------- | ------------------------------------------------------------ | ----- | --------- | ---- | ------------------------------------------------------- | ----------------------- |
-| L16 | lecture | Locking vs. MVCC                                             | 90m   | 2,4       |      | Pessimistic/Optimistic Locking, Snapshot Isolation      | materials/16-lecture.md |
-| L17 | lecture | Views, Materialized Views, Triggers, Stored Procedures       | 90m   | 2         |      | Abstraktion, Cached Queries, Business Logic in der DB   | materials/17-lecture.md |
-
-### Block 6 – Graph & Polyglot
-
-| Nr  | Type      | Titel                                        | Dauer | Lernziele | Tags | Summary                                                 | Material                |
-| --- | --------- | -------------------------------------------- | ----- | --------- | ---- | ------------------------------------------------------- | ----------------------- |
-| L18 | lecture   | Graph Databases (kompakt)                    | 90m   | 1,5       |      | Property Graph, Traversal, Pattern Matching vs. Joins   | materials/18-lecture.md |
-| E7  | exercise  | Graph Traversal & Relationales Redesign      | 90m   | 1,3,5     |      | Pfadsuche, Vergleich Graph Query vs. rekursive SQL CTEs | materials/7-exercise.md |
-| -   | milestone | MS4 nach L18                                 | -     | 1,5       | MS4  | Graph-Extension (Beziehungsanalyse)                     | project/ms4.md          |
-
-### Block 7 – Polyglot & Verteiltheit
-
-| Nr  | Type      | Titel                                            | Dauer | Lernziele | Tags  | Summary                                                           | Material                |
-| --- | --------- | ------------------------------------------------ | ----- | --------- | ----- | ----------------------------------------------------------------- | ----------------------- |
-| L19 | lecture   | Polyglot Persistence & Architektur-Patterns      | 90m   | 5         |      | CQRS, Event Sourcing, Data Lake, Integrationsstrategien           | materials/19-lecture.md |
-| L20 | lecture   | Verteiltheit: Replikation, Sharding, Konsistenz  | 90m   | 4,5       |      | Master-Replica, Partitioning, Eventual Consistency                | materials/20-lecture.md |
-| L21 | lecture   | CAP-Theorem, Konsistenzmodelle & Abschluss       | 90m   | 4,5       |      | CAP Formalisierung, Strong/Eventual/Causal, NewSQL/HTAP Ausblick  | materials/21-lecture.md |
-| -   | milestone | Final nach L21                                   | -     | 1,2,4,5   | Final | Polyglot Architektur + Konsistenz-Narrativ + Trade-off Report    | project/final.md        |
+| Nr  | Type      | Titel                                                     | Dauer | Lernziele | Tags | Summary                                                                                      | Material                |
+|-----|-----------|-----------------------------------------------------------|-------|-----------|------|----------------------------------------------------------------------------------------------|-------------------------|
+| L1  | lecture   | Daten & Serialisierung + DIKW                             | 90m   | 1,4       |      | CSV/JSON/YAML/XML, Ad-hoc Analyse, Inkonsistenz-Motivation                                  | materials/1-lecture.md  |
+| E1  | exercise  | Hands-on: CSV→DuckDB & JSON Flatten                       | 90m   | 1,3       |      | Querying CSV direkt, JSON Feldextraktion, Inkonsistenz-Fahndung                             | materials/1-exercise.md |
+| L2  | lecture   | Key-Value Stores (kompakt)                                | 90m   | 1         |      | Zugriff, Patterns, TTL, Atomic Keys, Grenzen (keine Range Queries)                          | materials/2-lecture.md  |
+| L3  | lecture   | Document Stores (kompakt)                                 | 90m   | 1         |      | JSON Persistenz, Schema-Evolution, Sync & Konflikte                                          | materials/3-lecture.md  |
+| L4  | lecture   | Wide Column & Column Stores (kompakt)                     | 90m   | 1         |      | Column Families (Cassandra/HBase) + Columnar Storage (DuckDB/Parquet), Kompression, Analytics | materials/4-lecture.md  |
+| L5  | lecture   | Relationales Modell: Tabellen, Keys, Integrität           | 90m   | 2         |      | Einführung Relationale Datenbanken, Tabellen, Primär-/Fremdschlüssel, Normalisierung (Überblick), Constraints | materials/5-lecture.md  |
+| L6  | lecture   | Paradigmen im Vergleich & Trade-offs                      | 90m   | 1,5       |      | Strukturgrad, Konsistenz, Abfrageausdruck, Performance-Profile                               | materials/6-lecture.md  |
+| -   | milestone | MS1 nach L6                                               | -     | 1,5       | MS1  | Rohdaten + KV/Document/Wide-Column/Column Artefakt & Vergleichsnotizen                       | project/ms1.md          |
 
 ---
 
-## Nächste Schritte
+### Block 2 – SQL Einführung & Grundlagen
 
-1. **Review**: Feedback zur neuen Struktur?
-2. **Session-Skeletons**: Soll ich die Skeletons entsprechend aktualisieren?
-3. **Materials**: Sollen bestehende Materials migriert/angepasst werden?
+| Nr  | Type      | Titel                                                     | Dauer | Lernziele | Tags | Summary                                                                                      | Material                |
+|-----|-----------|-----------------------------------------------------------|-------|-----------|------|----------------------------------------------------------------------------------------------|-------------------------|
+| L7  | lecture   | SQL Introduction & Query Data (SELECT)                    | 90m   | 2         |      | Was ist SQL, Komponenten, SELECT/FROM/WHERE/ORDER BY/GROUP BY/HAVING/DISTINCT               | materials/7-lecture.md  |
+| E2  | exercise  | SQL Basics: Praktische SELECT-Abfragen                    | 90m   | 2,3       |      | Queries auf Beispielschema, Sortierung, Gruppierung, Aggregation                            | materials/2-exercise.md |
+| L8  | lecture   | SQL Data Definition (DDL) & Manipulation (DML)            | 90m   | 2         |      | CREATE/ALTER/DROP, INSERT/UPDATE/DELETE, Constraints                                         | materials/8-lecture.md  |
+| E3  | exercise  | DDL/DML Hands-on                                          | 90m   | 2,3       |      | Tabellen erstellen, ändern, Daten einfügen/ändern/löschen                                   | materials/3-exercise.md |
+| L9  | lecture   | SQL Filtering & Operators                                 | 90m   | 2         |      | Comparison/Logical Operators, BETWEEN/IN/LIKE                                                | materials/9-lecture.md  |
+| L10 | lecture   | SQL Joins & Combining Data                                | 90m   | 2         |      | INNER/LEFT/RIGHT/FULL/CROSS, UNION/EXCEPT/INTERSECT                                         | materials/10-lecture.md |
+| E4  | exercise  | Joins & Set Operations                                    | 90m   | 2,3       |      | Multi-Table Queries, Join-Strategien, Set-Operatoren                                        | materials/4-exercise.md |
+| -   | milestone | MS2 nach L10                                              | -     | 2,3       | MS2  | SQL-Schema + DDL-Skript, grundlegende Abfragen                                              | project/ms2.md          |
 
-> Bitte Rückmeldung: "Agenda OK" oder Änderungswünsche. Danach: Skeleton-Anpassung & Material-Migration.
+---
+
+### Block 3 – SQL Vertiefung
+
+| Nr  | Type      | Titel                                                     | Dauer | Lernziele | Tags | Summary                                                                                      | Material                |
+|-----|-----------|-----------------------------------------------------------|-------|-----------|------|----------------------------------------------------------------------------------------------|-------------------------|
+| L11 | lecture   | Row-Level Functions (String, Number, Date, CASE)          | 90m   | 2         |      | String/Number/Date-Funktionen, Null-Handling, CASE                                           | materials/11-lecture.md |
+| L12 | lecture   | Aggregation & Window Functions                            | 90m   | 2         |      | Aggregate Functions, Window Basics, Ranking/Value Functions                                 | materials/12-lecture.md |
+| E5  | exercise  | Advanced Aggregation & Analytics                          | 90m   | 2,3       |      | Window Functions, Ranking, analytische Queries                                               | materials/5-exercise.md |
+| L13 | lecture   | Advanced SQL Techniques                                   | 90m   | 2         |      | Subqueries, CTEs, Views, Temp Tables, Stored Procedures                                     | materials/13-lecture.md |
+| E6  | exercise  | Subqueries, CTEs & Views                                  | 90m   | 2,3       |      | Mehrstufige CTEs, komplexe Subqueries, View-Erstellung                                      | materials/6-exercise.md |
+| -   | milestone | MS3 nach L13                                              | -     | 2,3       | MS3  | Erweiterte Abfragen + Analytics, Views/CTEs                                                  | project/ms3.md          |
+
+---
+
+### Block 4 – Theorie, Optimierung & Polyglot-Abschluss
+
+| Nr  | Type      | Titel                                                     | Dauer | Lernziele | Tags | Summary                                                                                      | Material                |
+|-----|-----------|-----------------------------------------------------------|-------|-----------|------|----------------------------------------------------------------------------------------------|-------------------------|
+| L14 | lecture   | Relationale Algebra (Theorie)                             | 90m   | 2         |      | σ, π, ⨝, ∪, −, Äquivalenz, formale Notation                                                  | materials/14-lecture.md |
+| E7  | exercise  | Relationale Algebra & SQL Translation                     | 90m   | 2,3       |      | Formale Notation, Äquivalenzen, Übersetzung in SQL                                           | materials/7-exercise.md |
+| L15 | lecture   | Performance Optimization                                  | 90m   | 2         |      | Indexes, Partitions, Query Plans, Best Practices                                             | materials/15-lecture.md |
+| L16 | lecture   | Graph Stores (kompakt)                                    | 90m   | 1         |      | Nodes, Edges, Cypher, Neo4j, Use Cases                                                       | materials/16-lecture.md |
+| L17 | lecture   | Time Series Stores (kompakt)                              | 90m   | 1         |      | InfluxDB, Tags/Fields, Retention Policies                                                    | materials/17-lecture.md |
+| L18 | lecture   | Polyglot Persistence Pattern                              | 90m   | 5         |      | Use Cases, Technologie-Mix, Trade-offs                                                       | materials/18-lecture.md |
+| -   | milestone | MS4 nach L18                                              | -     | 5         | MS4  | Polyglot-Architektur skizziert                                                               | project/ms4.md          |
+
+---
+
+### Block 5 – Projektabschluss
+
+| Nr  | Type      | Titel                                                     | Dauer | Lernziele | Tags  | Summary                                                                                      | Material                |
+|-----|-----------|-----------------------------------------------------------|-------|-----------|-------|----------------------------------------------------------------------------------------------|-------------------------|
+| L19 | lecture   | Projektpräsentation & Best Practices                      | 90m   | 5         |       | Architektur-Review, Lessons Learned                                                          | materials/19-lecture.md |
+| L20 | lecture   | DSGVO, Datensicherheit & Compliance                       | 90m   | 5         |       | Regulatorische Anforderungen (GDPR, Finance)                                                 | materials/20-lecture.md |
+| L21 | lecture   | Abschluss & Ausblick                                      | 90m   | 5         |       | Zusammenfassung, moderne Trends (Lakehouse, Cloud-DBs)                                       | materials/21-lecture.md |
+| -   | milestone | Final nach L21                                            | -     | 1-5       | FINAL | Gesamtprojekt + Doku + Präsentation                                                          | project/final.md        |
+
+---
+
+## Lernziel-Zuordnung
+
+- **LZ 1**: Paradigmen-Überblick, Datenformate, Serialisierung
+- **LZ 2**: Relationale Grundlagen, SQL-Praxis, Theorie
+- **LZ 3**: Praktische Übungen, Projektarbeit
+- **LZ 4**: DIKW-Modell, Datenqualität
+- **LZ 5**: Polyglot Persistence, Architektur, Best Practices
