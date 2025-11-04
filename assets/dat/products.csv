@@ -807,7 +807,7 @@ P00805,Mystery Thriller,Books,Silver Quill,67.46,417,4.7,2025-09-22
 P00806,Poetry Collection Pro,Books,Northwind Press,42.52,366,3.8,2025-05-08
 P00807,Travel Guide: Japan S,Books,Atlas Editions,78.86,312,4.1,2024-08-08
 P00808,Poetry Collection - Green,Books,Atlas Editions,29.38,75,3.7,2024-05-10
-P00809,Beginner's German Max,Books,Atlas Editions,51.71,9,4.7,2024-07-27
+P00809,Beginners German Max,Books,Atlas Editions,51.71,9,4.7,2024-07-27
 P00810,Business Strategy 101 M,Books,OpenPage,50.87,438,3.1,2025-01-25
 P00811,Poetry Collection XL,Books,Northwind Press,72.06,143,4.6,2025-03-03
 P00812,Cookbook - Quick Meals Plus,Books,Sunset House,15.60,178,5.0,2025-01-21
@@ -818,18 +818,18 @@ P00816,Short Stories Max S - Blue,Books,Northwind Press,9.48,450,4.9,2024-12-24
 P00817,Travel Guide: Japan Max,Books,Sunset House,17.83,392,3.7,2025-06-22
 P00818,History of Art M - Green,Books,OpenPage,37.96,145,3.7,2025-03-08
 P00819,Business Strategy 101 - Red,Books,Northwind Press,9.58,311,4.2,2024-09-10
-P00820,Beginner's German Lite,Books,OpenPage,48.86,98,3.9,2024-08-28
-P00821,Beginner's German,Books,Northwind Press,73.32,324,3.2,2025-02-03
+P00820,Beginners German Lite,Books,OpenPage,48.86,98,3.9,2024-08-28
+P00821,Beginners German,Books,Northwind Press,73.32,324,3.2,2025-02-03
 P00822,Data Science Handbook,Books,Atlas Editions,53.68,227,4.5,2025-09-26
 P00823,History of Art Pro,Books,Northwind Press,13.64,309,5.0,2025-03-01
 P00824,Cookbook - Quick Meals XL,Books,Northwind Press,30.98,91,5.0,2024-08-03
-P00825,Beginner's German M,Books,Atlas Editions,71.44,372,4.2,2024-07-16
+P00825,Beginners German M,Books,Atlas Editions,71.44,372,4.2,2024-07-16
 P00826,Short Stories L - Graphite,Books,OpenPage,13.13,241,4.1,2025-03-18
-P00827,Beginner's German Max,Books,Atlas Editions,63.57,226,4.2,2024-08-12
+P00827,Beginners German Max,Books,Atlas Editions,63.57,226,4.2,2024-08-12
 P00828,Paperback Novel Pro S,Books,OpenPage,44.73,206,4.6,2025-08-08
 P00829,Poetry Collection M,Books,Atlas Editions,19.62,109,4.7,2025-01-08
 P00830,Short Stories - Graphite,Books,Orion Leaf,17.45,261,2.9,2025-08-28
-P00831,Beginner's German Lite,Books,Silver Quill,29.29,150,4.2,2024-06-21
+P00831,Beginners German Lite,Books,Silver Quill,29.29,150,4.2,2024-06-21
 P00832,Travel Guide: Japan Pro - Graphite,Books,Silver Quill,6.19,104,5.0,2025-02-21
 P00833,Cookbook - Quick Meals Lite,Books,OpenPage,36.86,495,3.6,2025-07-02
 P00834,Mystery Thriller M,Books,OpenPage,62.81,467,3.4,2025-01-01
@@ -867,11 +867,11 @@ P00865,Paperback Novel Pro S,Books,OpenPage,48.38,145,3.7,2025-01-19
 P00866,Short Stories - Black,Books,Orion Leaf,11.82,201,4.5,2025-07-05
 P00867,History of Art,Books,Silver Quill,31.45,55,4.3,2025-03-09
 P00868,Data Science Handbook L,Books,Silver Quill,29.71,316,4.2,2025-02-16
-P00869,Children's Stories M,Books,Orion Leaf,15.60,274,5.0,2025-03-13
+P00869,Childrens Stories M,Books,Orion Leaf,15.60,274,5.0,2025-03-13
 P00870,Poetry Collection - Green,Books,Silver Quill,26.69,262,4.3,2024-10-15
 P00871,Mystery Thriller - Silver,Books,Orion Leaf,38.54,220,3.4,2024-12-13
 P00872,Paperback Novel,Books,Sunset House,23.78,384,4.8,2024-08-16
-P00873,Beginner's German,Books,Northwind Press,46.69,353,4.9,2025-01-22
+P00873,Beginners German,Books,Northwind Press,46.69,353,4.9,2025-01-22
 P00874,Paperback Novel,Books,OpenPage,64.93,130,3.3,2024-12-26
 P00875,Mystery Thriller Lite,Books,Silver Quill,47.53,219,3.7,2025-06-23
 P00876,Short Stories,Books,Orion Leaf,21.19,204,4.9,2024-06-01
@@ -879,11 +879,11 @@ P00877,Cookbook - Quick Meals Lite - Silver,Books,Atlas Editions,69.33,391,4.3,2
 P00878,Cookbook - Quick Meals 2.0,Books,Northwind Press,53.36,3,4.8,2024-12-28
 P00879,Fantasy Epic Vol. 1 - Graphite,Books,Atlas Editions,52.10,102,3.9,2025-07-18
 P00880,History of Art - Silver,Books,OpenPage,28.01,402,4.0,2024-05-24
-P00881,Children's Stories 2.0 S,Books,Northwind Press,11.01,410,3.3,2024-05-01
+P00881,Childrens Stories 2.0 S,Books,Northwind Press,11.01,410,3.3,2024-05-01
 P00882,Fantasy Epic Vol. 1,Books,Silver Quill,27.10,133,3.5,2025-06-19
 P00883,History of Art,Books,Sunset House,36.85,60,5.0,2024-12-05
 P00884,Data Science Handbook S,Books,Orion Leaf,28.54,317,4.4,2025-06-16
-P00885,Children's Stories Plus,Books,Atlas Editions,43.09,157,4.5,2024-08-15
+P00885,Childrens Stories Plus,Books,Atlas Editions,43.09,157,4.5,2024-08-15
 P00886,Poetry Collection Lite,Books,OpenPage,77.43,248,4.2,2024-11-28
 P00887,History of Art,Books,OpenPage,66.04,67,3.7,2024-12-25
 P00888,Poetry Collection - Graphite,Books,Orion Leaf,24.78,310,2.7,2025-07-23
@@ -894,10 +894,10 @@ P00892,Travel Guide: Japan Max,Books,Atlas Editions,11.59,419,3.1,2024-05-09
 P00893,Travel Guide: Japan,Books,Atlas Editions,19.70,450,4.7,2025-06-15
 P00894,Poetry Collection Max S,Books,Orion Leaf,28.49,340,3.9,2025-10-06
 P00895,Data Science Handbook,Books,Atlas Editions,28.22,117,4.4,2025-06-15
-P00896,Beginner's German XL,Books,Northwind Press,22.43,491,5.0,2025-03-07
+P00896,Beginners German XL,Books,Northwind Press,22.43,491,5.0,2025-03-07
 P00897,Paperback Novel - Blue,Books,Northwind Press,6.54,462,4.3,2025-01-31
 P00898,Travel Guide: Japan XL,Books,Northwind Press,48.87,187,4.4,2024-06-27
-P00899,Children's Stories Pro,Books,Atlas Editions,70.79,493,3.3,2024-08-23
+P00899,Childrens Stories Pro,Books,Atlas Editions,70.79,493,3.3,2024-08-23
 P00900,Data Science Handbook,Books,Atlas Editions,76.67,361,3.6,2025-09-15
 P00901,Aquarium Filter S - White,Pets,WildFeast,104.36,244,1.8,2025-04-06
 P00902,Bird Seed 1kg Max,Pets,WildFeast,93.18,1,4.3,2025-01-19
