@@ -11,7 +11,7 @@ comment:  Einführung in das relationale Modell: Tabellen, Zeilen, Spalten, Prim
 
 logo:     ../assets/img/logo/5-lecture.jpg
 
-import:   https://raw.githubusercontent.com/LiaTemplates/DuckDB/refs/heads/main/README.md
+import:   https://raw.githubusercontent.com/LiaTemplates/DuckDB/0.0.5/README.md
           https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md
           https://raw.githubusercontent.com/LiaTemplates/SpreadSheet/refs/heads/main/README.md
 
@@ -279,116 +279,8 @@ Was verhindert, dass jemand versehentlich "Laptop" in das Feld für den Preis ei
 
 </section>
 
-
-
-### Die Lösung: Relationale Datenbanken
-
-    --{{0}}--
-Und genau hier kommen relationale Datenbanken ins Spiel. Edgar F. Codd hat 1970 erkannt: Wir brauchen ein System, das Daten in separate, strukturierte Tabellen aufteilt, Beziehungen über Schlüssel herstellt und Integrität automatisch sichert.
-
-    {{0}}
-<section>
-
-**Das relationale Prinzip:**
-
-Anstatt **eine große Tabelle** mit allen Daten zu haben, teilen wir sie in **mehrere kleine, spezialisierte Tabellen** auf:
-
-1. **CUSTOMERS** – Nur Kundendaten
-2. **ORDERS** – Nur Bestellungen
-3. **PRODUCTS** – Nur Produkte
-4. **ORDER_ITEMS** – Verknüpfung (welches Produkt in welcher Bestellung?)
-
-**Beziehungen über Schlüssel:**
-
-- `ORDERS.customer_id` → verweist auf `CUSTOMERS.customer_id`
-- `ORDER_ITEMS.order_id` → verweist auf `ORDERS.order_id`
-- `ORDER_ITEMS.product_id` → verweist auf `PRODUCTS.product_id`
-
-</section>
-
-    {{1}}
-<section>
-
-### Wie relationale DBs die Probleme lösen
-
-| Problem                  | Lösung durch relationale DB                                              |
-| ------------------------ | ------------------------------------------------------------------------- |
-| **Redundanz**            | Jede Information nur **einmal** speichern (z. B. Kunde nur in CUSTOMERS) |
-| **Update-Anomalie**      | Alice-Update nur **an einer Stelle** (in CUSTOMERS)                      |
-| **Insert-Anomalie**      | Kunde kann **ohne Bestellung** existieren (separate Tabelle)             |
-| **Delete-Anomalie**      | Bestellung löschen, Kunde **bleibt** erhalten                            |
-| **Schwierige Abfragen**  | **SQL** für strukturierte, deklarative Queries                           |
-| **Keine Validierung**    | **Constraints**: NOT NULL, CHECK, UNIQUE, Foreign Keys                   |
-| **Inkonsistenz**         | **ACID-Transaktionen** + Referenzielle Integrität                        |
-
-</section>
-
-    {{2}}
-<section>
-
-### Die 4 normalisierten Tabellen
-
-**1. CUSTOMERS**
-
-<!-- data-type="none" -->
-| `customer_id` | `name`        | `email`            |
-| ------------: | ------------- | ------------------ |
-|             1 | Alice Müller  | alice\@example.com |
-|             2 | Bob Schmidt   | bob\@example.com   |
-|             3 | Clara Fischer | clara\@example.com |
-
-**2. ORDERS**
-
-<!-- data-type="none" -->
-| `order_id` | `customer_id` | `order_date` |
-| ---------: | ------------: | -----------: |
-|        101 |             1 |   2025-10-01 |
-|        102 |             1 |   2025-10-15 |
-|        103 |             2 |   2025-11-01 |
-
-**3. PRODUCTS**
-
-<!-- data-type="none" -->
-| `product_id` | `name`   | `price` |
-| -----------: | -------- | ------: |
-|          201 | Laptop   | 1200.00 |
-|          202 | Mouse    |   25.00 |
-|          203 | Keyboard |   60.00 |
-|          204 | Monitor  |  300.00 |
-
-**4. ORDER_ITEMS**
-
-<!-- data-type="none" -->
-| `order_item_id` | `order_id` | `product_id` | `quantity` |
-| --------------: | ---------: | -----------: | ---------: |
-|             301 |        101 |          201 |          1 |
-|             302 |        101 |          202 |          2 |
-|             303 |        102 |          204 |          1 |
-|             304 |        103 |          203 |          1 |
-|             305 |        103 |          202 |          1 |
-
-</section>
-
-    --{{3}}--
-Schauen Sie, wie elegant das ist: Alice' Daten stehen jetzt nur noch einmal. Wenn sie ihre E-Mail ändert, ändern wir sie nur in der CUSTOMERS-Tabelle. Clara ist als Kundin registriert, auch ohne Bestellung. Und wenn Bob eine Bestellung storniert, bleibt er als Kunde erhalten.
-
-    {{3}}
-<section>
-
-### Vorteile im Überblick
-
-✅ **Keine Redundanz:** Alice steht nur 1x in CUSTOMERS (statt 3x)  
-✅ **Ein Update:** E-Mail-Änderung nur an **einer Stelle**  
-✅ **Klare Struktur:** Jede Tabelle repräsentiert **eine Entität**  
-✅ **Effiziente Abfragen:** SQL für komplexe Fragen  
-✅ **Automatische Validierung:** Constraints prüfen Datenqualität  
-✅ **Referenzielle Integrität:** Foreign Keys verhindern verwaiste Datensätze  
-
-> **Relationale Datenbanken = Strukturierte, konsistente, wartbare Datenhaltung**
-
-</section>
-
----
+    --{{7}}--
+Genau diese Probleme hat Edgar F. Codd 1970 erkannt und das relationale Modell entwickelt. Es basiert auf mathematischer Mengenlehre und Relationenalgebra – aber keine Sorge, wir fokussieren uns auf die praktischen Konzepte.
 
 ### Historie & Evolution
 
@@ -484,7 +376,6 @@ Daraus entstand das, was er das relationale Modell nannte — Tabellen (Relation
 
 **Kernprinzipien:**
 
-
 {{1}} **Strukturierte Daten:** Feste Schemata mit definierten Datentypen
 
     --{{1}}--
@@ -510,6 +401,27 @@ Das vierte Prinzip ist die deklarative Sprache. Mit SQL beschreiben Sie, was Sie
 
 
 ## SQL: Die Sprache der relationalen Datenbanken
+
+   --{{0}}--
+SQL ist mehr als nur SELECT. Als Edgar F. Codd das relationale Modell entwickelte, brauchte es eine Sprache, die sowohl die Schema-Definition als auch die Datenmanipulation und die Zugriffskontrolle abdeckt. SQL wurde deshalb von Anfang an als umfassende Datenbanksprache konzipiert – nicht nur zum Abfragen, sondern zum vollständigen Verwalten relationaler Datenbanken.
+
+    {{0}}
+<section>
+
+### Die Evolution der SQL-Kategorien
+
+**Von der Idee zur Praxis:**
+
+Als IBM in den 1970ern SEQUEL entwickelte, wurde klar: Eine Datenbanksprache braucht verschiedene "Modi":
+
+1. **Schema definieren** – Wie strukturieren wir Daten? → **DDL**
+2. **Daten abfragen & ändern** – Wie arbeiten wir mit Daten? → **DQL/DML**
+3. **Zugriff kontrollieren** – Wer darf was? → **DCL**
+4. **Konsistenz sichern** – Wie bündeln wir Änderungen? → **TCL**
+
+> SQL ist keine monolithische Sprache, sondern ein **Werkzeugkasten** mit spezialisierten Teilsprachen.
+
+</section>
 
     {{1}}
 <section>
@@ -571,40 +483,6 @@ SQL ist keine monolithische Sprache, sondern besteht aus **5 Hauptkategorien**:
 5. **Verbreitet:** Fast jede relationale DB spricht SQL
 
 </section>
-
-
-
-    --{{0}}--
-Genau diese Probleme hat Edgar F. Codd 1970 erkannt und das relationale Modell entwickelt. Es basiert auf mathematischer Mengenlehre und Relationenalgebra – aber keine Sorge, wir fokussieren uns auf die praktischen Konzepte.
-
-    {{0}}
-<section>
-
-
-
-</section>
-
-   --{{0}}--
-SQL ist mehr als nur SELECT. Als Edgar F. Codd das relationale Modell entwickelte, brauchte es eine Sprache, die sowohl die Schema-Definition als auch die Datenmanipulation und die Zugriffskontrolle abdeckt. SQL wurde deshalb von Anfang an als umfassende Datenbanksprache konzipiert – nicht nur zum Abfragen, sondern zum vollständigen Verwalten relationaler Datenbanken.
-
-    {{0}}
-<section>
-
-### Die Evolution der SQL-Kategorien
-
-**Von der Idee zur Praxis:**
-
-Als IBM in den 1970ern SEQUEL entwickelte, wurde klar: Eine Datenbanksprache braucht verschiedene "Modi":
-
-1. **Schema definieren** – Wie strukturieren wir Daten? → **DDL**
-2. **Daten abfragen & ändern** – Wie arbeiten wir mit Daten? → **DQL/DML**
-3. **Zugriff kontrollieren** – Wer darf was? → **DCL**
-4. **Konsistenz sichern** – Wie bündeln wir Änderungen? → **TCL**
-
-> SQL ist keine monolithische Sprache, sondern ein **Werkzeugkasten** mit spezialisierten Teilsprachen.
-
-</section>
-
 
 
     {{3}}
@@ -1183,6 +1061,7 @@ erDiagram
 ```
 
 **Legende:**
+
 - `PK` = Primary Key (Primärschlüssel)
 - `FK` = Foreign Key (Fremdschlüssel)
 - `||--o{` = Eins-zu-Viele-Beziehung (1:N)
@@ -1240,13 +1119,13 @@ Jede Spalte hat einen **festen Datentyp**, der bestimmt:
 
 </section>
 
-    --{{1}}--
-Der erste große Vorteil fester Datentypen ist die Datensicherheit und Validierung. Wenn Sie definieren, dass die Spalte „Alter" vom Typ INTEGER ist, kann niemand versehentlich einen Text wie „dreiundzwanzig" eintragen. Die Datenbank weist das sofort zurück. In einem schemafreien System wie MongoDB oder einem Key-Value-Store könnten Sie problemlos verschiedene Datentypen in dasselbe Feld schreiben – das eine Dokument hat age als Zahl, das nächste als String. Das führt zu Chaos: Wenn Sie dann das Durchschnittsalter berechnen wollen, scheitert die Abfrage, weil „dreiundzwanzig" keine Zahl ist. In relationalen Datenbanken wird dieser Fehler bereits beim Schreiben abgefangen, nicht erst bei der Abfrage. Das spart Debugging-Zeit und verhindert Datenmüll.
-
     {{1}}
 <section>
 
 **1. Vorteil: Datensicherheit & Validierung**
+
+    --{{1}}--
+Der erste große Vorteil fester Datentypen ist die Datensicherheit und Validierung. Wenn Sie definieren, dass die Spalte „Alter" vom Typ INTEGER ist, kann niemand versehentlich einen Text wie „dreiundzwanzig" eintragen. Die Datenbank weist das sofort zurück. In einem schemafreien System wie MongoDB oder einem Key-Value-Store könnten Sie problemlos verschiedene Datentypen in dasselbe Feld schreiben – das eine Dokument hat age als Zahl, das nächste als String. Das führt zu Chaos: Wenn Sie dann das Durchschnittsalter berechnen wollen, scheitert die Abfrage, weil „dreiundzwanzig" keine Zahl ist. In relationalen Datenbanken wird dieser Fehler bereits beim Schreiben abgefangen, nicht erst bei der Abfrage. Das spart Debugging-Zeit und verhindert Datenmüll.
 
 **Relationale DB mit festem Schema:**
 
@@ -1269,13 +1148,14 @@ INSERT INTO Customers VALUES (1, 'dreiundzwanzig', 'alice@example.com');
 
 </section>
 
-    --{{2}}--
-Der zweite Vorteil ist die Speicher- und Performance-Effizienz. Ein INTEGER mit dem Wert 42 braucht in einer relationalen Datenbank genau 4 Bytes – immer, bei jedem Datensatz. Ein VARCHAR(100) reserviert maximal 100 Zeichen. Die Datenbank weiß genau, wie groß jeder Eintrag ist, und kann den Speicher optimal organisieren. In einem schemafreien System wie einem Key-Value-Store wird oft alles als generischer „Object"-Typ oder als JSON-String gespeichert. Der Wert 42 wird dann vielleicht als String „42" abgelegt, was mehr Platz braucht und langsamer zu verarbeiten ist, weil die Datenbank zur Laufzeit erst den Typ ermitteln und konvertieren muss. Feste Typen bedeuten: schneller Zugriff, weniger Overhead.
-
     {{2}}
 <section>
 
 **2. Vorteil: Speicher- & Performance-Effizienz**
+
+
+    --{{2}}--
+Der zweite Vorteil ist die Speicher- und Performance-Effizienz. Ein INTEGER mit dem Wert 42 braucht in einer relationalen Datenbank genau 4 Bytes – immer, bei jedem Datensatz. Ein VARCHAR(100) reserviert maximal 100 Zeichen. Die Datenbank weiß genau, wie groß jeder Eintrag ist, und kann den Speicher optimal organisieren. In einem schemafreien System wie einem Key-Value-Store wird oft alles als generischer „Object"-Typ oder als JSON-String gespeichert. Der Wert 42 wird dann vielleicht als String „42" abgelegt, was mehr Platz braucht und langsamer zu verarbeiten ist, weil die Datenbank zur Laufzeit erst den Typ ermitteln und konvertieren muss. Feste Typen bedeuten: schneller Zugriff, weniger Overhead.
 
 **Relationale DB:**
 
@@ -1308,13 +1188,13 @@ CREATE TABLE Products (
 
 </section>
 
-    --{{3}}--
-Der dritte Vorteil ist die Abfragbarkeit und Datenanalyse. Weil die Datenbank weiß, dass „price" vom Typ DECIMAL ist, kann sie effizient Abfragen wie „alle Produkte unter 50 Euro" oder „Durchschnittspreis aller Laptops" ausführen. Der Query Optimizer kann Indizes nutzen, kann sortieren, kann aggregieren – alles optimiert für den Datentyp. In einem schemafreien System muss die Datenbank zur Laufzeit raten: Ist das jetzt eine Zahl oder ein String? Und hier wird es richtig problematisch: Wenn Sie Preise als Strings speichern und sortieren wollen, bekommen Sie lexikalische Sortierung – da kommt „100" vor „20", weil im Alphabet „1" vor „2" steht. Bei festen Typen passiert das nicht.
-
     {{3}}
 <section>
 
 **3. Vorteil: Abfragbarkeit & Datenanalyse**
+
+    --{{3}}--
+Der dritte Vorteil ist die Abfragbarkeit und Datenanalyse. Weil die Datenbank weiß, dass „price" vom Typ DECIMAL ist, kann sie effizient Abfragen wie „alle Produkte unter 50 Euro" oder „Durchschnittspreis aller Laptops" ausführen. Der Query Optimizer kann Indizes nutzen, kann sortieren, kann aggregieren – alles optimiert für den Datentyp. In einem schemafreien System muss die Datenbank zur Laufzeit raten: Ist das jetzt eine Zahl oder ein String? Und hier wird es richtig problematisch: Wenn Sie Preise als Strings speichern und sortieren wollen, bekommen Sie lexikalische Sortierung – da kommt „100" vor „20", weil im Alphabet „1" vor „2" steht. Bei festen Typen passiert das nicht.
 
 **Relationale DB – Typ-basierte Optimierung:**
 
@@ -1346,13 +1226,13 @@ SELECT AVG(price) FROM Products WHERE price < 50.00;
 
 </section>
 
-     --{{5}}--
-Natürlich haben schemafreie Systeme auch ihre Berechtigung. Sie sind flexibel, erlauben schnelle Änderungen am Datenmodell, und sind ideal für unstrukturierte Daten wie Logs oder Social-Media-Posts. Aber wenn Sie strukturierte Daten haben – Kunden, Bestellungen, Produkte – dann sind feste Datentypen Gold wert. Sie erzwingen Konsistenz, verbessern Performance, ermöglichen komplexe Abfragen und sichern Integrität. Das ist der Kern des relationalen Modells.
-
-    {{5}}
+    {{4}}
 <section>
 
 **Die goldene Regel:**
+
+    --{{4}}--
+Natürlich haben schemafreie Systeme auch ihre Berechtigung. Sie sind flexibel, erlauben schnelle Änderungen am Datenmodell, und sind ideal für unstrukturierte Daten wie Logs oder Social-Media-Posts. Aber wenn Sie strukturierte Daten haben – Kunden, Bestellungen, Produkte – dann sind feste Datentypen Gold wert. Sie erzwingen Konsistenz, verbessern Performance, ermöglichen komplexe Abfragen und sichern Integrität. Das ist der Kern des relationalen Modells.
 
 > Wenn Ihre Daten eine **klare Struktur** haben und Sie **Konsistenz** brauchen,\
 > nutzen Sie **relationale Datenbanken** mit **festen Datentypen**.
@@ -1373,7 +1253,7 @@ Natürlich haben schemafreie Systeme auch ihre Berechtigung. Sie sind flexibel, 
 
 > **Hinweis:** SQLite verwendet ein flexibles Typensystem (Type Affinity), DuckDB ist strikter und SQL-konform.
 
-    --{{X}}--
+    --{{5}}--
 Ein wichtiger Unterschied zwischen den beiden Systemen, die wir verwenden werden: SQLite und DuckDB haben unterschiedliche Typsysteme. SQLite ist sehr flexibel – es nutzt Type Affinity, das heißt, Typen sind eher Hinweise als strikte Regeln. BOOLEAN wird als INTEGER gespeichert, DATE als TEXT, DECIMAL als REAL. Das ist pragmatisch, aber nicht SQL-Standard-konform. DuckDB hingegen ist strikt: Echte BOOLEANs, echte DATEs, echter DECIMAL-Typ. Dazu kommen fortgeschrittene Typen wie UUID und experimentell ARRAY und MAP. Wir nutzen DuckDB in dieser Vorlesung, weil es das relationale Modell sauberer umsetzt. Aber SQLite hat seine Berechtigung – es ist extrem verbreitet und perfekt für Embedded-Systeme. Die Wahl hängt vom Use-Case ab.
 
 </section>
@@ -1409,7 +1289,7 @@ Jetzt wird es ganz praktisch: Wir haben über Datentypen und Schlüssel gesproch
 </section>
 
     --{{1}}--
-Beginnen wir mit der CUSTOMERS-Tabelle. Hier sehen Sie alle wichtigen Constraints in Aktion. Der Primärschlüssel customer_id garantiert, dass jeder Kunde eindeutig identifizierbar ist – keine Duplikate, niemals NULL. Die Spalten first_name und last_name sind `NOT NULL` – ein Kunde ohne Namen macht keinen Sinn. Und schauen Sie sich die E-Mail-Spalte an: Sie ist nicht nur `NOT NULL`, sondern auch `UNIQUE`. Das bedeutet: Jede E-Mail-Adresse kann nur einmal vorkommen. Keine zwei Kunden mit derselben E-Mail. Das ist Entity Integrity in Reinform.
+Beginnen wir mit der CUSTOMERS-Tabelle. Hier sehen Sie alle wichtigen Constraints in Aktion. Der Primärschlüssel `customer_id` garantiert, dass jeder Kunde eindeutig identifizierbar ist – keine Duplikate, niemals `NULL`. Die Spalten `first_name` und `last_name` sind `NOT NULL` – ein Kunde ohne Namen macht keinen Sinn. Und schauen Sie sich die E-Mail-Spalte an: Sie ist nicht nur `NOT NULL`, sondern auch `UNIQUE`. Das bedeutet: Jede E-Mail-Adresse kann nur einmal vorkommen. Keine zwei Kunden mit derselben E-Mail. Das ist Entity Integrity in Reinform.
 
     {{1}}
 <section>
@@ -1429,7 +1309,7 @@ INSERT INTO CUSTOMERS (customer_id, first_name, last_name, email) VALUES
   (2, 'Bob', 'Schmidt', 'bob@example.com'),
   (3, 'Clara', 'Fischer', 'clara@example.com');
 ```
-@DuckDB.eval(demo)
+@DuckDB.terminal(demo)
 
 **Was bewirken die Constraints?**
 
@@ -1472,7 +1352,7 @@ INSERT INTO PRODUCTS (product_id, name, price) VALUES
   (203, 'Keyboard', 60.00),
   (204, 'Monitor', 300.00);
 ```
-@DuckDB.eval(demo)
+@DuckDB.terminal(demo)
 
 **Was bewirkt der CHECK-Constraint?**
 
@@ -1519,7 +1399,7 @@ INSERT INTO ORDERS (order_id, customer_id, order_date) VALUES
   (102, 1, '2025-10-15'),  -- Alice
   (103, 2, '2025-11-01');  -- Bob
 ```
-@DuckDB.eval(demo)
+@DuckDB.terminal(demo)
 
 **Was bewirkt der FOREIGN KEY?**
 
@@ -1543,7 +1423,7 @@ FOREIGN KEY (customer_id) REFERENCES CUSTOMERS(customer_id)
 </section>
 
     --{{4}}--
-Und schließlich die ORDER_ITEMS-Tabelle – hier sehen Sie zwei Foreign Keys in Aktion. Diese Tabelle ist die Brücke zwischen ORDERS und PRODUCTS, und beide Beziehungen werden durch Foreign Keys gesichert. Sie können kein Order_Item anlegen für eine nicht-existierende Bestellung. Sie können auch kein Order_Item anlegen für ein nicht-existierendes Produkt. Außerdem sehen Sie hier wieder einen CHECK-Constraint bei quantity – eine Bestellung mit null oder negativer Menge macht keinen Sinn. So entsteht ein wasserdichtes Netz aus Constraints, das Ihre Daten schützt.
+Und schließlich die `ORDER_ITEMS`-Tabelle – hier sehen Sie zwei Foreign Keys in Aktion. Diese Tabelle ist die Brücke zwischen `ORDERS` und `PRODUCTS`, und beide Beziehungen werden durch Foreign Keys gesichert. Sie können kein `Order_Item` anlegen für eine nicht-existierende Bestellung. Sie können auch kein `Order_Item` anlegen für ein nicht-existierendes Produkt. Außerdem sehen Sie hier wieder einen CHECK-Constraint bei `quantity` – eine Bestellung mit null oder negativer Menge macht keinen Sinn. So entsteht ein wasserdichtes Netz aus Constraints, das Ihre Daten schützt.
 
     {{4}}
 <section>
@@ -1567,7 +1447,7 @@ INSERT INTO ORDER_ITEMS (order_item_id, order_id, product_id, quantity) VALUES
   (304, 103, 203, 1),  -- Bestellung 103: 1x Keyboard
   (305, 103, 202, 1);  -- Bestellung 103: 1x Mouse
 ```
-@DuckDB.eval(demo)
+@DuckDB.terminal(demo)
 
 **Was bewirken die Constraints?**
 
@@ -1590,7 +1470,7 @@ INSERT INTO ORDER_ITEMS (order_item_id, order_id, product_id, quantity) VALUES
 </section>
 
     --{{5}}--
-Schauen wir uns jetzt an, wie all diese Tabellen zusammenspielen. Diese Abfrage hier ist ein `LEFT JOIN` über alle vier Tabellen – sie rekonstruiert die ursprüngliche Flat-Tabelle, die wir am Anfang hatten. Aber der Unterschied: Jetzt sind die Daten sauber normalisiert und durch Constraints geschützt. Alice' Daten stehen nur einmal in CUSTOMERS, Produktinformationen nur einmal in PRODUCTS. Keine Redundanz, keine Anomalien, aber wir können trotzdem die Daten so abfragen, als wären sie in einer Tabelle. Das ist die Eleganz des relationalen Modells.
+Schauen wir uns jetzt an, wie all diese Tabellen zusammenspielen. Diese Abfrage hier ist ein `LEFT JOIN` über alle vier Tabellen – sie rekonstruiert die ursprüngliche Flat-Tabelle, die wir am Anfang hatten. Aber der Unterschied: Jetzt sind die Daten sauber normalisiert und durch Constraints geschützt. Alice' Daten stehen nur einmal in `CUSTOMERS`, Produktinformationen nur einmal in `PRODUCTS`. Keine Redundanz, keine Anomalien, aber wir können trotzdem die Daten so abfragen, als wären sie in einer Tabelle. Das ist die Eleganz des relationalen Modells.
 
     {{5}}
 <section>
@@ -1736,9 +1616,9 @@ Erinnern Sie sich an unsere ursprüngliche Tabelle? Das war eine klassische nich
 
 **Das hatten wir:**
 
-❌ **Redundanz:** Alice und Bob erscheinen mehrfach  
-❌ **NULL-Werte:** Clara hat keine Bestellung  
-❌ **Anomalien:** Update, Insert, Delete  
+❌ **Redundanz:** Alice und Bob erscheinen mehrfach\
+❌ **NULL-Werte:** Clara hat keine Bestellung\
+❌ **Anomalien:** Update, Insert, Delete\
 ❌ **Kein klarer Primärschlüssel**
 
 **Das war unser Ausgangsproblem.**
@@ -1746,7 +1626,7 @@ Erinnern Sie sich an unsere ursprüngliche Tabelle? Das war eine klassische nich
 </section>
 
     --{{2}}--
-Der erste Schritt der Normalisierung ist die Erste Normalform – 1NF. Die Regel ist einfach: Jede Zelle darf nur einen atomaren Wert enthalten, keine Listen, keine Wiederholungsgruppen. Unsere Tabelle hat das eigentlich schon erfüllt – jede Zelle hatte nur einen Wert. Ein klassisches Gegenbeispiel wäre, wenn wir in einer Zelle mehrere Produkt-Tags als komma-getrennte Liste gespeichert hätten. Das würde gegen 1NF verstoßen. Bei uns war das Problem eher: Wir hatten zwar atomare Werte, aber massive Redundanz und keinen klaren Primärschlüssel. Wir hätten eine Kombination aus order_id und product_id nehmen können, aber das löst die Redundanz nicht. Also mussten wir weiter normalisieren.
+Der erste Schritt der Normalisierung ist die Erste Normalform – 1NF. Die Regel ist einfach: Jede Zelle darf nur einen atomaren Wert enthalten, keine Listen, keine Wiederholungsgruppen. Unsere Tabelle hat das eigentlich schon erfüllt – jede Zelle hatte nur einen Wert. Ein klassisches Gegenbeispiel wäre, wenn wir in einer Zelle mehrere Produkt-Tags als komma-getrennte Liste gespeichert hätten. Das würde gegen 1NF verstoßen. Bei uns war das Problem eher: Wir hatten zwar atomare Werte, aber massive Redundanz und keinen klaren Primärschlüssel. Wir hätten eine Kombination aus `order_id` und `product_id` nehmen können, aber das löst die Redundanz nicht. Also mussten wir weiter normalisieren.
 
     {{2}}
 <section>
@@ -1756,7 +1636,7 @@ Der erste Schritt der Normalisierung ist die Erste Normalform – 1NF. Die Regel
 **Regel:**
 
 > Eine Tabelle ist in 1NF, wenn:
-> 
+>
 > 1. Jede Zelle **atomare Werte** enthält (keine Listen, keine Mengen)
 > 2. Es einen **Primärschlüssel** gibt, der jede Zeile eindeutig identifiziert
 > 3. Keine Wiederholungsgruppen existieren
@@ -1773,8 +1653,8 @@ Separate Zeilen für jeden Tag, oder separate Tabelle `Product_Tags`.
 
 **Was wir hatten:**
 
-✅ Jede Zelle war atomar  
-⚠️ Wir könnten (order_id, product_id) als zusammengesetzten Schlüssel nehmen  
+✅ Jede Zelle war atomar\
+⚠️ Wir könnten (`order_id`, `product_id`) als zusammengesetzten Schlüssel nehmen\
 ❌ Aber: Massive Redundanz blieb bestehen!
 
 **Also:** 1NF war gegeben, aber das reichte nicht aus.
@@ -1798,7 +1678,7 @@ Der nächste Schritt – die Zweite Normalform, 2NF. Das war der entscheidende S
 
 **Was das Problem war:**
 
-Wenn Primärschlüssel = (order_id, product_id), dann:
+Wenn Primärschlüssel = (`order_id`, `product_id`), dann:
 
 - `customer_name` hängt nur von `customer_id` ab → partielle Abhängigkeit!
 - `product_name` hängt nur von `product_id` ab → partielle Abhängigkeit!
@@ -1808,26 +1688,26 @@ Wenn Primärschlüssel = (order_id, product_id), dann:
 
 Die Tabelle aufgeteilt in:
 
-1. **CUSTOMERS** (customer_id, first_name, last_name, email)
-2. **PRODUCTS** (product_id, name, price)
-3. **ORDERS** (order_id, customer_id, order_date)
-4. **ORDER_ITEMS** (order_item_id, order_id, product_id, quantity)
+1. **CUSTOMERS** (`customer_id`, `first_name`, `last_name`, `email`)
+2. **PRODUCTS** (`product_id`, `name`, `price`)
+3. **ORDERS** (`order_id`, `customer_id`, `order_date`)
+4. **ORDER_ITEMS** (`order_item_id`, `order_id`, `product_id`, `quantity`)
 
 **Ergebnis:**
 
-✅ Keine partiellen Abhängigkeiten mehr  
-✅ Jede Tabelle hat einen eigenen, klaren Primärschlüssel  
+✅ Keine partiellen Abhängigkeiten mehr\
+✅ Jede Tabelle hat einen eigenen, klaren Primärschlüssel\
 ✅ Redundanz eliminiert
 
 </section>
-
-    --{{4}}--
-Und der letzte Schritt – die Dritte Normalform, 3NF. Die Regel hier: Kein Nicht-Schlüssel-Attribut darf von einem anderen Nicht-Schlüssel-Attribut abhängen. Das nennt man transitive Abhängigkeiten. Ein klassisches Beispiel wäre: Wenn wir in der ORDERS-Tabelle nicht nur die customer_id gespeichert hätten, sondern auch den customer_name, dann würde customer_name von customer_id abhängen, und customer_id hängt von order_id ab. Das wäre eine Kette – eine transitive Abhängigkeit. Wir haben das richtig gemacht: customer_name steht nur in CUSTOMERS, nicht in ORDERS. Jede Tabelle enthält nur Attribute, die direkt von ihrem Primärschlüssel abhängen. Damit haben wir 3NF erreicht – und genau das ist unser finales, sauberes Datenmodell.
 
     {{4}}
 <section>
 
 ### Schritt 3: Dritte Normalform (3NF)
+
+    --{{4}}--
+Und der letzte Schritt – die Dritte Normalform, 3NF. Die Regel hier: Kein Nicht-Schlüssel-Attribut darf von einem anderen Nicht-Schlüssel-Attribut abhängen. Das nennt man transitive Abhängigkeiten. Ein klassisches Beispiel wäre: Wenn wir in der ORDERS-Tabelle nicht nur die `customer_id` gespeichert hätten, sondern auch den `customer_name`, dann würde `customer_name` von `customer_id` abhängen, und `customer_id` hängt von `order_id` ab. Das wäre eine Kette – eine transitive Abhängigkeit. Wir haben das richtig gemacht: `customer_name` steht nur in `CUSTOMERS`, nicht in `ORDERS`. Jede Tabelle enthält nur Attribute, die direkt von ihrem Primärschlüssel abhängen. Damit haben wir 3NF erreicht – und genau das ist unser finales, sauberes Datenmodell.
 
 **Regel:**
 
@@ -1864,10 +1744,10 @@ CUSTOMERS (customer_id, customer_name, email)
 
 **Unsere Tabellen nach 3NF:**
 
-✅ **CUSTOMERS** (customer_id, first_name, last_name, email)  
-✅ **PRODUCTS** (product_id, name, price)  
-✅ **ORDERS** (order_id, customer_id, order_date)  
-✅ **ORDER_ITEMS** (order_item_id, order_id, product_id, quantity)
+✅ **CUSTOMERS** (`customer_id`, `first_name`, `last_name`, `email`)\
+✅ **PRODUCTS** (`product_id`, `name`, `price`)\
+✅ **ORDERS** (`order_id`, `customer_id`, `order_date`)\
+✅ **ORDER_ITEMS** (`order_item_id`, `order_id`, `product_id`, `quantity`)
 
 Alle sind in 3NF! 🎉
 
@@ -1935,7 +1815,7 @@ Constraints beschreiben **wie** wir es technisch umsetzen.
 </section>
 
     --{{7}}--
-Der Primary Key ist das Herzstück jeder normalisierten Tabelle. Er erzwingt die Erste Normalform, indem er sicherstellt, dass jede Zeile eindeutig identifizierbar ist. In unserer CUSTOMERS-Tabelle ist das die customer_id. Ohne Primary Key keine Normalisierung. Er garantiert, dass wir keine doppelten Einträge haben und dass jede Zeile atomar ist.
+Der Primary Key ist das Herzstück jeder normalisierten Tabelle. Er erzwingt die Erste Normalform, indem er sicherstellt, dass jede Zeile eindeutig identifizierbar ist. In unserer `CUSTOMERS`-Tabelle ist das die `customer_id`. Ohne Primary Key keine Normalisierung. Er garantiert, dass wir keine doppelten Einträge haben und dass jede Zeile atomar ist.
 
     {{7}}
 <section>
@@ -1961,7 +1841,7 @@ CREATE TABLE CUSTOMERS (
 </section>
 
     --{{8}}--
-Foreign Keys sind die Brücke zwischen den Tabellen. Sie erzwingen referentielle Integrität – das heißt, eine order_id in der ORDER_ITEMS-Tabelle muss tatsächlich in der ORDERS-Tabelle existieren. Das verhindert Waisen-Datensätze und stellt sicher, dass unsere Beziehungen konsistent bleiben. Genau das haben wir mit der Normalisierung erreicht: klare Beziehungen über Schlüssel.
+Foreign Keys sind die Brücke zwischen den Tabellen. Sie erzwingen referentielle Integrität – das heißt, eine `order_id` in der `ORDER_ITEMS`-Tabelle muss tatsächlich in der `ORDERS`-Tabelle existieren. Das verhindert Waisen-Datensätze und stellt sicher, dass unsere Beziehungen konsistent bleiben. Genau das haben wir mit der Normalisierung erreicht: klare Beziehungen über Schlüssel.
 
     {{8}}
 <section>
