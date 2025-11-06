@@ -606,7 +606,7 @@
     "brand": "OrbiTech",
     "price": 1259.3,
     "stock": 115,
-    "rating": 4,
+    "rating": null,
     "created_at": "2024-11-01"
   },
   {
@@ -1206,7 +1206,7 @@
     "brand": "PureThread",
     "price": 52.36,
     "stock": 701,
-    "rating": 4.4,
+    "rating": null,
     "created_at": "2025-01-24"
   },
   {
@@ -1588,86 +1588,6 @@
     "stock": 40,
     "rating": 3.9,
     "created_at": "2025-06-22"
-  },
-  {
-    "product_id": 160,
-    "name": "Leggings Lite",
-    "category": "Clothing",
-    "brand": "PureThread",
-    "price": 18.5,
-    "stock": 68,
-    "rating": 5,
-    "created_at": "2025-04-09"
-  },
-  {
-    "product_id": 161,
-    "name": "Dress Shirt",
-    "category": "Clothing",
-    "brand": "Meridian Wear",
-    "price": 24.95,
-    "stock": 280,
-    "rating": 4.1,
-    "created_at": "2025-07-29"
-  },
-  {
-    "product_id": 162,
-    "name": "Socks (5-pack)",
-    "category": "Clothing",
-    "brand": "Cotton&Co",
-    "price": 237.02,
-    "stock": 587,
-    "rating": 3.9,
-    "created_at": "2024-05-16"
-  },
-  {
-    "product_id": 163,
-    "name": "Raincoat",
-    "category": "Clothing",
-    "brand": "AeroLoom",
-    "price": 70.25,
-    "stock": 192,
-    "rating": 3.8,
-    "created_at": "2024-11-30"
-  },
-  {
-    "product_id": 164,
-    "name": "Sneakers - Blue",
-    "category": "Clothing",
-    "brand": "Nordline",
-    "price": 228.06,
-    "stock": 568,
-    "rating": 4.5,
-    "created_at": "2024-12-01"
-  },
-  {
-    "product_id": 165,
-    "name": "Leggings XL",
-    "category": "Clothing",
-    "brand": "AeroLoom",
-    "price": 180.85,
-    "stock": 617,
-    "rating": 4.2,
-    "created_at": "2024-07-07"
-  },
-  {
-    "product_id": 166,
-    "name": "Cap 2.0",
-    "category": "Clothing",
-    "brand": "AeroLoom",
-    "price": 220.22,
-    "stock": 199,
-    "rating": 4.1,
-    "created_at": "2025-02-19"
-  },
-  {
-    "product_id": 167,
-    "name": "Leggings - Black",
-    "category": "Clothing",
-    "brand": "PureThread",
-    "price": 47.96,
-    "stock": 671,
-    "rating": 3.7,
-    "created_at": "2024-08-17"
   },
   {
     "product_id": 168,
@@ -3270,66 +3190,6 @@
     "created_at": "2025-03-21"
   },
   {
-    "product_id": 328,
-    "name": "Laptop Stand Pro - Blue",
-    "category": "Office",
-    "brand": "StapleStar",
-    "price": 146.01,
-    "stock": 851,
-    "rating": 4.9,
-    "created_at": "2025-04-27"
-  },
-  {
-    "product_id": 329,
-    "name": "Whiteboard Markers (8-pack)",
-    "category": "Office",
-    "brand": "PaperMint",
-    "price": 55.79,
-    "stock": 341,
-    "rating": 4.4,
-    "created_at": "2024-10-11"
-  },
-  {
-    "product_id": 330,
-    "name": "Notebook A5 Dotted",
-    "category": "Office",
-    "brand": "InkFlow",
-    "price": 449.83,
-    "stock": 604,
-    "rating": 3.9,
-    "created_at": "2024-05-13"
-  },
-  {
-    "product_id": 331,
-    "name": "Gel Pens (10-pack) Max",
-    "category": "Office",
-    "brand": "WriteRight",
-    "price": 264.97,
-    "stock": 116,
-    "rating": 3.1,
-    "created_at": "2025-09-20"
-  },
-  {
-    "product_id": 332,
-    "name": "A4 Copy Paper 500 sheets",
-    "category": "Office",
-    "brand": "WriteRight",
-    "price": 387.81,
-    "stock": 461,
-    "rating": 3.6,
-    "created_at": "2025-03-03"
-  },
-  {
-    "product_id": 333,
-    "name": "Notebook A5 Dotted 2.0 - White",
-    "category": "Office",
-    "brand": "PaperMint",
-    "price": 482.02,
-    "stock": 445,
-    "rating": 4.2,
-    "created_at": "2025-08-30"
-  },
-  {
     "product_id": 334,
     "name": "Laptop Stand Max L",
     "category": "Office",
@@ -4108,106 +3968,6 @@
     "stock": 287,
     "rating": 3.9,
     "created_at": "2025-08-05"
-  },
-  {
-    "product_id": 412,
-    "name": "Glass Storage Set (10 pcs)",
-    "category": "Home & Kitchen",
-    "brand": "KitchenCrafter",
-    "price": 187.39,
-    "stock": 242,
-    "rating": 4.5,
-    "created_at": "2024-10-08"
-  },
-  {
-    "product_id": 413,
-    "name": "Electric Kettle 1.7L Lite",
-    "category": "Home & Kitchen",
-    "brand": "KitchenCrafter",
-    "price": 276.75,
-    "stock": 496,
-    "rating": 4.2,
-    "created_at": "2024-12-12"
-  },
-  {
-    "product_id": 414,
-    "name": "Pressure Cooker 6L",
-    "category": "Home & Kitchen",
-    "brand": "CozyNest",
-    "price": 594.08,
-    "stock": 149,
-    "rating": 4.2,
-    "created_at": "2024-06-03"
-  },
-  {
-    "product_id": 415,
-    "name": "Blender 1.5L Lite",
-    "category": "Home & Kitchen",
-    "brand": "CozyNest",
-    "price": 258.79,
-    "stock": 45,
-    "rating": 4.5,
-    "created_at": "2025-04-29"
-  },
-  {
-    "product_id": 416,
-    "name": "Cutlery Set (24 pcs) - Graphite",
-    "category": "Home & Kitchen",
-    "brand": "Hearthstone",
-    "price": 130.55,
-    "stock": 7,
-    "rating": 3.3,
-    "created_at": "2025-10-18"
-  },
-  {
-    "product_id": 417,
-    "name": "Toaster 2-slice",
-    "category": "Home & Kitchen",
-    "brand": "AquaPure",
-    "price": 27.04,
-    "stock": 109,
-    "rating": 3.5,
-    "created_at": "2025-01-08"
-  },
-  {
-    "product_id": 418,
-    "name": "Ceramic Mug 350ml",
-    "category": "Home & Kitchen",
-    "brand": "BrightGlow",
-    "price": 441.46,
-    "stock": 200,
-    "rating": 5,
-    "created_at": "2024-08-16"
-  },
-  {
-    "product_id": 419,
-    "name": "Air Fryer 4L Pro XL - Graphite",
-    "category": "Home & Kitchen",
-    "brand": "AquaPure",
-    "price": 313.05,
-    "stock": 343,
-    "rating": 5,
-    "created_at": "2024-10-08"
-  },
-  {
-    "product_id": 420,
-    "name": "Stainless Steel Pan 28cm",
-    "category": "Home & Kitchen",
-    "brand": "BrightGlow",
-    "price": 131.87,
-    "stock": 60,
-    "rating": 3.6,
-    "created_at": "2024-06-08"
-  },
-  {
-    "product_id": 421,
-    "name": "Cutlery Set (24 pcs) M - Blue",
-    "category": "Home & Kitchen",
-    "brand": "AquaPure",
-    "price": 328.59,
-    "stock": 367,
-    "rating": 5,
-    "created_at": "2025-05-01"
   },
   {
     "product_id": 422,
@@ -5188,76 +4948,6 @@
     "stock": 460,
     "rating": 3.2,
     "created_at": "2025-03-24"
-  },
-  {
-    "product_id": 520,
-    "name": "Puzzle 1000 pieces M",
-    "category": "Toys",
-    "brand": "HappyBlocks",
-    "price": 90.82,
-    "stock": 815,
-    "rating": 4.4,
-    "created_at": "2025-06-18"
-  },
-  {
-    "product_id": 521,
-    "name": "Marble Run",
-    "category": "Toys",
-    "brand": "WonderWorks",
-    "price": 72.79,
-    "stock": 367,
-    "rating": 4.5,
-    "created_at": "2024-11-21"
-  },
-  {
-    "product_id": 522,
-    "name": "Plush Bear 30cm",
-    "category": "Toys",
-    "brand": "RoboPal",
-    "price": 117.81,
-    "stock": 34,
-    "rating": 5,
-    "created_at": "2025-09-24"
-  },
-  {
-    "product_id": 523,
-    "name": "Plush Bear 30cm - Black",
-    "category": "Toys",
-    "brand": "KiddyLab",
-    "price": 72.53,
-    "stock": 638,
-    "rating": 4.4,
-    "created_at": "2024-11-02"
-  },
-  {
-    "product_id": 524,
-    "name": "Plush Bear 30cm",
-    "category": "Toys",
-    "brand": "KiddyLab",
-    "price": 34.71,
-    "stock": 799,
-    "rating": 4.4,
-    "created_at": "2025-07-27"
-  },
-  {
-    "product_id": 525,
-    "name": "Building Blocks Set Pro - Black",
-    "category": "Toys",
-    "brand": "PlayVerse",
-    "price": 26.22,
-    "stock": 423,
-    "rating": 3.7,
-    "created_at": "2024-12-09"
-  },
-  {
-    "product_id": 526,
-    "name": "Wooden Train Set L - Black",
-    "category": "Toys",
-    "brand": "SunnyPlay",
-    "price": 5.91,
-    "stock": 508,
-    "rating": 3.6,
-    "created_at": "2024-08-24"
   },
   {
     "product_id": 527,
@@ -6870,86 +6560,6 @@
     "created_at": "2024-05-26"
   },
   {
-    "product_id": 688,
-    "name": "Water Bottle 1L - Blue",
-    "category": "Sports",
-    "brand": "FitFoundry",
-    "price": 51.5,
-    "stock": 390,
-    "rating": 3.2,
-    "created_at": "2025-04-06"
-  },
-  {
-    "product_id": 689,
-    "name": "Running Shoes Max",
-    "category": "Sports",
-    "brand": "FitFoundry",
-    "price": 58.35,
-    "stock": 759,
-    "rating": 3.9,
-    "created_at": "2024-08-30"
-  },
-  {
-    "product_id": 690,
-    "name": "Water Bottle 1L 2.0",
-    "category": "Sports",
-    "brand": "FitFoundry",
-    "price": 50.41,
-    "stock": 746,
-    "rating": 3.3,
-    "created_at": "2024-10-16"
-  },
-  {
-    "product_id": 691,
-    "name": "Water Bottle 1L 2.0",
-    "category": "Sports",
-    "brand": "AeroFlex",
-    "price": 321.26,
-    "stock": 391,
-    "rating": 4.2,
-    "created_at": "2025-03-01"
-  },
-  {
-    "product_id": 692,
-    "name": "Water Bottle 1L Pro",
-    "category": "Sports",
-    "brand": "PeakMotion",
-    "price": 163.06,
-    "stock": 409,
-    "rating": 3.9,
-    "created_at": "2024-11-09"
-  },
-  {
-    "product_id": 693,
-    "name": "Running Shoes",
-    "category": "Sports",
-    "brand": "TrailRunner",
-    "price": 299.56,
-    "stock": 753,
-    "rating": 4.4,
-    "created_at": "2024-06-06"
-  },
-  {
-    "product_id": 694,
-    "name": "Jump Rope",
-    "category": "Sports",
-    "brand": "TrailRunner",
-    "price": 48.4,
-    "stock": 870,
-    "rating": 2.8,
-    "created_at": "2025-02-11"
-  },
-  {
-    "product_id": 695,
-    "name": "Cycling Gloves Pro",
-    "category": "Sports",
-    "brand": "TrailRunner",
-    "price": 312.09,
-    "stock": 556,
-    "rating": 3.8,
-    "created_at": "2024-09-10"
-  },
-  {
     "product_id": 696,
     "name": "Cycling Gloves 2.0",
     "category": "Sports",
@@ -6978,16 +6588,6 @@
     "stock": 228,
     "rating": 4.6,
     "created_at": "2025-06-21"
-  },
-  {
-    "product_id": 699,
-    "name": "Tennis Racket",
-    "category": "Sports",
-    "brand": "TrailRunner",
-    "price": 285.07,
-    "stock": 771,
-    "rating": 5,
-    "created_at": "2024-07-31"
   },
   {
     "product_id": 700,
@@ -7028,216 +6628,6 @@
     "stock": 1117,
     "rating": 3.9,
     "created_at": "2024-11-29"
-  },
-  {
-    "product_id": 704,
-    "name": "Conditioner 300ml 2.0 S - Green",
-    "category": "Beauty",
-    "brand": "VelvetSkin",
-    "price": 49.79,
-    "stock": 679,
-    "rating": 5,
-    "created_at": "2024-12-27"
-  },
-  {
-    "product_id": 705,
-    "name": "Hand Cream 75ml Max",
-    "category": "Beauty",
-    "brand": "OceanMist",
-    "price": 29.83,
-    "stock": 1158,
-    "rating": 3.6,
-    "created_at": "2025-07-03"
-  },
-  {
-    "product_id": 706,
-    "name": "Lip Balm S",
-    "category": "Beauty",
-    "brand": "SilkAura",
-    "price": 86.17,
-    "stock": 949,
-    "rating": 2.6,
-    "created_at": "2024-09-22"
-  },
-  {
-    "product_id": 707,
-    "name": "Shampoo 300ml Plus",
-    "category": "Beauty",
-    "brand": "PureGlow",
-    "price": 109.31,
-    "stock": 948,
-    "rating": 3.9,
-    "created_at": "2025-03-30"
-  },
-  {
-    "product_id": 708,
-    "name": "Sunscreen SPF50 100ml Max",
-    "category": "Beauty",
-    "brand": "AurumCare",
-    "price": 27.27,
-    "stock": 487,
-    "rating": 3.9,
-    "created_at": "2025-10-02"
-  },
-  {
-    "product_id": 709,
-    "name": "Hand Cream 75ml Plus - Black",
-    "category": "Beauty",
-    "brand": "AurumCare",
-    "price": 102.09,
-    "stock": 290,
-    "rating": 4.3,
-    "created_at": "2025-06-05"
-  },
-  {
-    "product_id": 710,
-    "name": "Hand Cream 75ml L - Red",
-    "category": "Beauty",
-    "brand": "PureGlow",
-    "price": 19.37,
-    "stock": 725,
-    "rating": 4.9,
-    "created_at": "2024-04-30"
-  },
-  {
-    "product_id": 711,
-    "name": "Micellar Water 400ml Plus L",
-    "category": "Beauty",
-    "brand": "LunaLeaf",
-    "price": 75.31,
-    "stock": 711,
-    "rating": 4.6,
-    "created_at": "2024-06-18"
-  },
-  {
-    "product_id": 712,
-    "name": "Facial Cleanser 200ml",
-    "category": "Beauty",
-    "brand": "SilkAura",
-    "price": 44.36,
-    "stock": 1151,
-    "rating": 3.1,
-    "created_at": "2025-08-28"
-  },
-  {
-    "product_id": 713,
-    "name": "Face Serum 30ml L",
-    "category": "Beauty",
-    "brand": "VelvetSkin",
-    "price": 69.96,
-    "stock": 827,
-    "rating": 5,
-    "created_at": "2025-09-02"
-  },
-  {
-    "product_id": 714,
-    "name": "Hand Cream 75ml Plus - Green",
-    "category": "Beauty",
-    "brand": "AurumCare",
-    "price": 76.01,
-    "stock": 915,
-    "rating": 3.6,
-    "created_at": "2025-10-15"
-  },
-  {
-    "product_id": 715,
-    "name": "Face Mask Sheet",
-    "category": "Beauty",
-    "brand": "PureGlow",
-    "price": 19.68,
-    "stock": 889,
-    "rating": 4.6,
-    "created_at": "2025-08-06"
-  },
-  {
-    "product_id": 716,
-    "name": "Body Lotion 250ml - Silver",
-    "category": "Beauty",
-    "brand": "PureGlow",
-    "price": 81.96,
-    "stock": 663,
-    "rating": 3,
-    "created_at": "2024-08-25"
-  },
-  {
-    "product_id": 717,
-    "name": "Hand Cream 75ml",
-    "category": "Beauty",
-    "brand": "PureGlow",
-    "price": 2.73,
-    "stock": 783,
-    "rating": 4,
-    "created_at": "2025-09-11"
-  },
-  {
-    "product_id": 718,
-    "name": "Face Serum 30ml",
-    "category": "Beauty",
-    "brand": "OceanMist",
-    "price": 127.41,
-    "stock": 846,
-    "rating": 3,
-    "created_at": "2025-07-06"
-  },
-  {
-    "product_id": 719,
-    "name": "Moisturizing Cream 50ml Plus - Graphite",
-    "category": "Beauty",
-    "brand": "SilkAura",
-    "price": 106.2,
-    "stock": 879,
-    "rating": 4.5,
-    "created_at": "2025-07-27"
-  },
-  {
-    "product_id": 720,
-    "name": "Shampoo 300ml - Blue",
-    "category": "Beauty",
-    "brand": "AurumCare",
-    "price": 131.84,
-    "stock": 211,
-    "rating": 3.8,
-    "created_at": "2025-07-30"
-  },
-  {
-    "product_id": 721,
-    "name": "Body Lotion 250ml Pro",
-    "category": "Beauty",
-    "brand": "PureGlow",
-    "price": 21.4,
-    "stock": 407,
-    "rating": 4,
-    "created_at": "2025-01-15"
-  },
-  {
-    "product_id": 722,
-    "name": "Facial Cleanser 200ml - Silver",
-    "category": "Beauty",
-    "brand": "VelvetSkin",
-    "price": 11.71,
-    "stock": 19,
-    "rating": 4.2,
-    "created_at": "2024-05-22"
-  },
-  {
-    "product_id": 723,
-    "name": "Lip Balm XL - Black",
-    "category": "Beauty",
-    "brand": "SilkAura",
-    "price": 12.65,
-    "stock": 757,
-    "rating": 4.8,
-    "created_at": "2025-08-22"
-  },
-  {
-    "product_id": 724,
-    "name": "Hand Cream 75ml",
-    "category": "Beauty",
-    "brand": "VelvetSkin",
-    "price": 2.91,
-    "stock": 192,
-    "rating": 3.6,
-    "created_at": "2024-06-12"
   },
   {
     "product_id": 725,
@@ -8870,56 +8260,6 @@
     "created_at": "2024-12-25"
   },
   {
-    "product_id": 888,
-    "name": "Poetry Collection - Graphite",
-    "category": "Books",
-    "brand": "Orion Leaf",
-    "price": 24.78,
-    "stock": 310,
-    "rating": 2.7,
-    "created_at": "2025-07-23"
-  },
-  {
-    "product_id": 889,
-    "name": "Mystery Thriller 2.0 XL",
-    "category": "Books",
-    "brand": "Silver Quill",
-    "price": 29.64,
-    "stock": 425,
-    "rating": 4.4,
-    "created_at": "2024-09-21"
-  },
-  {
-    "product_id": 890,
-    "name": "Data Science Handbook",
-    "category": "Books",
-    "brand": "Orion Leaf",
-    "price": 75.33,
-    "stock": 46,
-    "rating": 3.6,
-    "created_at": "2024-06-19"
-  },
-  {
-    "product_id": 891,
-    "name": "Poetry Collection Lite M",
-    "category": "Books",
-    "brand": "Sunset House",
-    "price": 9.56,
-    "stock": 392,
-    "rating": 4.4,
-    "created_at": "2024-05-22"
-  },
-  {
-    "product_id": 892,
-    "name": "Travel Guide: Japan Max",
-    "category": "Books",
-    "brand": "Atlas Editions",
-    "price": 11.59,
-    "stock": 419,
-    "rating": 3.1,
-    "created_at": "2024-05-09"
-  },
-  {
     "product_id": 893,
     "name": "Travel Guide: Japan",
     "category": "Books",
@@ -8986,7 +8326,7 @@
     "brand": "Atlas Editions",
     "price": 70.79,
     "stock": 493,
-    "rating": 3.3,
+    "rating": null,
     "created_at": "2024-08-23"
   },
   {
@@ -9416,7 +8756,7 @@
     "brand": "PetNest",
     "price": 59.81,
     "stock": 110,
-    "rating": 4.4,
+    "rating": null,
     "created_at": "2024-08-08"
   },
   {
@@ -9896,7 +9236,7 @@
     "brand": "Paw&Co",
     "price": 196,
     "stock": 20,
-    "rating": 3.3,
+    "rating": null,
     "created_at": "2025-08-05"
   },
   {
@@ -9978,25 +9318,5 @@
     "stock": 613,
     "rating": 3.1,
     "created_at": "2024-05-31"
-  },
-  {
-    "product_id": 999,
-    "name": "Dog Leash Nylon 2.0 - Silver",
-    "category": "Pets",
-    "brand": "FurryFriends",
-    "price": 193.92,
-    "stock": 321,
-    "rating": 4.4,
-    "created_at": "2024-08-31"
-  },
-  {
-    "product_id": 1000,
-    "name": "Bird Seed 1kg",
-    "category": "Pets",
-    "brand": "Paw&Co",
-    "price": 170.7,
-    "stock": 574,
-    "rating": 4.1,
-    "created_at": "2025-05-09"
   }
 ]
