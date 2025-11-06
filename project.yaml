@@ -97,6 +97,22 @@ collection:
       - NoSQL
       - Synchronisation
 
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/4-lecture.md
+    title: "L4: Column Stores"
+    tags:
+      - Column Store
+      - NoSQL
+      - Analytics
+  
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md
+    title: "L5: Relationale Datenbanken (SQL) – Von der Idee zum Model"
+    tags:
+      - Relationale Datenbanken
+      - SQL
+      - Normalisierung
+      - ER-Modell
+      - Datenmodellierung
+
   # Block 2: Relationale Grundlagen (coming soon)
   - html: >
       <hr>

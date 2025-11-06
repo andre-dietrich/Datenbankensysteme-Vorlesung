@@ -2,7 +2,7 @@
 language: de
 narrator: German Male
 
-author:   André Dietrich
+author:   André Dietrich; GitHub Copilot
 email:    LiaScript@web.de
 
 version:  1.0.0
@@ -20,7 +20,7 @@ import:   https://raw.githubusercontent.com/LiaTemplates/DuckDB/0.0.5/README.md
 
 -->
 
-# Relationales Modell: Tabellen, Keys, Integrität
+# Relationales Modell: Tabellen, Keys, Integrität und SQL
 
 > **Session 5** – Lecture (90 Minuten)  
 > **Lernziele:** LZ 2 (Relationale Grundlagen)
