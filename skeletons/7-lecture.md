@@ -185,3 +185,10 @@ Diese Session ist der Einstieg in Block 2 (SQL Einführung & Grundlagen). Sie li
 - [ ] Interaktive Übungen mit Musterlösungen
 - [ ] Vergleichstabelle: SQL vs. NoSQL-Queries (KV, Document)
 - [ ] Paradigmen-Matrix aktualisieren (SQL-Abfrageausdruck hinzufügen)
+
+
+## Logo - Prompt
+
+@logo-prompt: Wide aspect 16:9 flat minimal educational tech illustration. Mittelpunkt: stilisierte SQL-Abfrage visualisiert als interaktive Lupe über einer Datenbanktabelle (3-4 Zeilen, 4-5 Spalten, klare Gitterstruktur). Die Lupe hebt eine SELECT-Auswahl hervor (2 Zeilen, 2 Spalten orange umrandet). Links neben der Tabelle: kleines schwebendes "SELECT"-Icon (Pfeil nach unten) + "WHERE"-Filtersymbol (Trichter). Rechts: gestapelte Sortierpfeile (ORDER BY) + Gruppierungs-Klammern (GROUP BY). Hintergrund: subtile horizontale Datenfluss-Linien (von links nach rechts), angedeutet als "Live Query Execution". Schriftzug (optional) "Session 7: SQL Hands-on" dezent, sans-serif, unten zentriert. Farbschema: Petrol (#0B6E75 – Tabelle/Struktur), Warm Orange (#FF8C42 – SELECT Highlights/Lupe), Sand (#F2E9DC – Background), Dark Gray (#333 – Grid/Icons), Off-White (#F9F9F9 – Flächen). Keine Gradients, klare Konturen, weiche Rundungen, hoher Kontrast, kein Photorealismus, hands-on learning style, clean edges, negative space sinnvoll nutzen.
+
+![Session 7 Logo](../assets/img/logo/7-lecture.jpg)

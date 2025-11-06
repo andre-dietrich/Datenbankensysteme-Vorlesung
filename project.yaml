@@ -111,9 +111,22 @@ collection:
       <hr>
       <h2 style="color: #0B6E75;">Block 2: Relationale Grundlagen</h2>
       <p>
-        <em>Coming Soon:</em> Relationales Modell, Relationale Algebra und SQL Basics<br>
+        <strong>Block 2 startet mit einer interaktiven Live-Session (L7):</strong><br>
+        <span style="color: #FF8C42; font-weight: bold;">SQL Introduction & Query Data (SELECT)</span> – Hands-on, direkt im Browser.<br>
+        Relationales Modell, Relationale Algebra und weitere SQL-Themen folgen schrittweise.<br>
         Die Materialien für Block 2 werden nach und nach ergänzt.
       </p>
+
+
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture.md
+    title: "L7: SQL Introduction & Query Data (SELECT)"
+    tags:
+      - SQL
+      - Hands-on
+      - Live-Session
+      - SELECT
+      - Query
+      - Praxis
 
   # Additional Resources
   - html: >
