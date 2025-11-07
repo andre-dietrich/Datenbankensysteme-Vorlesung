@@ -303,7 +303,7 @@ Stellen Sie sich die Welt der Datenverarbeitung um 1970 vor: Daten wurden in kom
 
 > ___"A Relational Model of Data for Large Shared Data Banks"___
 >
-> <embed src="../assets/pdf/a-relational-model-of-data-for-large-shared-data-banks.pdf" type="application/pdf" width="100%" height="600px" />
+> ![Screenshot of Codds original paper](../assets/img/a-relational-model-of-data-for-large-shared-data-banks.png "Download the original paper [here](../assets/pdf/a-relational-model-of-data-for-large-shared-data-banks.pdf)")
 
     {{2}}
 > ___We are Sorry to Inform you ...___
@@ -311,7 +311,11 @@ Stellen Sie sich die Welt der Datenverarbeitung um 1970 vor: Daten wurden in kom
 >    --{{2}}--
 > Edgar F. Codds bahnbrechendes Paper zum relationalen Modell wurde tatsächlich nicht sofort als revolutionär gefeiert. Im Gegenteil: Es wurde mindestens zweimal von wissenschaftlichen Zeitschriften abgelehnt, bevor es endlich veröffentlicht wurde. Auch bei IBM selbst stieß Codd zunächst auf Widerstand. Viele Kollegen und Manager waren überzeugt, dass die bestehenden hierarchischen (IMS) und netzwerkartigen (CODASYL) Datenbanksysteme leistungsfähiger und ausgereifter seien. Codds Ansatz galt als zu theoretisch und wurde als „unpraktisch“ abgetan. Erst nach und nach – und mit viel Beharrlichkeit – konnte Codd die Community und IBM davon überzeugen, dass sein Modell die Grundlage für eine neue Generation von Datenbanksystemen bilden würde. Die Ablehnungsschreiben, wie das hier eingebettete, sind ein eindrucksvolles Zeugnis dafür, wie schwer sich Innovationen manchmal durchsetzen müssen.
 >
-> <embed src="../assets/pdf/we-are-sorry-to-inform-you.pdf" type="application/pdf" width="100%" height="600px" />
+> ![Screenshot of Codds review](../assets/img/we-are-sorry-to-inform-you.png "Download the review [here](../assets/pdf/we-are-sorry-to-inform-you.pdf)")
+>
+> _This paper proposes that all data in a database be represented in the form of relationssets of tuples—and that all the operations relative to data access be made on this model. Some of the ideas presented in the paper are interesting and may be of some use, but, in general, this very preliminary work fails to make a convincing point as to their implementation, performance, and practical use fulness. The paper’s general point is that the tabular form presented should be suitable for general data access, but ..._
+>
+> _... Adding together the lack of any real-world example, performance experiment, and implementation indication or detail, we are left with an obscure exercise using unfamiliar mathematics and of little or no practical consequence. **It can be safely rejected.**_
 
 </section>
 
