@@ -3,6 +3,8 @@
 language: de
 narrator: German Male
 
+version:  1.0.0
+
 author:   André Dietrich; GitHub Copilot
 email:    LiaScript@web.de
 

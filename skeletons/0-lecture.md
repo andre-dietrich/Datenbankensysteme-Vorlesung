@@ -89,10 +89,12 @@ Aus diesem Projekt entstand die Idee für **LiaScript** – eine Markdown-basier
 - **Projekt:** Open-Source-Projekt für **interaktive Kurse in Markdown**
 - **Vision:** Lehrende erstellen Kurse als **einfache Textdateien** (z. B. auf GitHub), ohne Build-Steps oder CMS
 - **Features:**
+
   - **Multimedia:** Videos, Audio, ASCII-Diagramme, Mermaid, LaTeX
   - **Interaktion:** Quizze, Live-Coding (JavaScript, Python, SQL), TTS (Text-to-Speech)
   - **Kollaboration:** WebRTC-basierte Klassenräume (Peer-to-Peer)
   - **Persistenz:** IndexedDB für Offline-Fähigkeit und Fortschritt speichern
+
 - **Link:** [LiaScript Homepage](https://liascript.github.io/)
 
 **Technologien:**
