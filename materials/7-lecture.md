@@ -3,7 +3,7 @@
 language: de
 narrator: German Male
 
-version:  1.0.0
+version:  1.0.1
 
 author:   André Dietrich; GitHub Copilot
 email:    LiaScript@web.de
@@ -30,8 +30,35 @@ Bevor wir mit SQL-Abfragen starten, laden wir unsere Produktdatenbank. Wir nutze
 INSTALL httpfs;
 LOAD httpfs;
 
-CREATE TABLE Products AS
-SELECT * FROM read_json('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.json');
+-- 1) Load raw data into a temp table
+CREATE TEMP TABLE products_raw AS
+SELECT *
+FROM read_json('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/products.json');
+
+-- 2) Create final table with a PK defined at creation
+CREATE TABLE products (
+  product_id INTEGER PRIMARY KEY,
+  name TEXT,
+  category TEXT,
+  brand TEXT,
+  price REAL,
+  stock INTEGER,
+  rating REAL,
+  created_at DATE
+);
+
+-- 3) Insert with proper field mappings & casting
+INSERT INTO products
+SELECT
+  CAST(product_id AS INTEGER) AS product_id,
+  name::TEXT,
+  category::TEXT,
+  brand::TEXT,
+  CAST(price AS REAL) AS price,
+  CAST(stock AS INTEGER) AS stock,
+  CAST(rating AS REAL) AS rating,
+  CAST(created_at AS DATE) AS created_at
+FROM products_raw;
 ```
 @DuckDB.eval(sql_intro)
 
@@ -47,7 +74,35 @@ const text = await res.text();
 await db.registerFileText('products.json', text);
 
 // jetzt normal aus der "lokalen" Datei lesen
-await conn.query(`CREATE TABLE Products AS SELECT * FROM read_json('products.json');`);
+await conn.query(`
+CREATE TEMP TABLE Products_raw AS SELECT * FROM read_json('products.json');
+
+-- 2) Create final table with a PK defined at creation
+CREATE TABLE products (
+  product_id INTEGER PRIMARY KEY,
+  name TEXT,
+  category TEXT,
+  brand TEXT,
+  price REAL,
+  stock INTEGER,
+  rating REAL,
+  created_at DATE
+);
+
+-- 3) Insert with proper field mappings & casting
+INSERT INTO products
+SELECT
+  CAST(product_id AS INTEGER) AS product_id,
+  name::TEXT,
+  category::TEXT,
+  brand::TEXT,
+  CAST(price AS REAL) AS price,
+  CAST(stock AS INTEGER) AS stock,
+  CAST(rating AS REAL) AS rating,
+  CAST(created_at AS DATE) AS created_at
+FROM products_raw;
+
+`);
 
 console.log("ready")
 ```
