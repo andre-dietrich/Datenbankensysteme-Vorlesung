@@ -38,8 +38,8 @@ These references map directly to bundle sections:
 
 4. **Primary Directive**: Your primary goal is defined in your agent configuration below. Focus on fulfilling your designated role according to the BMad-Method framework.
 
-
 ==================== START: .bmad-core/agents/teaching-agent.md ====================
+
 ## Agent Definition
 
 CRITICAL: Read the full YAML, start activation to alter your state of being, follow startup section instructions, stay in this being until told to exit this mode:
@@ -115,10 +115,11 @@ fuzzy-matching:
   - 85% confidence threshold
   - Show numbered list if unsure
 ```
+
 ==================== END: .bmad-core/agents/teaching-agent.md ====================
 
-
 ==================== START: .bmad-core/tasks/create-outline.md ====================
+
 # Task: create-outline
 
 ## Zweck
@@ -147,10 +148,11 @@ Definiert Titel, Zielgruppe, Abstract, Lernziele und optional ein Logo.
 3. Optional: Logo-Prompt hinzufügen.
 4. Template `lecture-outline-template.yaml` mit den Inputs füllen.
 5. Datei unter `docs/lecture-outline.md` speichern.
+
 ==================== END: .bmad-core/tasks/create-outline.md ====================
 
-
 ==================== START: .bmad-core/tasks/create-didactics.md ====================
+
 # Task: create-didactics
 
 ## Zweck
@@ -179,10 +181,11 @@ Baut auf der Lecture Outline auf, um eine konsistente Lehrstrategie sicherzustel
 5. Kursart festlegen (Einführung, wissenschaftlich vertieft, anwendungsorientiert, Gruppenarbeit, Selbstlernen).
 6. Template `templates/lecture-didactics-template.yaml` mit den Ergebnissen füllen.
 7. Datei unter `docs/lecture-didactics.md` speichern.
+
 ==================== END: .bmad-core/tasks/create-didactics.md ====================
 
-
 ==================== START: .bmad-core/tasks/create-agenda.md ====================
+
 # Task: create-agenda
 
 ## Zweck
@@ -217,10 +220,11 @@ Definiert Sessions/Module mit Titel, Dauer, Typ (Vorlesung/Übung), Lernzielen, 
 5. Agenda in strukturierter Form aufbauen.
 6. Template `templates/lecture-agenda-template.yaml` mit den Ergebnissen füllen.
 7. Datei unter `docs/lecture-agenda.md` speichern.
+
 ==================== END: .bmad-core/tasks/create-agenda.md ====================
 
-
 ==================== START: .bmad-core/tasks/create-session-skeleton.md ====================
+
 # Task: create-session-skeleton
 
 ## Zweck
@@ -252,10 +256,11 @@ Erstellt ein **Session-Skeleton** (Vorlesung oder Übung) als strukturiertes Gru
 4. Grundstruktur für die Session erzeugen.
 5. Template `templates/session-skeleton.yaml` füllen.
 6. Datei speichern.
+
 ==================== END: .bmad-core/tasks/create-session-skeleton.md ====================
 
-
 ==================== START: .bmad-core/tasks/promote-session.md ====================
+
 # Task: promote-session
 
 ## Zweck
@@ -289,10 +294,11 @@ Erstellt ein **Session-Skeleton** (Vorlesung oder Übung) als strukturiertes Gru
 6. Geplante Gliederung generieren.
 7. Template anwenden.
 8. Datei speichern.
+
 ==================== END: .bmad-core/tasks/promote-session.md ====================
 
-
 ==================== START: .bmad-core/tasks/coauthor-materials.md ====================
+
 # Task: coauthor-materials
 
 ## Zweck
@@ -301,7 +307,7 @@ Ermöglicht es, dass der Agent **in der Professor-Persona** als Co-Autor beim Er
 Dieser Task ist **interaktiv**: Lehrende diskutieren mit dem Agenten Inhalte, Tonalität und Struktur, bevor diese in die Materials übernommen werden.
 Schlage Bilder zur Visualisierung vor, etweder als Suchbegriff oder als konkreten Bild-Prompt.Bilder können Diagramm eingefügt werden (z. B. Mermaid, ASCII-Art).
 
-__WICHTIG:__ Hallte dich strikt an die LiaScript-Syntaxregeln, insbesondere zu Überschriften und Slidestruktur (siehe `data/liascript-cheat-sheet.md`).
+**WICHTIG:** Hallte dich strikt an die LiaScript-Syntaxregeln, insbesondere zu Überschriften und Slidestruktur (siehe `data/liascript-cheat-sheet.md`).
 
 ## Inputs
 
@@ -325,7 +331,7 @@ __WICHTIG:__ Hallte dich strikt an die LiaScript-Syntaxregeln, insbesondere zu �
 2. **Agent adoptiert die Professor-Persona in seine eigene Persona** und schreibt, diskutiert und kommentiert im Tonfall dieser Figur.
 3. Lehrende stellen Fragen, Einwände oder Änderungswünsche.
 4. Agent reagiert im Persona-Stil, schlägt Alternativen vor und verfeinert Inhalte iterativ.
-5. __Wichtig:__ Füge **nur** neue Überschriften hinzu wenn sie innerhalb von HTML-Blöcken, Listen oder Blockquotes stehen. (**Ausnahme:** wenn Lehrende dies explizit wünschen oder Slides aufgeteilt werden sollen.)
+5. **Wichtig:** Füge **nur** neue Überschriften hinzu wenn sie innerhalb von HTML-Blöcken, Listen oder Blockquotes stehen. (**Ausnahme:** wenn Lehrende dies explizit wünschen oder Slides aufgeteilt werden sollen.)
 6. Am Ende entsteht eine konsolidierte Materialfassung (oder Teilabschnitte), die ins aktuell offene Dokument `materials/{number}-{type}.md` übernommen werden können.
 
 ## Besonderheiten
@@ -333,7 +339,7 @@ __WICHTIG:__ Hallte dich strikt an die LiaScript-Syntaxregeln, insbesondere zu �
 - Dieser Task ist **dialogorientiert** und bleibt offen, bis Lehrende die Materialien „absegnen“.
 - Ziel ist **Co-Authoring**: Agent schreibt _mit_, nicht _anstelle_.
 - Outputs sind Zwischenschritte, die durch die Lehrenden freigegeben und ins aktuell offene Dokument `materials/{number}-{type}.md` übernommen werden.
-fuzzy-matching:
+  fuzzy-matching:
 - Gibt nur Antworten mit 85% confidence threshold
 - Zeige nummerierte Liste an, wenn unsicher
 - Recherchiere wenn nötig im Netz
@@ -342,8 +348,8 @@ fuzzy-matching:
 
 ==================== END: .bmad-core/tasks/coauthor-materials.md ====================
 
-
 ==================== START: .bmad-core/tasks/validate-lecture.md ====================
+
 # Task: validate-lecture
 
 ## Zweck
@@ -364,10 +370,11 @@ Prüft Konsistenz und Vollständigkeit aller Vorlesungs-Dokumente auf Basis der 
 5. Session-Skeletons prüfen.
 6. Materials prüfen.
 7. Report erstellen.
+
 ==================== END: .bmad-core/tasks/validate-lecture.md ====================
 
-
 ==================== START: .bmad-core/tasks/assemble-bundle.md ====================
+
 # Task: assemble-bundle
 
 ## Zweck
@@ -384,10 +391,10 @@ Fasst alle Dokumente einer Vorlesung zu einem vollständigen Paket zusammen.
 2. Struktur aufbauen.
 3. Indexdatei `bundle-index.md` erzeugen.
 4. Alles bündeln.
-==================== END: .bmad-core/tasks/assemble-bundle.md ====================
-
+   ==================== END: .bmad-core/tasks/assemble-bundle.md ====================
 
 ==================== END: .bmad-core/checklist/lecture-quality-checklist.md ====================
+
 # Checklist: Lecture Quality
 
 ## Outline
@@ -430,31 +437,31 @@ Fasst alle Dokumente einer Vorlesung zu einem vollständigen Paket zusammen.
 - [ ] Keine Sessions ohne Materials
 - [ ] Nummerierung korrekt
 - [ ] Markdown-Format einheitlich
-==================== END: .bmad-core/checklist/lecture-quality-checklist.md ====================
-
+      ==================== END: .bmad-core/checklist/lecture-quality-checklist.md ====================
 
 ==================== START: .bmad-core/templates/lecture-outline-template.yaml ====================
+
 ### lecture-outline-template.yaml
 
-``` yaml
+```yaml
 template:
   id: lecture-outline-template
-  name: "Lecture Outline"
+  name: 'Lecture Outline'
   version: 1.0
   output:
     format: markdown
     filename: docs/lecture-outline.md
-  title: "Lecture Outline"
+  title: 'Lecture Outline'
   sections:
     - id: title
       title: Titel
-      template: "Name der Vorlesung oder des Kurses"
+      template: 'Name der Vorlesung oder des Kurses'
     - id: audience
       title: Zielgruppe
-      template: "An wen richtet sich dieser Kurs/Vorlesung?"
+      template: 'An wen richtet sich dieser Kurs/Vorlesung?'
     - id: time-commitment
       title: Zeitaufwand
-      template: "Geschätzter Zeitaufwand (z. B. Semesterwochenstunden, Gesamtstunden)"
+      template: 'Geschätzter Zeitaufwand (z. B. Semesterwochenstunden, Gesamtstunden)'
     - id: abstract
       title: Zusammenfassung
       template: >
@@ -469,21 +476,22 @@ template:
       template: >
         Prompt für die Erstellung eines Logos zur Vorlesung.
 ```
+
 ==================== END: .bmad-core/templates/lecture-outline-template.yaml ====================
 
-
 ==================== START: .bmad-core/templates/lecture-didactics-template.yaml ====================
+
 # lecture-didactics-template.yaml
 
-``` yaml
+```yaml
 template:
   id: lecture-didactics-template
-  name: "Lecture Didactics & Style"
+  name: 'Lecture Didactics & Style'
   version: 1.0
   output:
     format: markdown
     filename: docs/lecture-didactics.md
-  title: "Lecture Didactics & Style"
+  title: 'Lecture Didactics & Style'
   inputs:
     - docs/lecture-outline.abstract
     - docs/lecture-outline.audience
@@ -492,32 +500,33 @@ template:
   sections:
     - id: didactic-concept
       title: Didaktisches Konzept
-      template: "Lehrmethoden, Lernphasen, didaktische Überlegungen."
+      template: 'Lehrmethoden, Lernphasen, didaktische Überlegungen.'
     - id: professor-persona
       title: Professor-Persona
-      template: "Beschreibung des Professors (Hintergrund, Expertise, Rolle)."
+      template: 'Beschreibung des Professors (Hintergrund, Expertise, Rolle).'
     - id: style
       title: Stil & Schwierigkeitsgrad
-      template: "Beschreibung (z. B. humorvoll, wissenschaftlich, praxisnah)."
+      template: 'Beschreibung (z. B. humorvoll, wissenschaftlich, praxisnah).'
     - id: course-type
       title: Kursart
-      template: "Art des Kurses (Einführung, vertieft, praxisorientiert, Gruppenarbeit, Selbstlernen)."
+      template: 'Art des Kurses (Einführung, vertieft, praxisorientiert, Gruppenarbeit, Selbstlernen).'
 ```
+
 ==================== END: .bmad-core/templates/lecture-didactics-template.yaml ====================
 
-
 ==================== START: .bmad-core/templates/lecture-agenda-template.yaml ====================
+
 # lecture-agenda-template.yaml
 
-``` yaml
+```yaml
 template:
   id: lecture-agenda-template
-  name: "Lecture Agenda"
+  name: 'Lecture Agenda'
   version: 1.0
   output:
     format: markdown
     filename: docs/lecture-agenda.md
-  title: "Lecture Agenda"
+  title: 'Lecture Agenda'
   inputs:
     - docs/lecture-outline.learning-goals
     - docs/lecture-outline.time-commitment
@@ -526,7 +535,7 @@ template:
   sections:
     - id: overview
       title: Überblick
-      template: "Kurzer Überblick über die Agenda, Lernziele, Didaktik & Kursart."
+      template: 'Kurzer Überblick über die Agenda, Lernziele, Didaktik & Kursart.'
     - id: modules
       title: Module / Sessions
       template: >
@@ -536,52 +545,55 @@ template:
         - Lernziel(e), Zusammenfassung
         - Automatische Materials-Datei (materials/{n}-{type}.md)
 ```
+
 ==================== END: .bmad-core/templates/lecture-agenda-template.yaml ====================
 
 ==================== START: .bmad-core/templates/session-skeleton.yaml ====================
+
 # session-skeleton.yaml
 
-``` yaml
+```yaml
 template:
   id: session-skeleton
-  name: "Session Skeleton"
+  name: 'Session Skeleton'
   version: 1.0
   output:
     format: markdown
     filename: skeletons/{{number}}-{{type}}.md
-  title: "Session {{number}} ({{type | title}})"
+  title: 'Session {{number}} ({{type | title}})'
   sections:
     - id: title
       title: Titel
-      template: "Session {{number}} – {{title}} ({{type | title}})"
+      template: 'Session {{number}} – {{title}} ({{type | title}})'
     - id: summary
       title: Zusammenfassung
-      template: "Kurzer Überblick, Bezug zur Agenda, Relevanz, Didaktik."
+      template: 'Kurzer Überblick, Bezug zur Agenda, Relevanz, Didaktik.'
     - id: content
       title: Inhalte
-      template: "Platzhalter für Hauptthemen oder Aufgabenstellungen."
+      template: 'Platzhalter für Hauptthemen oder Aufgabenstellungen.'
     - id: activities
       title: Aktivitäten
-      template: "Platzhalter für Übungen, Diskussionen, Reflexion."
+      template: 'Platzhalter für Übungen, Diskussionen, Reflexion.'
     - id: references
       title: Referenzen & Quellen
-      template: "Liste relevanter Quellen und Materialien."
+      template: 'Liste relevanter Quellen und Materialien.'
 ```
+
 ==================== END: .bmad-core/templates/session-skeleton.yaml ====================
 
-
 ==================== START: .bmad-core/templates/session-material.yaml ====================
+
 # session-material.yaml
 
-``` yaml
+```yaml
 template:
   id: session-material
-  name: "Session Material"
+  name: 'Session Material'
   version: 1.0
   output:
     format: markdown
     filename: materials/{{number}}-{{type}}.md
-  title: "Session {{number}} ({{type | title}})"
+  title: 'Session {{number}} ({{type | title}})'
   inputs:
     - docs/lecture-agenda.modules
     - docs/lecture-didactics.style
@@ -592,27 +604,30 @@ template:
       title: Geplante Gliederung
       template: > # {{title}}
 
-          Zusammenfassung
 
-          ## Einführung
-          Inhalte
-          Referenzen
+        Zusammenfassung
 
-          ## Hauptteil 1
-          Inhalte
-          Referenzen
+        ## Einführung
+        Inhalte
+        Referenzen
 
-          ## Hauptteil 2
-          Inhalte
-          Referenzen
+        ## Hauptteil 1
+        Inhalte
+        Referenzen
 
-          ## Zusammenfassung / Wrap-up
-          Inhalte
-          Referenzen
+        ## Hauptteil 2
+        Inhalte
+        Referenzen
+
+        ## Zusammenfassung / Wrap-up
+        Inhalte
+        Referenzen
 ```
+
 ==================== END: .bmad-core/template/session-material.yaml ====================
 
 ==================== START: .bmad-core/data/liascript-cheat-sheet.md ====================
+
 # LiaScript Leitfaden – Syntax, Semantik & Best Practices
 
 ## Zweck
@@ -623,7 +638,7 @@ Kompakter Referenzleitfaden für Agents, um **syntaktisch und semantisch korrekt
 
 ## 1) Kurs-Metadaten (Header)
 
-``` lia
+```lia
 <!--
 author:   Vorname Nachname
 email:    user@example.org
@@ -651,23 +666,24 @@ comment:  Kurzbeschreibung des Kurses
 
 **Regeln**
 
-* Eine `#`-Überschrift pro Datei als Kurstitel.
-* Kapitel/Abschnitte logisch gliedern; keine „Sprünge“ in der Hierarchie.
+- Eine `#`-Überschrift pro Datei als Kurstitel.
+- Kapitel/Abschnitte logisch gliedern; keine „Sprünge“ in der Hierarchie.
 
 ---
 
 ### Zusatzregel: Unter-Überschriften innerhalb einer Slide
 
-* Jede `##`-Überschrift startet **immer eine neue Slide**.
-* Unter-Überschriften (`###` bis `######`) sind grundsätzlich **erlaubt**, aber:
+- Jede `##`-Überschrift startet **immer eine neue Slide**.
+- Unter-Überschriften (`###` bis `######`) sind grundsätzlich **erlaubt**, aber:
 
-  * Sie dürfen **nicht frei** eingefügt werden.
-  * Zulässig sind sie nur, wenn sie **eingebettet** sind in:
+  - Sie dürfen **nicht frei** eingefügt werden.
+  - Zulässig sind sie nur, wenn sie **eingebettet** sind in:
 
-    * einen **HTML-Block** (`<div>…</div>`)
-    * eine **Liste** (`-`, `*`)
-    * einen **Blockquote** (`>`)
-* Eine „nackte“ Unter-Überschrift außerhalb solcher Container gilt als neue Slide/Segment und ist daher **verboten**.
+    - einen **HTML-Block** (`<div>…</div>`)
+    - eine **Liste** (`-`, `*`)
+    - einen **Blockquote** (`>`)
+
+- Eine „nackte“ Unter-Überschrift außerhalb solcher Container gilt als neue Slide/Segment und ist daher **verboten**.
 
 **Erlaubte Muster:**
 
@@ -683,15 +699,15 @@ comment:  Kurzbeschreibung des Kurses
 ```lia
 ## Slide 2
 
-- Liste mit Inhalt  
-  - ### Unter-Überschrift in einer Liste  
+- Liste mit Inhalt
+  - ### Unter-Überschrift in einer Liste
     #### Noch eine tiefere Ebene
 ```
 
 ```lia
 ## Slide 3
 
-> ### Unter-Überschrift in einem Zitat  
+> ### Unter-Überschrift in einem Zitat
 > #### Tieferer Punkt im Blockquote
 ```
 
@@ -728,22 +744,22 @@ Normaler Text mit **Fettdruck** und *Kursiv*.
 
 1. **Slidestruktur**
 
-   * Jede `##`-Überschrift erzeugt eine **neue Slide**.
-   * Nach jeder neuen Slide (`##`) beginnt die **Nummerierung** der Animationen und Kommentare (`--{{n}}--`, `{{n}}`) wieder bei **0**.
-   * Überschriften innerhalb von `<div>…</div>`, Listen oder Blockquotes gelten **nicht** als neue Slides.
+   - Jede `##`-Überschrift erzeugt eine **neue Slide**.
+   - Nach jeder neuen Slide (`##`) beginnt die **Nummerierung** der Animationen und Kommentare (`--{{n}}--`, `{{n}}`) wieder bei **0**.
+   - Überschriften innerhalb von `<div>…</div>`, Listen oder Blockquotes gelten **nicht** als neue Slides.
 
 2. **Animationen**
 
-   * Jede Animation wird durch `--{{n}}--` (Kommentar/TTS) oder `{{n}}` (sichtbarer Inhalt) gesteuert.
-   * Nummerierung läuft pro Slide ab 0.
-   * Bereichsangaben `{{a-b}}` bedeuten: Inhalt wird in Schritt `a` eingeblendet und in Schritt `b` wieder ausgeblendet.
+   - Jede Animation wird durch `--{{n}}--` (Kommentar/TTS) oder `{{n}}` (sichtbarer Inhalt) gesteuert.
+   - Nummerierung läuft pro Slide ab 0.
+   - Bereichsangaben `{{a-b}}` bedeuten: Inhalt wird in Schritt `a` eingeblendet und in Schritt `b` wieder ausgeblendet.
 
 3. **Sprachausgabe (TTS)**
 
-   * Jeder Block `--{{n}}--` enthält einen **ausführlichen Sprecherkommentar**, der beim entsprechenden Animationsschritt vorgelesen wird.
-   * Der Kommentar muss wie ein erklärender Absatz klingen, nicht wie Stichpunkte.
-   * **Optional:** Mit `{{|>}}` kann ein Play-Button erzeugt werden, damit der Abschnitt vorgelesen wird.
-   * Die Stimme wird im Header (`narrator`) gesetzt, kann aber pro Abschnitt über Kommentare überschrieben werden:
+   - Jeder Block `--{{n}}--` enthält einen **ausführlichen Sprecherkommentar**, der beim entsprechenden Animationsschritt vorgelesen wird.
+   - Der Kommentar muss wie ein erklärender Absatz klingen, nicht wie Stichpunkte.
+   - **Optional:** Mit `{{|>}}` kann ein Play-Button erzeugt werden, damit der Abschnitt vorgelesen wird.
+   - Die Stimme wird im Header (`narrator`) gesetzt, kann aber pro Abschnitt über Kommentare überschrieben werden:
 
      ```lia
      <!--
@@ -753,9 +769,9 @@ Normaler Text mit **Fettdruck** und *Kursiv*.
 
 4. **Stil**
 
-   * Inhalte pro Slide **wie eine PowerPoint-Folie gliedern**: klarer Titel, kurze Absätze, dazugehörige Sprecherkommentare.
-   * Jeder animierte Block hat einen **eigenen Kommentar** (TTS), der ihn erklärt.
-   * Keine zu langen Textblöcke: pro Animation **max. ein Absatz**.
+   - Inhalte pro Slide **wie eine PowerPoint-Folie gliedern**: klarer Titel, kurze Absätze, dazugehörige Sprecherkommentare.
+   - Jeder animierte Block hat einen **eigenen Kommentar** (TTS), der ihn erklärt.
+   - Keine zu langen Textblöcke: pro Animation **max. ein Absatz**.
 
 ---
 
@@ -874,6 +890,7 @@ $$
 console.log("Hallo LiaScript!");
 ```
 ````
+
 **Hinweis**: Sprachen-Tags korrekt setzen (`js`, `py`, `html`, …).
 
 ---
@@ -1086,5 +1103,5 @@ console.log("Generalbass = Fundament");
 @input
 </script>
 ````
-==================== END: .bmad-core/data/liascript-cheat-sheet.md ====================
 
+==================== END: .bmad-core/data/liascript-cheat-sheet.md ====================
