@@ -1,5 +1,6 @@
 <!--
 import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
+import: https://raw.githubusercontent.com/LiaTemplates/dbdiagram/main/README.md
 -->
 
 # Session 9 – Database Normalization & Schema Design
@@ -29,7 +30,8 @@ Aber eine Frage blieb offen: Wann erstelle ich EINE große Tabelle mit allen Dat
 
 - **Anomalien:** Update, Delete, Insert – was kann schiefgehen?
 - **Normalisierung:** 1NF, 2NF, 3NF – der Weg zu sauberen Schemas
-- **Praxis:** Online-Shop von Chaos zu Struktur (interaktiv!)
+- **ER-Diagramme:** Schemas visuell planen und verstehen
+- **Praxis:** Bibliothek, Movie Reviews, Online-Shop – drei Beispiele, steigende Komplexität
 - **Trade-offs:** Wann Normalisierung, wann Denormalisierung?
 
 ---
@@ -37,7 +39,7 @@ Aber eine Frage blieb offen: Wann erstelle ich EINE große Tabelle mit allen Dat
 ## Datenbank vorbereiten
 
     --{{0}}--
-Wir starten mit einer Sandbox. Heute bauen wir gemeinsam einen Online-Shop – vom chaotischen "Alles-in-einer-Tabelle"-Horror zu einem sauberen, normalisierten Schema.
+Wir starten mit einer Sandbox. Heute bauen wir gemeinsam drei Beispiele – von simpel zu komplex. Von der Bibliothek über Movie Reviews bis zum vollständigen Online-Shop. Jedes Beispiel zeigt neue Aspekte der Normalisierung.
 
 ```sql
 -- Sandbox initialisieren
@@ -55,10 +57,633 @@ SELECT * FROM demo_test;
 
 ---
 
-## Problem: Der chaotische Online-Shop
+## Beispiel 1: Bibliothek – Der einfachste Fall
 
     --{{0}}--
-Stellen Sie sich vor, Sie bauen einen Online-Shop. Einfacher Ansatz: Eine Tabelle für alles! Kunden, Bestellungen, Produkte – alles in einer riesigen Tabelle. Klingt simpel, oder? Schauen wir uns an, was passiert.
+Starten wir mit dem simpelsten denkbaren Beispiel: Eine Bibliothek mit Büchern und Autoren. Nur zwei Entities, eine klare Beziehung. Perfekt, um die Grundprinzipien zu verstehen. Stellen Sie sich vor, Sie bauen eine Datenbank für eine kleine Bibliothek. Einfacher Ansatz: Eine Tabelle für alles!
+
+    {{0}}
+<section>
+
+### Die "Alles-in-Einer" Tabelle
+
+    --{{1}}--
+Schauen wir uns an, was passiert, wenn wir alle Informationen in einer einzigen Tabelle speichern. Bücher haben Titel und ISBN, Autoren haben Namen, Geburtsjahr und Nationalität. Alles zusammen in einer Tabelle – klingt simpel, oder?
+
+    {{1}}
+**Naive Version:**
+
+```sql
+CREATE TABLE library_chaos (
+  book_id INTEGER,
+  title TEXT,
+  isbn TEXT,
+  author_name TEXT,
+  author_birth_year INTEGER,
+  author_nationality TEXT
+);
+```
+@PGlite.eval(normalization)
+
+    --{{2}}--
+Jetzt fügen wir Daten ein. Beachten Sie: George Orwell hat zwei Bücher geschrieben. Was bedeutet das für unsere Tabelle?
+
+    {{2}}
+**Daten einfügen:**
+
+```sql
+INSERT INTO library_chaos VALUES
+  (1, '1984', '978-0-452-28423-4', 'George Orwell', 1903, 'British'),
+  (2, 'Animal Farm', '978-0-452-28424-1', 'George Orwell', 1903, 'British'),
+  (3, 'Brave New World', '978-0-06-085052-4', 'Aldous Huxley', 1894, 'British');
+
+SELECT * FROM library_chaos;
+```
+@PGlite.terminal(normalization)
+
+</section>
+
+    --{{3}}--
+Sehen Sie das Problem? George Orwell steht zweimal in der Datenbank – mit allen seinen Informationen. Geburtsjahr, Nationalität, alles dupliziert. Das ist Redundanz. Und Redundanz führt zu Problemen. Schauen wir uns die Anomalien an.
+
+    {{3}}
+<section>
+
+### Anomalie 1: Update-Anomalie
+
+    --{{4}}--
+Nehmen wir an, wir entdecken einen Fehler: George Orwell wurde nicht neunzehnhundertdrei, sondern neunzehnhundertdrei geboren. Klingt gleich? Nein – die Datenbank hat neunzehnhundertdrei statt neunzehnhundertdrei. Wir müssen das korrigieren. Wie viele Zeilen müssen wir updaten?
+
+    {{4}}
+**George Orwell's Geburtsjahr korrigieren:**
+
+```sql
+-- Versuchen wir, nur EINE Zeile zu ändern
+UPDATE library_chaos
+SET author_birth_year = 1903
+WHERE book_id = 1;
+
+-- Was ist jetzt passiert?
+SELECT book_id, title, author_name, author_birth_year 
+FROM library_chaos 
+WHERE author_name = 'George Orwell';
+```
+@PGlite.terminal(normalization)
+
+    --{{5}}--
+Sehen Sie das Problem? Wir haben nur Zeile eins geändert. Zeile zwei hat immer noch das alte Geburtsjahr! Jetzt hat George Orwell zwei verschiedene Geburtsjahre in der Datenbank. Das ist eine Update-Anomalie. Redundante Daten führen zu Inkonsistenzen, wenn Sie nicht ALLE Vorkommen aktualisieren. In einer großen Datenbank mit Tausenden von Einträgen ist das eine Katastrophe.
+
+    {{5}}
+**🚨 Problem: Update-Anomalie**
+
+- George Orwell hat 2 Bücher (2 Zeilen)
+- Wir haben nur Zeile 1 geändert
+- Jetzt hat Orwell 2 verschiedene Geburtsjahre!
+- **Inkonsistenz:** Welches ist das richtige Geburtsjahr?
+
+</section>
+
+    --{{6}}--
+Es wird noch schlimmer. Was passiert, wenn wir Daten löschen?
+
+    {{6}}
+<section>
+
+### Anomalie 2: Delete-Anomalie
+
+    --{{7}}--
+Nehmen wir an, "Brave New World" wird aus der Bibliothek entfernt. Das Buch wird ausgemustert, wir löschen die Zeile. Einfach, oder?
+
+    {{7}}
+**"Brave New World" aus der Bibliothek entfernen:**
+
+```sql
+-- Buch löschen
+DELETE FROM library_chaos WHERE book_id = 3;
+
+-- Was ist mit Aldous Huxley passiert?
+SELECT DISTINCT author_name, author_birth_year, author_nationality
+FROM library_chaos
+WHERE author_name = 'Aldous Huxley';
+```
+@PGlite.terminal(normalization)
+
+    --{{8}}--
+Aldous Huxley ist verschwunden! Wir wollten nur das Buch löschen, aber wir haben den gesamten Autor mit gelöscht. Alle Informationen über Huxley sind weg. Das ist eine Delete-Anomalie. Wenn Sie eine Zeile löschen, verlieren Sie mehr Daten als gewollt. Huxley existiert nicht mehr in der Datenbank, obwohl er ein wichtiger Autor ist.
+
+    {{8}}
+**🚨 Problem: Delete-Anomalie**
+
+- "Brave New World" war Huxleys einziges Buch in der Datenbank
+- Buch gelöscht → Huxley-Informationen sind WEG!
+- Wir haben nicht nur das Buch gelöscht, sondern auch den Autor
+- **Datenverlust:** Autor kann nicht mehr referenziert werden
+
+</section>
+
+    --{{9}}--
+Und es gibt noch eine dritte Anomalie.
+
+    {{9}}
+<section>
+
+### Anomalie 3: Insert-Anomalie
+
+    --{{10}}--
+Jetzt wollen wir einen neuen Autor in die Datenbank aufnehmen: Jane Austen. Großartige Autorin! Aber sie hat noch kein Buch in unserer Bibliothek. Können wir sie trotzdem speichern?
+
+    {{10}}
+**Neuen Autor ohne Buch hinzufügen:**
+
+```sql
+-- Versuch: Jane Austen hinzufügen (ohne Buch)
+INSERT INTO library_chaos (author_name, author_birth_year, author_nationality)
+VALUES ('Jane Austen', 1775, 'British');
+
+-- Was passiert mit den Buch-Spalten?
+SELECT * FROM library_chaos WHERE author_name = 'Jane Austen';
+```
+@PGlite.terminal(normalization)
+
+    --{{11}}--
+Das hat technisch funktioniert, aber schauen Sie sich das Ergebnis an: book underscore id ist NULL, title ist NULL, isbn ist NULL. Wir haben eine Zeile mit einem Autor, aber ohne Buch. Das ist semantisch falsch – diese Tabelle heißt "library underscore chaos", nicht "authors". Außerdem: Was, wenn book underscore id ein Primary Key ist? Dann können wir gar keinen Autor ohne Buch einfügen! Das ist eine Insert-Anomalie. Sie können bestimmte Daten nicht einfügen, ohne andere, unabhängige Daten ebenfalls einzufügen.
+
+    {{11}}
+**🚨 Problem: Insert-Anomalie**
+
+- Wir können keinen Autor ohne Buch speichern (ohne NULL-Werte)
+- Wenn `book_id` PRIMARY KEY ist → Insert unmöglich!
+- **Unmögliche Operationen:** Autor-Katalog kann nicht unabhängig existieren
+
+</section>
+
+    --{{12}}--
+Diese drei Anomalien sind der Grund, warum wir Normalisierung brauchen. Redundanz ist der Feind. Jetzt schauen wir uns an, wie man das Problem löst.
+
+    {{12}}
+<section>
+
+### Die Lösung: Normalisierung
+
+    --{{13}}--
+Die Lösung ist einfach: Trennen Sie die Daten in zwei Tabellen. Eine Tabelle für Autoren, eine Tabelle für Bücher. Autoren-Informationen stehen nur einmal in der authors-Tabelle. Bücher referenzieren Autoren über einen Foreign Key. Keine Redundanz mehr.
+
+    {{13}}
+**Erste Normalform (1NF): Atomare Werte**
+
+- Jede Spalte enthält nur atomare (unteilbare) Werte
+- Keine Listen, keine Wiederholgruppen
+- In unserem Beispiel: Bereits erfüllt (keine Listen)
+
+**Zweite Normalform (2NF): Keine partiellen Abhängigkeiten**
+
+- Jedes Attribut hängt vom GESAMTEN Primärschlüssel ab
+- Problem: `author_name`, `author_birth_year`, `author_nationality` hängen nur von `author_name` ab, nicht von `book_id`!
+- **Lösung:** Autoren-Tabelle auslagern
+
+**Dritte Normalform (3NF): Keine transitiven Abhängigkeiten**
+
+- Nicht-Schlüssel-Attribute dürfen nur vom Primärschlüssel abhängen, nicht voneinander
+- In unserem Beispiel: Nach 2NF bereits erfüllt
+
+    --{{14}}--
+Schauen wir uns das normalisierte Schema an. Zwei Tabellen, eine klare Beziehung.
+
+    {{14}}
+**Normalisiertes Schema:**
+
+```sql
+-- Autoren-Tabelle
+CREATE TABLE authors (
+  author_id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  birth_year INTEGER,
+  nationality TEXT
+);
+
+-- Bücher-Tabelle
+CREATE TABLE books (
+  book_id INTEGER PRIMARY KEY,
+  title TEXT NOT NULL,
+  isbn TEXT UNIQUE,
+  author_id INTEGER NOT NULL,
+  FOREIGN KEY (author_id) REFERENCES authors(author_id)
+);
+```
+@PGlite.eval(normalization)
+
+    --{{15}}--
+Jetzt fügen wir die Daten ein. Beachten Sie: Autoren zuerst, dann Bücher. George Orwell steht nur einmal in der authors-Tabelle!
+
+    {{15}}
+**Daten einfügen:**
+
+```sql
+-- Autoren zuerst
+INSERT INTO authors VALUES 
+  (1, 'George Orwell', 1903, 'British'),
+  (2, 'Aldous Huxley', 1894, 'British');
+
+-- Bücher referenzieren Autoren
+INSERT INTO books VALUES 
+  (1, '1984', '978-0-452-28423-4', 1),
+  (2, 'Animal Farm', '978-0-452-28424-1', 1),
+  (3, 'Brave New World', '978-0-06-085052-4', 2);
+
+SELECT * FROM books;
+```
+@PGlite.terminal(normalization)
+
+</section>
+
+    --{{16}}--
+Jetzt testen wir: Keine Anomalien mehr! Update funktioniert sauber, Delete verliert keine Autoren-Daten, Insert ist flexibel.
+
+    {{16}}
+<section>
+
+### Tests: Keine Anomalien mehr!
+
+    --{{17}}--
+Test eins: George Orwell's Geburtsjahr ändern. Nur EINE Zeile updaten!
+
+    {{17}}
+**Test 1: Update (kein Problem mehr!)**
+
+```sql
+-- Orwell's Geburtsjahr korrigieren (nur EINE Zeile!)
+UPDATE authors 
+SET birth_year = 1903 
+WHERE author_id = 1;
+
+-- Alle Bücher haben automatisch die korrekten Daten:
+SELECT b.title, a.name, a.birth_year
+FROM books b
+JOIN authors a ON b.author_id = a.author_id
+WHERE a.name = 'George Orwell';
+```
+@PGlite.terminal(normalization)
+
+    --{{18}}--
+Test zwei: Buch löschen. Der Autor bleibt erhalten!
+
+    {{18}}
+**Test 2: Delete (kein Datenverlust!)**
+
+```sql
+-- "Brave New World" löschen
+DELETE FROM books WHERE book_id = 3;
+
+-- Huxley ist noch da:
+SELECT * FROM authors WHERE author_id = 2;
+```
+@PGlite.terminal(normalization)
+
+    --{{19}}--
+Test drei: Neuen Autor ohne Buch hinzufügen. Kein Problem!
+
+    {{19}}
+**Test 3: Insert (volle Flexibilität!)**
+
+```sql
+-- Jane Austen hinzufügen (ohne Buch)
+INSERT INTO authors VALUES 
+  (3, 'Jane Austen', 1775, 'British');
+
+SELECT * FROM authors WHERE author_id = 3;
+```
+@PGlite.terminal(normalization)
+
+    --{{20}}--
+Perfekt! Alle Tests bestanden. Keine Anomalien, keine Redundanz, volle Flexibilität. Das ist der Kern der Normalisierung.
+
+    {{20}}
+**✅ Alle Tests bestanden!**
+
+- Update: Nur EINE Zeile ändern
+- Delete: Keine ungewollten Datenverluste
+- Insert: Autoren unabhängig von Büchern
+
+</section>
+
+    --{{21}}--
+Jetzt visualisieren wir das Schema als ER-Diagramm. Das ist das Werkzeug, mit dem Profis Datenbanken planen.
+
+    {{21}}
+<section>
+
+### ER-Diagramm: Visuell verstehen
+
+    --{{22}}--
+So sieht unser normalisiertes Schema als Entity-Relationship-Diagramm aus. Zwei Entities: Authors und Books. Eine Relationship: Authors schreiben Books. Die Linie zeigt die Beziehung, die Symbole zeigen die Kardinalität: Ein Autor kann viele Bücher schreiben, aber jedes Buch hat genau einen Autor. Das ist eine eins-zu-viele Beziehung.
+
+    {{22}}
+```dbml
+Table authors {
+  author_id int [pk, increment]
+  name varchar(100) [not null]
+  birth_year int
+  nationality varchar(50)
+  
+  Note: 'Authors who write books in our library'
+}
+
+Table books {
+  book_id int [pk, increment]
+  title varchar(200) [not null]
+  isbn varchar(20) [unique]
+  author_id int [not null, ref: > authors.author_id]
+  
+  Note: 'Books in our library collection'
+}
+```
+@dbdiagram
+
+    --{{23}}--
+Schauen Sie sich die Beziehung an: Der Pfeil von books punkt author underscore id zu authors punkt author underscore id zeigt: Viele Bücher gehören zu einem Autor. Das ist die eins-zu-viele Kardinalität. Ein Autor schreibt viele Bücher, aber jedes Buch hat genau einen Autor. In der DBML-Syntax steht das ref: Größer authors punkt author underscore id. Das Größer-Zeichen bedeutet: many-to-one. Viele Bücher zu einem Autor.
+
+</section>
+
+---
+
+---
+
+## Beispiel 2: Movie Reviews (IMDb) – Many-to-Many
+
+    --{{0}}--
+Jetzt wird es interessanter! Sie haben das Prinzip verstanden: Redundanz vermeiden, Tabellen trennen. Aber was, wenn die Beziehungen komplexer werden? Willkommen bei Movie Reviews – wie IMDb oder Letterboxd. Hier gibt es nicht nur eine eins-zu-viele Beziehung, sondern mehrere gleichzeitig. Und am Ende eine versteckte many-to-many Beziehung. Schauen wir uns das an.
+
+    {{0}}
+<section>
+
+### Das Problem: Alles in einer Tabelle
+
+    --{{1}}--
+Stellen Sie sich eine Film-Review-Plattform vor. Filme haben Titel, Erscheinungsjahr, Regisseur. Nutzer schreiben Reviews mit Rating und Text. Naiver Ansatz: Alles in einer Tabelle! Was könnte schiefgehen?
+
+    {{1}}
+**Chaos-Tabelle:**
+
+```sql
+CREATE TABLE reviews_chaos (
+  review_id INTEGER,
+  movie_title TEXT,
+  movie_year INTEGER,
+  movie_director TEXT,
+  reviewer_name TEXT,
+  reviewer_email TEXT,
+  rating INTEGER,
+  review_text TEXT
+);
+```
+@PGlite.eval(normalization)
+
+    --{{2}}--
+Daten einfügen. Beachten Sie: "Inception" hat zwei Reviews von verschiedenen Nutzern. "Alice" hat zwei Filme reviewt. Alles ist dupliziert.
+
+    {{2}}
+**Daten einfügen:**
+
+```sql
+INSERT INTO reviews_chaos VALUES
+  (1, 'Inception', 2010, 'Christopher Nolan', 'Alice', 'alice@example.com', 5, 'Mind-blowing!'),
+  (2, 'Inception', 2010, 'Christopher Nolan', 'Bob', 'bob@example.com', 4, 'Great, but confusing'),
+  (3, 'The Matrix', 1999, 'Wachowski Sisters', 'Alice', 'alice@example.com', 5, 'Revolutionary!'),
+  (4, 'Interstellar', 2014, 'Christopher Nolan', 'Charlie', 'charlie@example.com', 5, 'Stunning visuals');
+
+SELECT * FROM reviews_chaos;
+```
+@PGlite.terminal(normalization)
+
+    --{{3}}--
+Sehen Sie die Redundanz? "Inception" steht zweimal mit allen Film-Infos. "Alice" steht zweimal mit ihrer Email. Christopher Nolan steht zweimal. Das ist Redundanz auf mehreren Ebenen. Was sind die Anomalien?
+
+</section>
+
+    {{3}}
+<section>
+
+### Anomalien identifizieren
+
+    --{{4}}--
+Anomalie eins: Film-Info ändern. Wenn Christopher Nolan's Name korrigiert werden muss – wie viele Zeilen?
+
+    {{4}}
+**Update-Anomalie:**
+
+- Film-Info (Titel, Jahr, Regisseur) wird bei jedem Review dupliziert
+- Regisseur-Name ändern → mehrere Zeilen updaten
+- Email-Adresse ändern → mehrere Zeilen updaten
+
+    --{{5}}--
+Anomalie zwei: Review löschen. Wenn Bob's Review von "Inception" gelöscht wird, ist "Inception" dann noch in der Datenbank?
+
+    {{5}}
+**Delete-Anomalie:**
+
+- Wenn alle Reviews eines Films gelöscht werden → Film-Info weg!
+- Wenn letztes Review eines Nutzers gelöscht wird → Nutzer-Info weg!
+
+    --{{6}}--
+Anomalie drei: Neuer Film ohne Review. Können wir "Tenet" in die Datenbank aufnehmen, bevor jemand ein Review schreibt?
+
+    {{6}}
+**Insert-Anomalie:**
+
+- Neuer Film ohne Review? Unmöglich oder NULL-Werte
+- Neuer Nutzer ohne Review? Unmöglich
+
+</section>
+
+    --{{7}}--
+Die Lösung? Drei Tabellen! Movies, Reviewers, Reviews. Schauen wir uns das normalisierte Schema an.
+
+    {{7}}
+<section>
+
+### Normalisiertes Schema
+
+    --{{8}}--
+Drei Tabellen: Movies für Filme, Reviewers für Nutzer, Reviews für die eigentlichen Bewertungen. Reviews verbindet Movies und Reviewers. Das ist das klassische Pattern für eine viele-zu-viele Beziehung: Ein Film hat viele Reviews, ein Reviewer schreibt viele Reviews. Movies und Reviewers sind indirekt many-to-many verbunden – über die Reviews-Tabelle.
+
+    {{8}}
+```sql
+-- Filme
+CREATE TABLE movies (
+  movie_id INTEGER PRIMARY KEY,
+  title TEXT NOT NULL,
+  release_year INTEGER,
+  director TEXT
+);
+
+-- Reviewer (Nutzer)
+CREATE TABLE reviewers (
+  reviewer_id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL
+);
+
+-- Reviews (verbindet Movies und Reviewers)
+CREATE TABLE reviews (
+  review_id INTEGER PRIMARY KEY,
+  movie_id INTEGER NOT NULL,
+  reviewer_id INTEGER NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  review_text TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+  FOREIGN KEY (reviewer_id) REFERENCES reviewers(reviewer_id),
+  UNIQUE (movie_id, reviewer_id)  -- Ein Reviewer kann einen Film nur einmal reviewen
+);
+
+ERDIAGRAM;
+```
+@PGlite.eval(normalization)
+
+    --{{9}}--
+Beachten Sie die UNIQUE Constraint auf movie underscore id komma reviewer underscore id. Das verhindert, dass ein Nutzer denselben Film zweimal bewertet. Das ist eine Business Rule, die wir direkt im Schema durchsetzen.
+
+    {{9}}
+**Daten einfügen:**
+
+```sql
+-- Filme zuerst
+INSERT INTO movies VALUES 
+  (1, 'Inception', 2010, 'Christopher Nolan'),
+  (2, 'The Matrix', 1999, 'Wachowski Sisters'),
+  (3, 'Interstellar', 2014, 'Christopher Nolan');
+
+-- Reviewer
+INSERT INTO reviewers VALUES 
+  (1, 'Alice', 'alice@example.com'),
+  (2, 'Bob', 'bob@example.com'),
+  (3, 'Charlie', 'charlie@example.com');
+
+-- Reviews (verbinden Filme und Reviewer)
+INSERT INTO reviews (review_id, movie_id, reviewer_id, rating, review_text) VALUES
+  (1, 1, 1, 5, 'Mind-blowing!'),
+  (2, 1, 2, 4, 'Great, but confusing'),
+  (3, 2, 1, 5, 'Revolutionary!'),
+  (4, 3, 3, 5, 'Stunning visuals');
+
+SELECT * FROM reviews;
+```
+@PGlite.terminal(normalization)
+
+</section>
+
+    --{{10}}--
+Jetzt schauen wir uns das ER-Diagramm an. Und hier kommt das Spannende: Dieses Diagramm ist INTERAKTIV! Sie können es editieren!
+
+    {{10}}
+<section>
+
+### ER-Diagramm: Interaktiv!
+
+    --{{11}}--
+So sieht unser Schema als ER-Diagramm aus. Drei Tabellen, zwei eins-zu-viele Beziehungen. Movies eins-zu-viele Reviews. Reviewers eins-zu-viele Reviews. Und dadurch entsteht indirekt eine viele-zu-viele Beziehung zwischen Movies und Reviewers. Das ist das klassische Junction-Table-Pattern. Und jetzt das Besondere: Sie können dieses Diagramm EDITIEREN! Doppelklicken Sie auf den Rand des Diagramms, ändern Sie den Code, und sehen Sie die Änderungen live!
+
+    {{11}}
+**Aufgabe:** Fügen Sie eine `genres` Tabelle hinzu! Movies sollten mehrere Genres haben können (n:m Beziehung). Wie würden Sie das modellieren?
+
+```sql  @dbdiagram.edit
+Table movies {
+  movie_id int [pk, increment]
+  title varchar(200) [not null]
+  release_year int
+  director varchar(100)
+  
+  Note: 'Movies in our review database'
+}
+
+Table reviewers {
+  reviewer_id int [pk, increment]
+  name varchar(100) [not null]
+  email varchar(100) [unique, not null]
+  
+  Note: 'Users who write reviews'
+}
+
+Table reviews {
+  review_id int [pk, increment]
+  movie_id int [not null, ref: > movies.movie_id]
+  reviewer_id int [not null, ref: > reviewers.reviewer_id]
+  rating int [not null, note: '1-5 stars']
+  review_text text
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    (movie_id, reviewer_id) [unique, note: 'One review per user per movie']
+  }
+  
+  Note: 'Reviews connecting movies and reviewers'
+}
+```
+
+
+</section>
+
+    --{{12}}--
+Haben Sie es versucht? Die Lösung ist eine separate genres-Tabelle und eine Junction Table movie underscore genres. Das ist das Standard-Pattern für n:m Beziehungen. Schauen wir uns die Lösung an.
+
+    {{12}}
+    [[Lösung anzeigen]]
+    *******************
+    
+    **Genres hinzufügen (n:m mit Movies):**
+    
+    ```dbml
+    Table genres {
+      genre_id int [pk, increment]
+      name varchar(50) [unique, not null]
+      
+      Note: 'Movie genres like Action, Drama, Sci-Fi'
+    }
+    
+    Table movie_genres {
+      movie_id int [ref: > movies.movie_id]
+      genre_id int [ref: > genres.genre_id]
+      
+      indexes {
+        (movie_id, genre_id) [pk]
+      }
+      
+      Note: 'Junction table for many-to-many relationship'
+    }
+    ```
+    
+    **Erklärung:**
+    - n:m Beziehung braucht **Junction Table** (movie_genres)
+    - Ein Film hat viele Genres
+    - Ein Genre gehört zu vielen Filmen
+    - Junction Table hat zwei Foreign Keys als Composite Primary Key
+    
+    **SQL:**
+    
+    ```sql
+    CREATE TABLE genres (
+      genre_id INTEGER PRIMARY KEY,
+      name TEXT UNIQUE NOT NULL
+    );
+    
+    CREATE TABLE movie_genres (
+      movie_id INTEGER,
+      genre_id INTEGER,
+      PRIMARY KEY (movie_id, genre_id),
+      FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+      FOREIGN KEY (genre_id) REFERENCES genres(genre_id)
+    );
+    
+    -- Beispiel-Daten:
+    INSERT INTO genres VALUES (1, 'Sci-Fi'), (2, 'Action'), (3, 'Thriller');
+    INSERT INTO movie_genres VALUES (1, 1), (1, 2), (1, 3);  -- Inception: Sci-Fi, Action, Thriller
+    ```
+    
+    *******************
+
+</section>
+
+---
 
     {{0}}
 <section>
@@ -1366,3 +1991,343 @@ Sie können jetzt normalisierte Schemas entwerfen. Mehrere Tabellen, klare Bezie
 - **Session 14:** Relationale Algebra (formale Grundlagen)
 
 🎉 **Glückwunsch!** Sie beherrschen jetzt Normalisierung – das Fundament für professionelles Datenbankdesign!
+
+---
+
+## Anhang: DBML-Syntax-Referenz
+
+    --{{0}}--
+Für Interessierte: Eine komplette Referenz der DBML-Syntax, die Sie in den ER-Diagrammen gesehen haben. DBML ist die Sprache hinter dbdiagram punkt io. Wenn Sie eigene Diagramme erstellen möchten, ist dies Ihre Cheat-Sheet.
+
+    {{0}}
+<section>
+
+### Tabellen definieren
+
+```dbml
+Table table_name {
+  column_name column_type [settings]
+}
+```
+
+**Column Types:**
+
+- `int`, `integer`
+- `varchar(n)`, `char(n)`, `text`
+- `decimal(p,s)`, `numeric(p,s)`
+- `timestamp`, `datetime`, `date`, `time`
+- `boolean`, `bool`
+
+**Column Settings:**
+
+- `pk` – Primary Key
+- `not null` – Nicht NULL
+- `unique` – Eindeutig
+- `increment` – Auto-Increment
+- `default: value` – Default-Wert
+- `note: 'text'` – Spalten-Kommentar
+
+**Beispiel:**
+
+```dbml
+Table users {
+  user_id int [pk, increment]
+  username varchar(50) [not null, unique]
+  email varchar(100) [not null, unique]
+  created_at timestamp [default: `now()`]
+  status varchar(20) [default: 'active', note: 'active, inactive, banned']
+  
+  Note: 'User accounts in the system'
+}
+```
+
+</section>
+
+    {{1}}
+<section>
+
+### Beziehungen (Relationships)
+
+    --{{2}}--
+Beziehungen sind das Herzstück von ER-Diagrammen. DBML hat eine elegante Syntax dafür.
+
+    {{2}}
+**Inline (empfohlen):**
+
+```dbml
+Table orders {
+  user_id int [ref: > users.id]  // many-to-one
+}
+```
+
+**Separat:**
+
+```dbml
+Ref: orders.user_id > users.id
+```
+
+**Relationship Types:**
+
+- `>` – many-to-one (viele Orders → ein User)
+- `<` – one-to-many (ein User → viele Orders)
+- `-` – one-to-one (ein User → ein Profile)
+- `<>` – many-to-many (viele Students ↔ viele Courses)
+
+**WICHTIG:** Bei n:m verwenden Sie **Junction Tables**!
+
+```dbml
+Table student_courses {
+  student_id int [ref: > students.id]
+  course_id int [ref: > courses.id]
+  
+  indexes {
+    (student_id, course_id) [pk]
+  }
+}
+```
+
+**Benannte Beziehungen:**
+
+```dbml
+Ref name_of_relationship: products.category_id > categories.id
+```
+
+</section>
+
+    {{3}}
+<section>
+
+### Indexes
+
+    --{{4}}--
+Indexes sind wichtig für Performance. DBML lässt Sie diese direkt im Schema definieren.
+
+    {{4}}
+```dbml
+Table users {
+  email varchar(100)
+  username varchar(50)
+  
+  indexes {
+    email [unique]
+    (email, username) [unique, name: 'email_username_idx']
+    username [type: btree, note: 'Speed up username lookups']
+  }
+}
+```
+
+**Index Settings:**
+
+- `unique` – Unique Index
+- `pk` – Primary Key Index
+- `type: btree` – Index-Typ (btree, hash, gin, gist)
+- `name: 'index_name'` – Expliziter Index-Name
+- `note: 'text'` – Index-Kommentar
+
+</section>
+
+    {{5}}
+<section>
+
+### Notes (Dokumentation)
+
+    --{{6}}--
+Dokumentation direkt im Schema – für Sie und Ihre Kollegen!
+
+    {{6}}
+**Tabellen-Notes:**
+
+```dbml
+Table users {
+  id int [pk]
+  
+  Note: 'This table stores all user accounts in the system'
+}
+```
+
+**Spalten-Notes:**
+
+```dbml
+Table users {
+  id int [pk, note: 'Unique identifier for each user']
+  status varchar(20) [note: 'Possible values: active, inactive, banned']
+}
+```
+
+**Multi-line Notes:**
+
+```dbml
+Table users {
+  Note: '''
+    This table stores user accounts.
+    
+    Business Rules:
+    - Email must be unique
+    - Username must be at least 3 characters
+    - Status defaults to 'active'
+  '''
+}
+```
+
+</section>
+
+    {{7}}
+<section>
+
+### Table Groups
+
+    --{{8}}--
+Gruppieren Sie zusammengehörige Tabellen für bessere Übersicht.
+
+    {{8}}
+```dbml
+TableGroup ecommerce {
+  customers
+  orders
+  order_items
+  products
+}
+
+TableGroup auth {
+  users
+  sessions
+  permissions
+}
+```
+
+</section>
+
+    {{9}}
+<section>
+
+### Enums
+
+    --{{10}}--
+Definieren Sie Enums für eingeschränkte Wertebereiche.
+
+    {{10}}
+```dbml
+enum order_status {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+Table orders {
+  order_id int [pk]
+  status order_status [default: 'pending']
+}
+```
+
+</section>
+
+    {{11}}
+<section>
+
+### Vollständiges Beispiel
+
+```dbml
+// E-Commerce Schema
+
+enum order_status {
+  pending
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+Table customers {
+  customer_id int [pk, increment]
+  name varchar(100) [not null]
+  email varchar(100) [unique, not null]
+  created_at timestamp [default: `now()`]
+  
+  indexes {
+    email [unique]
+    created_at [type: btree]
+  }
+  
+  Note: 'Customer accounts'
+}
+
+Table products {
+  product_id int [pk, increment]
+  name varchar(200) [not null]
+  price decimal(10,2) [not null, note: 'Price in EUR']
+  stock int [default: 0]
+  category_id int [ref: > categories.category_id]
+  
+  indexes {
+    category_id
+    (name, category_id) [note: 'Speed up product searches']
+  }
+  
+  Note: 'Product catalog'
+}
+
+Table categories {
+  category_id int [pk, increment]
+  name varchar(100) [unique, not null]
+  description text
+  
+  Note: 'Product categories'
+}
+
+Table orders {
+  order_id int [pk, increment]
+  customer_id int [not null, ref: > customers.customer_id]
+  order_date timestamp [default: `now()`]
+  status order_status [default: 'pending']
+  total_amount decimal(10,2)
+  
+  indexes {
+    customer_id
+    order_date
+    (customer_id, order_date) [name: 'customer_orders_idx']
+  }
+  
+  Note: 'Customer orders'
+}
+
+Table order_items {
+  order_id int [pk, ref: > orders.order_id]
+  product_id int [pk, ref: > products.product_id]
+  quantity int [not null]
+  price_at_order decimal(10,2) [not null, note: 'Price at time of purchase']
+  
+  Note: 'Junction table for orders and products'
+}
+
+// Gruppierung
+TableGroup core {
+  customers
+  orders
+  order_items
+}
+
+TableGroup catalog {
+  products
+  categories
+}
+```
+
+</section>
+
+    {{12}}
+<section>
+
+### Nützliche Links
+
+- **dbdiagram.io:** https://dbdiagram.io/
+- **DBML Documentation:** https://dbml.dbdiagram.io/docs/
+- **Live Editor:** https://dbdiagram.io/d (zum Experimentieren)
+- **dbdiagram CLI:** https://github.com/holistics/dbml (für Automation)
+
+</section>
+
+---
+
+**Ende der Session 9** – Sie sind jetzt ein Normalisierungs-Profi! 🎓

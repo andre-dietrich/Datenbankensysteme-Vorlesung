@@ -127,6 +127,17 @@ collection:
       - SELECT
       - Query
       - Praxis
+  
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md
+    title: "L8: SQL Data Definition (DDL) & Manipulation (DML)"
+    tags:
+      - SQL
+      - DDL
+      - DML
+      - CREATE
+      - INSERT
+      - UPDATE
+      - DELETE
 
   # Additional Resources
   - html: >

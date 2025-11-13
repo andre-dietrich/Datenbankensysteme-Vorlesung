@@ -79,6 +79,7 @@ commands:
   - `/promote-session {number} {type}`: run task `tasks/promote-session.md` with `templates/session-material.yaml`
   - `/coauthor-materials`: run task `tasks/coauthor-materials.md`
   - `/validate-lecture`: run task `tasks/validate-lecture.md` with `templates/lecture-quality-checklist.md`
+  - `/generate-logo`: run task `tasks/generate-logo.md`
   - `/assemble-bundle`: run task `tasks/assemble-bundle.md`
   - `/help`: Show available actions
   - `/exit`: Say goodbye and abandon persona
@@ -348,6 +349,34 @@ Schlage Bilder zur Visualisierung vor, etweder als Suchbegriff oder als konkrete
 
 ==================== END: .bmad-core/tasks/coauthor-materials.md ====================
 
+==================== START: .bmad-core/tasks/generate-logo.md ====================
+
+# Task: generate-logo
+
+## Zweck
+
+Der Agent erstellt als Logo-Designer einen präzisen Prompt für ein KI-Logo-Tool, der alle relevanten Kursmerkmale, Farbschema und Stilvorgaben enthält.
+
+## Inputs
+
+- Farbschema und Stil aus `docs/lecture-agenda.md#logo`
+- Kursinhalt, Zielgruppe `docs/lecture-agenda.md#logo`
+- Didactics aus `docs/lecture-didactics.md`
+- Aktuell geöffnetes Dokument `materials/{number}-{type}.md`
+
+## Output
+
+- 1–3 alternative, klar formulierte Logo-Prompts als Text, direkt nutzbar für KI-Logo-Generatoren
+
+## Schritte
+
+- Agent sammelt alle relevanten Stil- und Kursinformationen.
+- Agent formuliert 1–3 alternative Logo-Prompts (Nummerierung).
+- Lehrende wählen oder modifizieren einen Vorschlag.
+- Agent passt Prompt ggf. an und dokumentiert die finale Version.
+
+==================== END: .bmad-core/tasks/generate-logo.md ====================
+
 ==================== START: .bmad-core/tasks/validate-lecture.md ====================
 
 # Task: validate-lecture
@@ -603,6 +632,10 @@ template:
     - id: outline
       title: Geplante Gliederung
       template: > # {{title}}
+
+
+
+
 
 
         Zusammenfassung
