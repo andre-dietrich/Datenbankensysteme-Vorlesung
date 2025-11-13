@@ -1,4 +1,17 @@
 <!--
+
+author:   André Dietrich; GitHub Copilot
+email:    LiaScript@web.de
+
+language: de
+narrator: German Male
+
+version:  1.0.0
+
+comment:  In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten.
+
+logo:     ../assets/img/logo/8-lecture.jpg
+
 import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
 -->
 
@@ -190,12 +203,12 @@ Datentypen sind wichtig für Speichereffizienz, Performance und Validierung. Ein
 
 ```sql
 -- FLOAT hat Rundungsfehler:
-SELECT 0.1 + 0.2 AS float_sum;  -- Ergebnis: 0.30000000000000004
+SELECT 0.1::float + 0.2::float AS float_sum;  -- Ergebnis: 0.30000000000000004
 
 -- DECIMAL ist präzise:
 SELECT CAST(0.1 AS DECIMAL(10,2)) + CAST(0.2 AS DECIMAL(10,2)) AS decimal_sum;
 ```
-@PGlite.terminal(ddl_dml)
+@PGlite.eval(ddl_dml)
 
 </section>
 
@@ -305,7 +318,7 @@ FROM products_ext;
 
 ---
 
-### Tabellen ändern (ALTER TABLE)
+### Tabellen ändern (`ALTER TABLE`)
 
     --{{0}}--
 Schemas ändern sich. Sie fügen Spalten hinzu, ändern Datentypen, löschen veraltete Felder. ALTER TABLE ist Ihr Werkzeug für Schema-Evolution. Aber Vorsicht: Manche Operationen sind riskant bei großen Tabellen.
@@ -354,9 +367,10 @@ ALTER TABLE products
 ALTER COLUMN price TYPE DECIMAL(12, 2);
 
 -- In MySQL:
-ALTER TABLE products
-MODIFY COLUMN price DECIMAL(12, 2);
+-- ALTER TABLE products
+-- MODIFY COLUMN price DECIMAL(12, 2);
 ```
+@PGlite.eval(ddl_dml)
 
 **Default setzen/ändern:**
 
@@ -831,6 +845,7 @@ CREATE TABLE users_unique (
   username TEXT UNIQUE
 );
 ```
+@PGlite.eval(ddl_dml)
 
 **Unterschied zu PRIMARY KEY:**
 
@@ -856,6 +871,7 @@ CREATE TABLE reservations (
   UNIQUE (room_number, date)  -- Raum kann pro Tag nur 1x gebucht werden
 );
 ```
+@PGlite.terminal(ddl_dml)
 
 </section>
 
@@ -877,6 +893,7 @@ CREATE TABLE products_nn (
   description TEXT  -- NULL erlaubt
 );
 ```
+@PGlite.eval(ddl_dml)
 
 **Warum wichtig?**
 
@@ -935,6 +952,7 @@ CREATE TABLE discounts (
   CHECK (end_date > start_date)  -- Ende muss nach Start sein
 );
 ```
+@PGlite.terminal(ddl_dml)
 
 **Enum-Simulation:**
 
@@ -995,6 +1013,7 @@ CREATE TABLE logs (
   random_id TEXT DEFAULT (gen_random_uuid()::TEXT)
 );
 ```
+@PGlite.terminal(ddl_dml)
 
 </section>
 
@@ -1436,183 +1455,6 @@ SELECT * FROM active_users;
 
 </section>
 
----
-
-## Schema-Evolution & Best Practices
-
-    --{{0}}--
-Schemas ändern sich im Lauf der Zeit. Neue Features erfordern neue Spalten, Refactorings ändern Strukturen. Wie machen Sie das sicher, ohne Downtime, ohne Datenverlust?
-
-    {{0}}
-<section>
-
-### Migrations-Konzept
-
-**Problem:** Schema-Änderungen müssen nachvollziehbar und wiederholbar sein.
-
-**Lösung: Migrations (Up/Down)**
-
-```sql
--- Migration 001: Initial Schema
--- UP:
-CREATE TABLE users (
-  user_id INTEGER PRIMARY KEY,
-  username TEXT NOT NULL
-);
-
--- DOWN:
-DROP TABLE users;
-```
-
-```sql
--- Migration 002: Add Email
--- UP:
-ALTER TABLE users ADD COLUMN email TEXT;
-
--- DOWN:
-ALTER TABLE users DROP COLUMN email;
-```
-
-**Tools:**
-
-- **Flyway** (Java): SQL-basiert, einfach
-- **Liquibase** (Java): XML/YAML, komplex aber mächtig
-- **Alembic** (Python): Code-basiert, für SQLAlchemy
-- **Migrate** (Go): Einfach, Library
-
-**Workflow:**
-
-1. Entwicklung: Neue Migration schreiben
-2. Review: Migration prüfen (Syntax, Logik)
-3. Test: Auf Testdatenbank anwenden
-4. Produktion: Rollout mit Monitoring
-
-</section>
-
-    --{{1}}--
-Sichere Schema-Änderungen vermeiden Downtime. ADD COLUMN ist meist sicher, DROP COLUMN riskant. Große Tabellen erfordern besondere Vorsicht.
-
-    {{1}}
-<section>
-
-### Sichere Schema-Änderungen
-
-**✅ Sicher (keine Downtime):**
-
-```sql
--- Spalte mit DEFAULT hinzufügen:
-ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'Uncategorized';
-
--- Index erstellen (CONCURRENT in PostgreSQL):
-CREATE INDEX CONCURRENTLY idx_products_category ON products(category);
-```
-
-**⚠️ Riskant (Lock/Downtime):**
-
-```sql
--- Datentyp ändern (gesamte Tabelle wird gesperrt):
-ALTER TABLE products ALTER COLUMN price TYPE DECIMAL(12,2);
-
--- Spalte löschen (Lock):
-ALTER TABLE products DROP COLUMN description;
-```
-
-**💡 Best Practices:**
-
-1. **ADD COLUMN mit DEFAULT:** Schnell, keine Lock-Probleme
-2. **NOT NULL schrittweise:**
-
-   - Schritt 1: Spalte als NULL hinzufügen
-   - Schritt 2: Werte füllen (UPDATE)
-   - Schritt 3: NOT NULL Constraint hinzufügen
-
-3. **Große Tabellen:** Off-Peak-Zeiten nutzen
-4. **Indexes:** CONCURRENT erstellen (PostgreSQL)
-
-</section>
-
-    --{{2}}--
-Rückwärtskompatibilität ist wichtig, wenn mehrere App-Versionen parallel laufen. Neue Spalten sollten optional sein, alte Spalten nicht sofort gelöscht werden.
-
-    {{2}}
-<section>
-
-### Rückwärtskompatibilität
-
-**Problem:** App v1 läuft noch, aber DB-Schema ist für App v2.
-
-**Strategie: Expand-Contract**
-
-1. **Expand:** Neue Spalte hinzufügen (optional)
-2. **Migrate:** App v2 deployed, nutzt neue Spalte
-3. **Contract:** Nach Rollout alte Spalte löschen
-
-**Beispiel:**
-
-```sql
--- Phase 1: EXPAND (neue Spalte hinzufügen)
-ALTER TABLE users ADD COLUMN email_new TEXT;
-
--- Phase 2: MIGRATE
--- App v2 schreibt in email_new
--- App v1 schreibt weiter in email
-
--- Phase 3: CONTRACT (nach vollständigem Rollout)
-ALTER TABLE users DROP COLUMN email;
-ALTER TABLE users RENAME COLUMN email_new TO email;
-```
-
-**💡 Best Practice:** Niemals breaking changes ohne Übergangsphase!
-
-</section>
-
----
-
-## Ausblick: Transaktionen
-
-    --{{0}}--
-Ein letzter Punkt, den wir heute nur kurz anreißen: Transaktionen. Sie haben INSERT, UPDATE, DELETE gelernt – aber was, wenn Sie mehrere Operationen atomar ausführen wollen? „Entweder alles oder nichts"? Das sind Transaktionen.
-
-    {{0}}
-<section>
-
-### Warum Transaktionen?
-
-**Problem:**
-
-```sql
--- Geldtransfer:
-UPDATE accounts SET balance = balance - 100 WHERE account_id = 1;  -- ✅ OK
--- ❌ Fehler! Server-Crash!
-UPDATE accounts SET balance = balance + 100 WHERE account_id = 2;  -- Wird nie ausgeführt
--- → 100 Euro verschwunden!
-```
-
-**Lösung: Transaktion**
-
-```sql
-BEGIN;
-  UPDATE accounts SET balance = balance - 100 WHERE account_id = 1;
-  UPDATE accounts SET balance = balance + 100 WHERE account_id = 2;
-COMMIT;  -- Beide oder keine
-```
-
-**Wenn Fehler:**
-
-```sql
-BEGIN;
-  UPDATE accounts SET balance = balance - 100 WHERE account_id = 1;
-  -- Fehler hier!
-ROLLBACK;  -- Alles rückgängig
-```
-
-</section>
-
-    --{{1}}--
-Transaktionen lernen Sie ausführlich in Session 11+, nach Joins. Warum später? Weil Transaktionen erst bei Multi-Table-Operations richtig relevant werden. Für heute reicht: Sie existieren, sie garantieren ACID (Atomicity, Consistency, Isolation, Durability), und wir kommen darauf zurück.
-
----
-
 ## Zusammenfassung
 
     --{{0}}--
@@ -1641,7 +1483,6 @@ Was haben Sie gelernt? DDL für Schema-Design: CREATE TABLE mit Datentypen und C
     --{{1}}--
 Die wichtigsten Takeaways: Nutzen Sie Constraints – sie schützen Ihre Daten. Immer WHERE bei UPDATE/DELETE – außer Sie wollen wirklich alles ändern. Künstliche Primary Keys sind meist besser als natürliche. FOREIGN KEY mit ON DELETE/UPDATE steuert Kaskaden. Und: Schema-Evolution ist ein Prozess, keine einmalige Aktion.
 
----
 
 ### Best Practices: Checkliste
 
@@ -1739,51 +1580,78 @@ Erstellen Sie eine `students` Tabelle mit:
 - `enrollment_date` (DEFAULT: aktuelles Datum)
 - `gpa` (CHECK: zwischen 0.0 und 4.0)
 
-    [[Lösung anzeigen]]
-    *******************
-    
-    ```sql
-    CREATE TABLE students (
-      student_id INTEGER PRIMARY KEY,
-      first_name TEXT NOT NULL,
-      last_name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      enrollment_date DATE DEFAULT CURRENT_DATE,
-      gpa DECIMAL(3,2) CHECK (gpa BETWEEN 0.0 AND 4.0)
-    );
-    ```
-    @PGlite.terminal(ddl_dml)
-    
-    *******************
+``` sql
+
+
+
+
+
+
+
+
+```
+@PGlite.terminal(test)
+
+<details style="margin-bottom: 3rem; background-color: #f9f9f9; padding: 1em; border: 1px solid #ddd;">
+
+<summary style="font-weight: bold;">Lösung anzeigen</summary>
+
+```sql
+CREATE TABLE students (
+  student_id INTEGER PRIMARY KEY,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  enrollment_date DATE DEFAULT CURRENT_DATE,
+  gpa DECIMAL(3,2) CHECK (gpa BETWEEN 0.0 AND 4.0)
+);
+```
+@PGlite.terminal(test_solution)
+
+</details>
 
 **Aufgabe 2: Foreign Key**
 
 Erstellen Sie eine `enrollments` Tabelle, die `students` mit `courses` verbindet:
+
 - Composite Primary Key (student_id, course_id)
 - Foreign Keys zu beiden Tabellen
 - ON DELETE CASCADE für beide
 
-    [[Lösung anzeigen]]
-    *******************
-    
-    ```sql
-    CREATE TABLE courses (
-      course_id INTEGER PRIMARY KEY,
-      title TEXT NOT NULL
-    );
-    
-    CREATE TABLE enrollments (
-      student_id INTEGER,
-      course_id INTEGER,
-      grade TEXT,
-      PRIMARY KEY (student_id, course_id),
-      FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
-      FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
-    );
-    ```
-    @PGlite.terminal(ddl_dml)
-    
-    *******************
+``` sql
+
+
+
+
+
+
+
+
+```
+@PGlite.terminal(test)
+
+<details style="margin-bottom: 3rem; background-color: #f9f9f9; padding: 1em; border: 1px solid #ddd;">
+
+<summary style="font-weight: bold;">Lösung anzeigen</summary>
+
+```sql
+CREATE TABLE courses (
+  course_id INTEGER PRIMARY KEY,
+  title TEXT NOT NULL
+);
+
+CREATE TABLE enrollments (
+  student_id INTEGER,
+  course_id INTEGER,
+  grade TEXT,
+  PRIMARY KEY (student_id, course_id),
+  FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
+);
+```
+@PGlite.terminal(test_solution)
+
+</details>
 
 **Aufgabe 3: INSERT & UPDATE**
 
@@ -1792,36 +1660,47 @@ Erstellen Sie eine `enrollments` Tabelle, die `students` mit `courses` verbindet
 3. Enrollen Sie Students in Courses
 4. Aktualisieren Sie den GPA eines Students
 
-    [[Lösung anzeigen]]
-    *******************
-    
-    ```sql
-    INSERT INTO students (student_id, first_name, last_name, email, gpa) VALUES
-      (1, 'Alice', 'Smith', 'alice@university.edu', 3.8),
-      (2, 'Bob', 'Jones', 'bob@university.edu', 3.5),
-      (3, 'Charlie', 'Brown', 'charlie@university.edu', 3.9);
-    
-    INSERT INTO courses (course_id, title) VALUES
-      (1, 'Databases'),
-      (2, 'Algorithms');
-    
-    INSERT INTO enrollments (student_id, course_id, grade) VALUES
-      (1, 1, 'A'),
-      (1, 2, 'B'),
-      (2, 1, 'A-');
-    
-    UPDATE students
-    SET gpa = 3.85
-    WHERE student_id = 1;
-    
-    SELECT * FROM students;
-    SELECT * FROM enrollments;
-    ```
-    @PGlite.terminal(ddl_dml)
-    
-    *******************
+``` sql
 
----
+
+
+
+
+
+
+
+```
+@PGlite.terminal(test)
+
+<details style="margin-bottom: 3rem; background-color: #f9f9f9; padding: 1em; border: 1px solid #ddd;">
+
+<summary style="font-weight: bold;">Lösung anzeigen</summary>
+
+```sql
+INSERT INTO students (student_id, first_name, last_name, email, gpa) VALUES
+  (1, 'Alice', 'Smith', 'alice@university.edu', 3.8),
+  (2, 'Bob', 'Jones', 'bob@university.edu', 3.5),
+  (3, 'Charlie', 'Brown', 'charlie@university.edu', 3.9);
+    
+INSERT INTO courses (course_id, title) VALUES
+  (1, 'Databases'),
+  (2, 'Algorithms');
+
+INSERT INTO enrollments (student_id, course_id, grade) VALUES
+  (1, 1, 'A'),
+  (1, 2, 'B'),
+  (2, 1, 'A-');
+    
+UPDATE students
+SET gpa = 3.85
+WHERE student_id = 1;
+    
+SELECT * FROM students;
+SELECT * FROM enrollments;
+```
+@PGlite.terminal(test_solution)
+
+</details>
 
 ### Ausblick: Was kommt als Nächstes?
 

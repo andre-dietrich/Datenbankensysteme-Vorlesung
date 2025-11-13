@@ -907,6 +907,7 @@ Komplexes Beispiel: Kombinieren Sie WHERE und HAVING. Filtern Sie erst die Zeile
 ### WHERE + GROUP BY + HAVING kombiniert
 
 **Aufgabe:** Schreiben Sie eine Abfrage, die für jede Brand in der Kategorie **'Electronics'** folgende Spalten berechnet:
+
 - `brand`
 - `products` (Anzahl)
 - `avg_price` (gerundet auf 2 Dezimalstellen)
@@ -1474,6 +1475,7 @@ Sie haben jetzt die Grundlagen von SELECT gemeistert. In den nächsten Sessions 
 **Kommende Sessions:**
 
 - **Session 8:** Data Definition (CREATE, ALTER, DROP) & Data Manipulation (INSERT, UPDATE, DELETE)
+- **Session 9:** Normalisierung & Datenmodellierung
 - **Session 10:** Joins – Tabellen kombinieren
 - **Session 11:** Subqueries & CTEs
 - **Session 12:** Window Functions
