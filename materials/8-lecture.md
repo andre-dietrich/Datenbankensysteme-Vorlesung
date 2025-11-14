@@ -6,7 +6,7 @@ email:    LiaScript@web.de
 language: de
 narrator: German Male
 
-version:  1.0.0
+version:  2.0.0
 
 comment:  In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten.
 
@@ -32,7 +32,6 @@ Bisher haben Sie gelernt, Daten abzufragen – SELECT, WHERE, GROUP BY, alles in
 - **DDL (Data Definition Language):** CREATE, ALTER, DROP – Ihre Werkzeuge für Schema-Design
 - **DML (Data Manipulation Language):** INSERT, UPDATE, DELETE – Daten schreiben, nicht nur lesen
 - **Constraints:** PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK – Datenintegrität sichern
-- **Best Practices:** Sichere Schema-Evolution, häufige Fehler vermeiden
 
     --{{1}}--
 Warum ist das wichtig? Weil Ihre Datenbank nur so gut ist wie Ihr Schema. Falsche Datentypen führen zu Performance-Problemen. Fehlende Constraints führen zu Inkonsistenzen. Unsichere Updates können Ihre gesamte Datenbank zerstören. Diese Session gibt Ihnen die Kontrolle.
@@ -82,7 +81,7 @@ CREATE TABLE products (
   price DECIMAL(10, 2)
 );
 ```
-@PGlite.eval(ddl_dml)
+@PGlite.terminal(ddl_dml)
 
 **Was passiert hier?**
 
@@ -320,13 +319,34 @@ FROM products_ext;
 
 ### Tabellen ändern (`ALTER TABLE`)
 
-    --{{0}}--
-Schemas ändern sich. Sie fügen Spalten hinzu, ändern Datentypen, löschen veraltete Felder. ALTER TABLE ist Ihr Werkzeug für Schema-Evolution. Aber Vorsicht: Manche Operationen sind riskant bei großen Tabellen.
+**Schritt : Ausgangstabelle erstellen**
+
+```sql
+-- Frische Tabelle für ALTER-Experimente:
+CREATE TABLE products_alter (
+  product_id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  price DECIMAL(10, 2),
+  stock INTEGER
+);
+
+INSERT INTO products_alter VALUES 
+  (1, 'Laptop', 999.50, 5),
+  (2, 'Mouse', 25.00, 100);
+
+SELECT * FROM products_alter;
+```
+@PGlite.terminal(ddl_dml)
+
 
     {{0}}
 <section>
 
 ### Spalten hinzufügen (ADD COLUMN)
+
+    --{{0}}--
+Schemas ändern sich. Sie fügen Spalten hinzu, ändern Datentypen, löschen veraltete Felder. ALTER TABLE ist Ihr Werkzeug für Schema-Evolution. Aber Vorsicht: Manche Operationen sind riskant bei großen Tabellen.
+
 
 **Syntax:**
 
@@ -339,11 +359,11 @@ ADD COLUMN column_name datatype [constraints];
 
 ```sql
 -- Neue Spalte hinzufügen:
-ALTER TABLE products
+ALTER TABLE products_alter
 ADD COLUMN category TEXT DEFAULT 'Uncategorized';
 
 -- Prüfen:
-SELECT * FROM products;
+SELECT * FROM products_alter;
 ```
 @PGlite.terminal(ddl_dml)
 
@@ -351,49 +371,80 @@ SELECT * FROM products;
 
 </section>
 
-    --{{1}}--
-Spalten ändern ist komplexer. Sie können Datentypen ändern, Defaults setzen, Constraints hinzufügen. Aber nicht alle Datenbanken unterstützen alle Operationen gleich.
-
     {{1}}
 <section>
 
 ### Spalten ändern (ALTER COLUMN)
 
-**Datentyp ändern:**
+    --{{1}}--
+Spalten ändern ist komplexer. Sie können Datentypen ändern, Defaults setzen, Constraints hinzufügen. Aber nicht alle Datenbanken unterstützen alle Operationen gleich. Lassen Sie uns das Schritt für Schritt durchspielen.
+
+
+**Schritt 2: Datentyp ändern (price: DECIMAL(10,2) → DECIMAL(12,2))**
 
 ```sql
--- In PostgreSQL/PGlite.
-ALTER TABLE products
+-- Präzision erhöhen für größere Preise:
+ALTER TABLE products_alter
 ALTER COLUMN price TYPE DECIMAL(12, 2);
 
--- In MySQL:
--- ALTER TABLE products
+-- Prüfen (Struktur hat sich geändert, Daten bleiben):
+SELECT * FROM products_alter;
+
+-- In MySQL würde man schreiben:
+-- ALTER TABLE products_alter
 -- MODIFY COLUMN price DECIMAL(12, 2);
 ```
-@PGlite.eval(ddl_dml)
+@PGlite.terminal(ddl_dml)
 
-**Default setzen/ändern:**
+**Schritt 3: Default setzen für stock**
 
 ```sql
-ALTER TABLE products
+-- Neue Produkte sollen standardmäßig 10 auf Lager haben:
+ALTER TABLE products_alter
 ALTER COLUMN stock SET DEFAULT 10;
+
+-- Test: Neues Produkt ohne stock-Angabe:
+INSERT INTO products_alter (product_id, name, price)
+VALUES (3, 'Keyboard', 79.99);
+
+SELECT * FROM products_alter;
+-- → Keyboard hat automatisch stock = 10
 ```
+@PGlite.terminal(ddl_dml)
+
+**Schritt 4: NOT NULL hinzufügen**
+
+```sql
+-- Alle Produkte müssen einen Preis haben:
+-- (Funktioniert nur, wenn keine NULL-Werte existieren!)
+ALTER TABLE products_alter
+ALTER COLUMN price SET NOT NULL;
+
+-- Test: INSERT ohne price wird jetzt fehlschlagen:
+-- INSERT INTO products_alter (product_id, name) 
+-- VALUES (4, 'Monitor');  -- ❌ Fehler!
+
+SELECT * FROM products_alter;
+```
+@PGlite.terminal(ddl_dml)
 
 **⚠️ Achtung bei Datentyp-Änderungen:**
 
 - `TEXT` → `INTEGER`: Funktioniert nur, wenn alle Werte Zahlen sind
 - `INTEGER` → `BIGINT`: Meist sicher
-- Bei großen Tabellen: Kann lange dauern!
+- `DECIMAL` Präzision erhöhen: Sicher
+- `DECIMAL` Präzision verringern: Kann Daten abschneiden!
+- Bei großen Tabellen: Kann lange dauern + Locks!
 
 </section>
-
-    --{{2}}--
-Spalten löschen ist riskant. Sobald weg, sind die Daten weg. Überlegen Sie zweimal, bevor Sie DROP COLUMN nutzen. Manchmal ist es besser, eine Spalte zu "verstecken" (in Views) statt zu löschen.
 
     {{2}}
 <section>
 
 ### Spalten löschen (DROP COLUMN)
+
+    --{{2}}--
+Spalten löschen ist riskant. Sobald weg, sind die Daten weg. Überlegen Sie zweimal, bevor Sie DROP COLUMN nutzen. Manchmal ist es besser, eine Spalte zu "verstecken" (in Views) statt zu löschen.
 
 **Syntax:**
 
@@ -414,23 +465,25 @@ Statt Spalte zu löschen:
 
 ```sql
 -- Spalte umbenennen (verstecken):
-ALTER TABLE products
+ALTER TABLE products_alter
 RENAME COLUMN description TO _deprecated_description;
 
 -- Oder in Views weglassen:
 CREATE VIEW products_view AS
 SELECT product_id, name, price FROM products;
 ```
+@PGlite.terminal(ddl_dml)
 
 </section>
 
-    --{{3}}--
-Tabellen können umbenannt werden. Das ist nützlich, wenn Sie Schema-Migrationen machen oder alte Versionen als Backup behalten wollen.
 
     {{3}}
 <section>
 
-### Tabelle umbenennen (RENAME TO)
+### Tabelle umbenennen (`RENAME TO`)
+
+    --{{3}}--
+Tabellen können umbenannt werden. Das ist nützlich, wenn Sie Schema-Migrationen machen oder alte Versionen als Backup behalten wollen. Schauen wir uns das mit unserer products_alter Tabelle an.
 
 **Syntax:**
 
@@ -438,19 +491,58 @@ Tabellen können umbenannt werden. Das ist nützlich, wenn Sie Schema-Migratione
 ALTER TABLE old_name RENAME TO new_name;
 ```
 
-**Beispiel:**
+**Schritt 1: Aktuellen Zustand prüfen**
 
 ```sql
--- Backup erstellen:
-CREATE TABLE products_backup AS SELECT * FROM products;
-
--- Original umbenennen:
-ALTER TABLE products RENAME TO products_v1;
-
--- Neue Version wird zu "products":
-CREATE TABLE products AS SELECT * FROM products_v1;
+-- Was haben wir bisher in products_alter?
+SELECT * FROM products_alter;
 ```
 @PGlite.terminal(ddl_dml)
+
+**Schritt 2: Backup erstellen (Tabelle kopieren)**
+
+```sql
+-- Kopie als Backup:
+CREATE TABLE products_alter_backup AS 
+SELECT * FROM products_alter;
+```
+@PGlite.terminal(ddl_dml)
+
+**Schritt 3: Original umbenennen (z.B. für Migration)**
+
+```sql
+-- Original wird zu "old version":
+ALTER TABLE products_alter RENAME TO products_alter_v1;
+
+-- Jetzt existiert nur noch products_alter_v1:
+SELECT * FROM products_alter_v1;
+```
+@PGlite.terminal(ddl_dml)
+
+**Schritt 4: Neue Version als "products_alter" anlegen**
+
+```sql
+-- Neue, verbesserte Version (z.B. mit zusätzlicher Spalte):
+CREATE TABLE products_alter AS 
+SELECT 
+  product_id,
+  name,
+  price,
+  stock,
+  category,
+  'active' AS status  -- Neue Spalte!
+FROM products_alter_v1;
+
+-- Neue Version prüfen:
+SELECT * FROM products_alter;
+```
+@PGlite.terminal(ddl_dml)
+
+**💡 Use Cases für RENAME:**
+
+- **Schema-Migration:** Alte Version behalten (`_v1`), neue Version als Haupttabelle
+- **Zero-Downtime-Deployment:** Neue Tabelle aufbauen, dann atomisch umbenennen
+- **Backup vor großen Änderungen:** Original als `_backup` sichern
 
 </section>
 
@@ -458,13 +550,15 @@ CREATE TABLE products AS SELECT * FROM products_v1;
 
 ### Tabellen löschen (`DROP TABLE`)
 
-    --{{0}}--
-DROP TABLE ist der gefährlichste DDL-Befehl. Einmal ausgeführt, ist die Tabelle weg – inklusive aller Daten. Nutzen Sie IF EXISTS, um Fehler zu vermeiden, und CASCADE/RESTRICT, um Abhängigkeiten zu kontrollieren.
 
     {{0}}
 <section>
 
 ### Grundsyntax
+
+    --{{0}}--
+`DROP TABLE` ist der gefährlichste DDL-Befehl. Einmal ausgeführt, ist die Tabelle weg – inklusive aller Daten. Nutzen Sie `IF EXISTS`, um Fehler zu vermeiden, und `CASCADE/RESTRICT`, um Abhängigkeiten zu kontrollieren.
+
 
 **Einfaches DROP:**
 
@@ -539,13 +633,13 @@ DROP TABLE categories CASCADE;
 
 ## Constraints – Datenintegrität sichern
 
-    --{{0}}--
-Constraints sind Regeln, die Ihre Daten schützen. PRIMARY KEY verhindert Duplikate, FOREIGN KEY sichert Beziehungen, CHECK validiert Werte. Ohne Constraints ist Ihre Datenbank ein Wilder Westen – jeder Wert ist erlaubt.
-
     {{0}}
 <section>
 
 ### Warum Constraints?
+
+    --{{0}}--
+Constraints sind Regeln, die Ihre Daten schützen. PRIMARY KEY verhindert Duplikate, FOREIGN KEY sichert Beziehungen, CHECK validiert Werte. Ohne Constraints ist Ihre Datenbank ein Wilder Westen – jeder Wert ist erlaubt.
 
 **Ohne Constraints:**
 
@@ -557,9 +651,12 @@ CREATE TABLE orders_bad (
 );
 
 -- Alles erlaubt:
-INSERT INTO orders_bad VALUES (1, NULL, -100);  -- ❌ Kein Kunde, negativer Betrag
-INSERT INTO orders_bad VALUES (1, 999, 50);     -- ❌ Duplikat-ID, nicht-existierender Kunde
+-- ❌ Kein Kunde, negativer Betrag
+INSERT INTO orders_bad VALUES (1, NULL, -100);
+-- ❌ Duplikat-ID, nicht-existierender Kunde
+INSERT INTO orders_bad VALUES (1, 999, 50);
 ```
+@PGlite.terminal(orders1)
 
 **Mit Constraints:**
 
@@ -577,10 +674,14 @@ CREATE TABLE orders_good (
 );
 
 -- Schutz aktiviert:
-INSERT INTO orders_good VALUES (1, NULL, 50);    -- ❌ customer_id NOT NULL
-INSERT INTO orders_good VALUES (1, 999, 50);     -- ❌ customer_id existiert nicht
-INSERT INTO orders_good VALUES (1, 1, -100);     -- ❌ total CHECK fehlschlägt
+-- ❌ customer_id NOT NULL
+INSERT INTO orders_good VALUES (1, NULL, 50);
+-- ❌ customer_id existiert nicht
+INSERT INTO orders_good VALUES (1, 999, 50);
+-- ❌ total CHECK fehlschlägt
+INSERT INTO orders_good VALUES (1, 1, -100);
 ```
+@PGlite.terminal(orders2)
 
 </section>
 
@@ -588,13 +689,14 @@ INSERT INTO orders_good VALUES (1, 1, -100);     -- ❌ total CHECK fehlschlägt
 
 ### `PRIMARY KEY`
 
-    --{{0}}--
-PRIMARY KEY ist der wichtigste Constraint. Er garantiert Eindeutigkeit und NOT NULL. Jede Tabelle sollte einen Primärschlüssel haben – er ist die Identität jeder Zeile.
 
     {{0}}
 <section>
 
 ### Single-Column vs. Composite Keys
+
+    --{{0}}--
+PRIMARY KEY ist der wichtigste Constraint. Er garantiert Eindeutigkeit und NOT NULL. Jede Tabelle sollte einen Primärschlüssel haben – er ist die Identität jeder Zeile.
 
 **Single-Column (häufigster Fall):**
 
@@ -625,13 +727,15 @@ CREATE TABLE enrollments (
 
 </section>
 
-    --{{1}}--
-Natürliche vs. künstliche Keys: Natürlich = aus Daten (E-Mail, ISBN), künstlich = generiert (Auto-Increment ID). Künstliche Keys sind meist besser, weil sie unveränderlich sind.
+
 
     {{1}}
 <section>
 
 ### Natürliche vs. künstliche Keys
+
+    --{{1}}--
+Natürliche vs. künstliche Keys: Natürlich = aus Daten (E-Mail, ISBN), künstlich = generiert (Auto-Increment ID). Künstliche Keys sind meist besser, weil sie unveränderlich sind.
 
 **Natürlicher Key (aus Daten):**
 
@@ -656,11 +760,11 @@ CREATE TABLE books_auto (
 
 **Wann was?**
 
-| Kriterium | Natürlich | Künstlich |
-|-----------|-----------|-----------|
-| Unveränderlich | ❌ (z.B. E-Mail ändert sich) | ✅ |
-| Performance | ⚠️ (Text-Keys langsamer) | ✅ (Integer schnell) |
-| Lesbarkeit | ✅ (ISBN sagt etwas aus) | ❌ (ID 4711 ist abstrakt) |
+| Kriterium      | Natürlich                    | Künstlich                 |
+| -------------- | ---------------------------- | ------------------------- |
+| Unveränderlich | ❌ (z.B. E-Mail ändert sich) | ✅                        |
+| Performance    | ⚠️ (Text-Keys langsamer)     | ✅ (Integer schnell)      |
+| Lesbarkeit     | ✅ (ISBN sagt etwas aus)     | ❌ (ID 4711 ist abstrakt) |
 
 **💡 Empfehlung:** Künstlicher Primärschlüssel + natürlicher UNIQUE Constraint
 
@@ -678,13 +782,13 @@ CREATE TABLE users_best (
 
 ### `FOREIGN KEY`
 
-    --{{0}}--
-FOREIGN KEY verbindet Tabellen. Er garantiert, dass Beziehungen gültig sind: Jede Bestellung muss einem existierenden Kunden gehören. Das ist referenzielle Integrität.
-
     {{0}}
 <section>
 
 ### Referenzielle Integrität
+
+    --{{0}}--
+FOREIGN KEY verbindet Tabellen. Er garantiert, dass Beziehungen gültig sind: Jede Bestellung muss einem existierenden Kunden gehören. Das ist referenzielle Integrität.
 
 **Beispiel: Kunden und Bestellungen**
 
@@ -719,20 +823,22 @@ INSERT INTO orders_fk VALUES (102, 999, '2025-11-04');
 
 </section>
 
-    --{{1}}--
-ON DELETE und ON UPDATE steuern, was passiert, wenn der referenzierte Datensatz gelöscht oder geändert wird. CASCADE löscht/ändert mit, SET NULL setzt NULL, RESTRICT verhindert die Aktion.
 
     {{1}}
 <section>
 
 ### ON DELETE / ON UPDATE
 
-| Option | Bei DELETE | Bei UPDATE |
-|--------|------------|------------|
-| `CASCADE` | Abhängige Zeilen werden auch gelöscht | Abhängige Zeilen werden aktualisiert |
-| `SET NULL` | FK wird auf NULL gesetzt | FK wird auf NULL gesetzt |
-| `RESTRICT` | Löschen/Ändern wird verhindert | Löschen/Ändern wird verhindert |
-| `NO ACTION` | Wie RESTRICT (Standard) | Wie RESTRICT (Standard) |
+    --{{1}}--
+ON DELETE und ON UPDATE steuern, was passiert, wenn der referenzierte Datensatz gelöscht oder geändert wird. CASCADE löscht/ändert mit, SET NULL setzt NULL, RESTRICT verhindert die Aktion.
+
+
+| Option      | Bei DELETE                            | Bei UPDATE                           |
+| ----------- | ------------------------------------- | ------------------------------------ |
+| `CASCADE`   | Abhängige Zeilen werden auch gelöscht | Abhängige Zeilen werden aktualisiert |
+| `SET NULL`  | FK wird auf NULL gesetzt              | FK wird auf NULL gesetzt             |
+| `RESTRICT`  | Löschen/Ändern wird verhindert        | Löschen/Ändern wird verhindert       |
+| `NO ACTION` | Wie RESTRICT (Standard)               | Wie RESTRICT (Standard)              |
 
 **Beispiel: ON DELETE CASCADE**
 
@@ -782,13 +888,14 @@ DELETE FROM authors WHERE author_id = 1;
 
 </section>
 
-    --{{2}}--
-Self-Referencing Foreign Keys sind nützlich für hierarchische Daten: Jeder Mitarbeiter hat einen Manager, der selbst ein Mitarbeiter ist. Jede Kategorie kann eine übergeordnete Kategorie haben.
 
     {{2}}
 <section>
 
 ### Self-Referencing (Hierarchien)
+
+    --{{2}}--
+Self-Referencing Foreign Keys sind nützlich für hierarchische Daten: Jeder Mitarbeiter hat einen Manager, der selbst ein Mitarbeiter ist. Jede Kategorie kann eine übergeordnete Kategorie haben.
 
 **Beispiel: Mitarbeiter-Hierarchie**
 
@@ -828,13 +935,13 @@ WHERE e.name = 'Developer';
 
 ### `UNIQUE`, `NOT NULL`, `CHECK`, `DEFAULT`
 
-    --{{0}}--
-Diese Constraints sind einfacher, aber nicht weniger wichtig. UNIQUE verhindert Duplikate, NOT NULL erzwingt Werte, CHECK validiert Bedingungen, DEFAULT setzt Standardwerte.
-
     {{0}}
 <section>
 
 ### UNIQUE – Eindeutigkeit ohne Primary Key
+
+    --{{0}}--
+Diese Constraints sind einfacher, aber nicht weniger wichtig. UNIQUE verhindert Duplikate, NOT NULL erzwingt Werte, CHECK validiert Bedingungen, DEFAULT setzt Standardwerte.
 
 **Syntax:**
 
@@ -969,13 +1076,14 @@ INSERT INTO orders_status VALUES (1, 'in_transit');
 
 </section>
 
-    --{{3}}--
-DEFAULT setzt Standardwerte, wenn beim INSERT kein Wert angegeben wird. Praktisch für Zeitstempel, Flags, Status.
 
     {{3}}
 <section>
 
 ### DEFAULT – Standardwerte
+
+    --{{3}}--
+DEFAULT setzt Standardwerte, wenn beim INSERT kein Wert angegeben wird. Praktisch für Zeitstempel, Flags, Status.
 
 **Syntax:**
 
@@ -1021,13 +1129,13 @@ CREATE TABLE logs (
 
 ### `INSERT`
 
-    --{{0}}--
-Jetzt verlassen wir DDL und gehen zu DML: Daten manipulieren. INSERT fügt neue Zeilen ein. Sie können einzelne Zeilen einfügen, mehrere gleichzeitig, oder Daten aus anderen Tabellen kopieren.
-
     {{0}}
 <section>
 
 ### Einzelne Zeile einfügen
+
+    --{{0}}--
+Jetzt verlassen wir DDL und gehen zu DML: Daten manipulieren. INSERT fügt neue Zeilen ein. Sie können einzelne Zeilen einfügen, mehrere gleichzeitig, oder Daten aus anderen Tabellen kopieren.
 
 **Syntax:**
 
@@ -1062,13 +1170,14 @@ VALUES (2, 'Bob', 'bob@example.com', CURRENT_TIMESTAMP);
 
 </section>
 
-    --{{1}}--
-Bulk Insert ist effizienter als viele einzelne INSERTs. Statt 100 Befehle schreiben Sie einen mit 100 Wertepaaren.
 
     {{1}}
 <section>
 
 ### Mehrere Zeilen gleichzeitig (Bulk Insert)
+
+    --{{1}}--
+Bulk Insert ist effizienter als viele einzelne INSERTs. Statt 100 Befehle schreiben Sie einen mit 100 Wertepaaren.
 
 **Syntax:**
 
@@ -1100,13 +1209,15 @@ SELECT * FROM customers_insert;
 
 </section>
 
-    --{{2}}--
-INSERT ... SELECT kopiert Daten aus einer anderen Tabelle. Praktisch für Backups, Datenmigrationen, berechnete Tabellen.
+
 
     {{2}}
 <section>
 
 ### INSERT ... SELECT
+
+    --{{2}}--
+INSERT ... SELECT kopiert Daten aus einer anderen Tabelle. Praktisch für Backups, Datenmigrationen, berechnete Tabellen.
 
 **Syntax:**
 
@@ -1144,13 +1255,13 @@ WHERE email IS NOT NULL;
 
 </section>
 
-    --{{3}}--
-Upsert (INSERT ... ON CONFLICT) ist ein fortgeschrittenes Pattern: „Füge ein, oder update, wenn schon vorhanden." Praktisch für Daten-Synchronisation.
-
     {{3}}
 <section>
 
 ### INSERT ... ON CONFLICT (Upsert)
+
+    --{{3}}--
+Upsert (INSERT ... ON CONFLICT) ist ein fortgeschrittenes Pattern: „Füge ein, oder update, wenn schon vorhanden." Praktisch für Daten-Synchronisation.
 
 **Problem:** Was, wenn die ID schon existiert?
 
@@ -1194,13 +1305,13 @@ ON CONFLICT (customer_id) DO NOTHING;
 
 ### `UPDATE`
 
-    --{{0}}--
-UPDATE ändert bestehende Daten. Der gefährlichste Befehl ist UPDATE ohne WHERE – dann werden ALLE Zeilen geändert. Immer mit WHERE filtern!
-
     {{0}}
 <section>
 
 ### UPDATE mit WHERE
+
+    --{{0}}--
+UPDATE ändert bestehende Daten. Der gefährlichste Befehl ist UPDATE ohne WHERE – dann werden ALLE Zeilen geändert. Immer mit WHERE filtern!
 
 **Syntax:**
 
@@ -1236,13 +1347,15 @@ SET name = 'Unknown';
 
 </section>
 
-    --{{1}}--
-Sie können mehrere Spalten gleichzeitig ändern und berechnete Updates machen.
 
     {{1}}
 <section>
 
 ### Mehrere Spalten & berechnete Updates
+
+    --{{1}}--
+Sie können mehrere Spalten gleichzeitig ändern und berechnete Updates machen.
+
 
 **Mehrere Spalten:**
 
@@ -1283,13 +1396,14 @@ SELECT * FROM products_update;
 
 </section>
 
-    --{{2}}--
-UPDATE mit Subqueries oder Joins ist fortgeschritten, aber sehr mächtig. Sie können Werte aus anderen Tabellen holen und einfügen.
 
     {{2}}
 <section>
 
 ### UPDATE mit Subquery (Fortgeschritten)
+
+    --{{2}}--
+UPDATE mit Subqueries oder Joins ist fortgeschritten, aber sehr mächtig. Sie können Werte aus anderen Tabellen holen und einfügen.
 
 **Beispiel: Preis basierend auf Kategorie anpassen**
 
@@ -1330,13 +1444,14 @@ SELECT * FROM products_cat;
 
 ### `DELETE`
 
-    --{{0}}--
-DELETE entfernt Zeilen. Wie bei UPDATE gilt: Immer mit WHERE, außer Sie wollen wirklich alles löschen. DELETE ist reversibel (via Transaktion), TRUNCATE nicht.
 
     {{0}}
 <section>
 
 ### DELETE mit WHERE
+
+    --{{0}}--
+DELETE entfernt Zeilen. Wie bei UPDATE gilt: Immer mit WHERE, außer Sie wollen wirklich alles löschen. DELETE ist reversibel (via Transaktion), TRUNCATE nicht.
 
 **Syntax:**
 
@@ -1371,21 +1486,23 @@ DELETE FROM customers_insert;
 
 </section>
 
-    --{{1}}--
-TRUNCATE vs. DELETE: TRUNCATE ist schneller, aber weniger flexibel. DELETE kann mit WHERE filtern und ist in Transaktionen reversibel.
+
 
     {{1}}
 <section>
 
 ### TRUNCATE vs. DELETE
 
-| Feature | DELETE | TRUNCATE |
-|---------|--------|----------|
-| WHERE-Klausel | ✅ Ja | ❌ Nein (alle Zeilen) |
-| Performance | ⚠️ Langsamer (Zeile für Zeile) | ✅ Schneller (gesamte Tabelle) |
-| Rollback | ✅ In Transaktion möglich | ⚠️ Meist nicht (DB-abhängig) |
-| Triggers | ✅ Werden ausgelöst | ❌ Meist nicht |
-| Auto-Increment Reset | ❌ Nein | ✅ Ja (zurück auf 1) |
+    --{{1}}--
+TRUNCATE vs. DELETE: TRUNCATE ist schneller, aber weniger flexibel. DELETE kann mit WHERE filtern und ist in Transaktionen reversibel.
+
+| Feature              | DELETE                           | TRUNCATE                       |
+| -------------------- | -------------------------------- | ------------------------------ |
+| WHERE-Klausel        | ✅ Ja                            | ❌ Nein (alle Zeilen)          |
+| Performance          | ⚠️ Langsamer (Zeile für Zeile) | ✅ Schneller (gesamte Tabelle) |
+| Rollback             | ✅ In Transaktion möglich        | ⚠️ Meist nicht (DB-abhängig) |
+| Triggers             | ✅ Werden ausgelöst              | ❌ Meist nicht                 |
+| Auto-Increment Reset | ❌ Nein                          | ✅ Ja (zurück auf 1)           |
 
 **Beispiel:**
 
@@ -1404,13 +1521,14 @@ TRUNCATE TABLE products_update;
 
 </section>
 
-    --{{2}}--
-Soft Delete ist ein Pattern, bei dem Sie Daten nicht wirklich löschen, sondern nur als "gelöscht" markieren. Praktisch für Audit-Trails und Wiederherstellung.
 
     {{2}}
 <section>
 
 ### Soft Delete Pattern
+
+    --{{2}}--
+Soft Delete ist ein Pattern, bei dem Sie Daten nicht wirklich löschen, sondern nur als "gelöscht" markieren. Praktisch für Audit-Trails und Wiederherstellung.
 
 **Problem:** Gelöschte Daten sind weg – kein Audit-Trail, keine Wiederherstellung.
 
