@@ -538,11 +538,17 @@ SELECT * FROM products_alter;
 ```
 @PGlite.terminal(ddl_dml)
 
+
 **💡 Use Cases für RENAME:**
 
-- **Schema-Migration:** Alte Version behalten (`_v1`), neue Version als Haupttabelle
-- **Zero-Downtime-Deployment:** Neue Tabelle aufbauen, dann atomisch umbenennen
-- **Backup vor großen Änderungen:** Original als `_backup` sichern
+- **Schema-Migration:**
+  Wenn du die Struktur einer Tabelle ändern willst (z.B. neue Spalten, andere Datentypen), kannst du die alte Tabelle umbenennen (z.B. `products_alter` → `products_alter_v1`). Dann legst du eine neue Tabelle mit dem alten Namen und neuer Struktur an und überträgst die Daten. So bleibt die alte Version als Backup erhalten, bis alles funktioniert.
+
+- **Zero-Downtime-Deployment:**
+  Bei Systemen, die immer verfügbar sein müssen, kannst du eine neue Tabelle im Hintergrund aufbauen und befüllen. Sobald sie fertig ist, benennst du sie mit RENAME atomar um – so ist der Wechsel für Nutzer:innen sofort und ohne Ausfall sichtbar.
+
+- **Backup vor großen Änderungen:**
+  Vor riskanten Änderungen (z.B. Spalte löschen) kannst du die Original-Tabelle einfach kopieren und umbenennen (z.B. `products` → `products_backup`). So hast du eine Sicherung, falls etwas schiefgeht, und kannst Daten leicht wiederherstellen.
 
 </section>
 
@@ -1270,6 +1276,7 @@ Upsert (INSERT ... ON CONFLICT) ist ein fortgeschrittenes Pattern: „Füge ein,
 INSERT INTO customers_insert (customer_id, name, email)
 VALUES (1, 'Alice Updated', 'alice_new@example.com');
 ```
+@PGlite.terminal(ddl_dml)
 
 **Lösung: ON CONFLICT DO UPDATE**
 
@@ -1293,11 +1300,17 @@ INSERT INTO customers_insert (customer_id, name, email)
 VALUES (1, 'Alice', 'alice@example.com')
 ON CONFLICT (customer_id) DO NOTHING;
 ```
+@PGlite.terminal(ddl_dml)
 
 **💡 Use Cases:**
 
-- Daten-Sync aus externen Systemen
-- Idempotente Pipelines (mehrfaches Ausführen = gleiches Ergebnis)
+- __Daten-Sync aus externen Systemen:__
+
+  Beim regelmäßigen Import (z.B. aus einer API oder CSV) sorgt ON CONFLICT dafür, dass vorhandene Datensätze aktualisiert statt dupliziert werden.
+
+- __Idempotente Pipelines (mehrfaches Ausführen = gleiches Ergebnis)__
+
+  Das Upsert-Muster garantiert, dass mehrfaches Ausführen des Imports immer zum gleichen, korrekten Ergebnis führt – keine Duplikate, immer aktuelle Daten.
 
 </section>
 
@@ -1418,10 +1431,15 @@ CREATE TABLE products_cat (
   product_id INTEGER PRIMARY KEY,
   name TEXT,
   price DECIMAL(10,2),
-  category_id INTEGER
+  category_id INTEGER,
+
+  FOREIGN KEY (category_id) REFERENCES categories_update(category_id)
 );
 
-INSERT INTO categories_update VALUES (1, 'Electronics', 10.00), (2, 'Books', 5.00);
+INSERT INTO categories_update VALUES
+  (1, 'Electronics', 10.00),
+  (2, 'Books', 5.00);
+
 INSERT INTO products_cat VALUES 
   (1, 'Laptop', 1000.00, 1),
   (2, 'Novel', 20.00, 2);
