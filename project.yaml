@@ -128,12 +128,21 @@ collection:
       - Query
       - Praxis
   
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md
+    title: "L7: SQL Introduction & Query Data (SELECT) – Vollversion"
+    tags:
+      - SQL
+      - SELECT
+      - Query
+      - Praxis
+  
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md
     title: "L8: SQL Data Definition (DDL) & Manipulation (DML)"
     tags:
       - SQL
       - DDL
       - DML
+      - ALTER
       - CREATE
       - INSERT
       - UPDATE
