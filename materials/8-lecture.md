@@ -1647,7 +1647,6 @@ Zum Abschluss eine Checkliste, die Sie bei jedem Schema-Design durchgehen sollte
 
 **Schema-Evolution:**
 
-- [ ] Migrations-System nutzen (Flyway, Liquibase, Alembic)
 - [ ] Jede Änderung hat UP + DOWN Migration
 - [ ] Rückwärtskompatibilität beachten (Expand-Contract)
 - [ ] Große Änderungen off-peak ausführen
