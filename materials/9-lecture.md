@@ -7,7 +7,7 @@ narrator: Deutsch Female
 
 comment:  Interaktive Session zur Datenbank-Normalisierung und ER-Modellierung: Studierende lernen ER-Diagramm-Basics (Entitäten, Beziehungen, Kardinalitäten 1:1, 1:N, N:M), entwickeln schrittweise ein normalisiertes Online-Shop-Schema (0NF → 1NF → 2NF → 3NF) mit Visualisierung via dbdiagram.io und bauen gemeinsam ein Twitter-Datenmodell von Grund auf (User, Follower, Tweets, Likes, Many-to-Many-Beziehungen). Hands-on Didaktik: Anomalien werden live erlebbar gemacht.
 
-logo:    ../assets/img/logo/7-lecture.jpg
+logo:    ../assets/img/logo/9-lecture.jpg
 
 import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
         https://raw.githubusercontent.com/LiaTemplates/dbdiagram/main/README.md
