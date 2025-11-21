@@ -1,0 +1,131 @@
+name: "Databases Unlocked: A Beginner's Journey"
+description: >
+  Praxisnahe Einführung in Datenbanksysteme – von Dateiformaten über Key-Value,
+  Document und Column Stores bis hin zu relationalen Datenbanken mit SQL.
+  Alle Konzepte werden direkt im Browser mit interaktiven Hands-on-Beispielen demonstriert.
+
+# Grundmetadaten
+license: "https://creativecommons.org/publicdomain/zero/1.0/"
+inLanguage: "de"
+learningResourceType: "Course"
+url: "https://github.com/andre-dietrich/Datenbankensysteme-Vorlesung"
+image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/main.jpg"
+
+# Autor & Herausgeber
+creator:
+  - givenName: "André"
+    familyName: "Dietrich"
+    type: "Person"
+publisher:
+  - name: "TU Bergakademie Freiberg"
+    type: "Organization"
+
+# Zielgruppe & Niveau
+educationalLevel:
+  - "Undergraduate"
+  - "Bachelor"
+audience:
+  - "students"
+  - "higherEducation"
+
+# Zeitaufwand (ISO 8601: 22×90min + 7×90min ≈ 43.5h + ~20-30h Selbststudium ≈ 65-75h)
+timeRequired: "P70H"
+
+# Fachliche Einordnung
+about:
+  - name: "Datenbanksysteme"
+    type: "DefinedTerm"
+  - name: "SQL"
+    type: "DefinedTerm"
+  - name: "NoSQL"
+    type: "DefinedTerm"
+  - name: "Relationale Datenbanken"
+    type: "DefinedTerm"
+  - name: "Datenmodellierung"
+    type: "DefinedTerm"
+  - name: "ACID"
+    type: "DefinedTerm"
+  - name: "Transaktionen"
+    type: "DefinedTerm"
+
+keywords:
+  - Datenbanksysteme
+  - SQL
+  - NoSQL
+  - LiaScript
+  - OER
+  - Interaktiv
+  - Informatik
+  - Key-Value Stores
+  - Document Stores
+  - Column Stores
+  - Relationale Datenbanken
+  - Normalisierung
+  - DML
+  - DDL
+  - ACID
+  - CAP-Theorem
+  - Transaktionen
+  - Indexierung
+  - Browser-basiert
+
+hasPart:
+  - name: "Kursstart & Orientierung"
+    description: "Persönliche Vorstellung des Dozenten: Von der Promotion in Robotik über NoSQL-Systeme (Cassandra), deklarative Abfragesprachen (SelectScript), Remote Labs (Industrial eLab) bis zur Entwicklung von LiaScript und Edrys-Lite. Diese Session erklärt den Hintergrund der Vorlesung, warum Browser-basierte Technologien (IndexedDB, DuckDB-Wasm, SQLite-Wasm) im Fokus stehen und wie GitHub Copilot als Co-Autor für interaktive OER-Materialien eingesetzt wird."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/0-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/0-lecture.jpg"
+
+  - name: "L1: Daten & Serialisierung + DIKW"
+    description: "Grundlagen der Datenspeicherung: Von der DIKW-Pyramide (Daten → Informationen → Wissen → Weisheit) über Serialisierungsformate (CSV, JSON, YAML, XML) bis zur praktischen Motivation für Datenbanksysteme. Hands-on Ad-hoc-Analyse von CSV/JSON-Daten direkt im Browser."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/1-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/1-lecture.jpg"
+
+  - name: "L2: Key-Value Stores"
+    description: "Key-Value Stores als Lösung für das O(n)-Suchproblem: Von Hash-Maps über TTL (Time-To-Live) bis zu Atomic Operations. Praktische Patterns für Session-Storage, Caching und Rate-Limiting mit Redis-Beispielen. Einführung in Big-O-Notation zur Performance-Analyse. Trade-offs: O(1) Zugriff vs. fehlende Bereichsabfragen und limitierte Ausdrucksstärke. Hands-on mit Redis im Browser und JavaScript Map/Set APIs."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/2-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/2-lecture.jpg"
+
+  - name: "L3: Document Stores"
+    description: "Grundlagen und Besonderheiten von Document Stores wie PouchDB und CouchDB. Sie lernen, wie strukturierte JSON-Dokumente effizient gespeichert, durchsucht und synchronisiert werden. Der Kurs behandelt Vorteile gegenüber Key-Value Stores, Mango-Queries, Index-Strategien, Schema-Evolution, Offline-First und typische Einsatzszenarien."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/3-lecture.jpg"
+
+  - name: "L5: Relationale Datenbanken (SQL) – Von der Idee zum Modell"
+    description: "Einführung in das relationale Modell: Tabellen, Zeilen, Spalten, Primär-/Fremdschlüssel, Normalisierung und Integritätsbedingungen. Diese Session liefert das konzeptionelle Fundament für die SQL-Praxis ab L7."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/5-lecture.jpg"
+
+  - name: "L7: SQL Introduction & Query Data (SELECT)"
+    description: "Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/7-lecture.jpg"
+
+  - name: "L7 Vollversion: SQL Introduction & Query Data (SELECT)"
+    description: "Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/7-lecture.jpg"
+
+  - name: "L8: SQL Data Definition (DDL) & Manipulation (DML)"
+    description: "In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/8-lecture.jpg"
+
+  - name: "L9: Normalisierung & ER-Diagramme"
+    description: "Interaktive Session zur Datenbank-Normalisierung und ER-Modellierung: Studierende lernen ER-Diagramm-Basics (Entitäten, Beziehungen, Kardinalitäten 1:1, 1:N, N:M), entwickeln schrittweise ein normalisiertes Online-Shop-Schema (0NF → 1NF → 2NF → 3NF) mit Visualisierung via dbdiagram.io und bauen gemeinsam ein Twitter-Datenmodell von Grund auf (User, Follower, Tweets, Likes, Many-to-Many-Beziehungen). Hands-on Didaktik: Anomalien werden live erlebbar gemacht."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/9-lecture.jpg"
+
+  - name: "JavaScript Primer"
+    description: "Kompakter JavaScript-Primer für Studierende ohne JS-Vorkenntnisse: Variablen (const/let), Datentypen (primitiv & komplex), Kontrollstrukturen (if/loops), Funktionen (klassisch & Arrow), Objekte & Arrays (mit wichtigen Methoden wie map/filter/reduce), Asynchronität (async/await, Promises, fetch), JSON-Parsing und Classes. Fokus auf Code-Verständnis für Browser-basierte Datenbankbeispiele – keine Frontend-Entwicklung, keine Frameworks. Alle Beispiele direkt ausführbar in der Browser Console."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/javascript-primer.jpg"
