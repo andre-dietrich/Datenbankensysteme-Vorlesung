@@ -148,6 +148,17 @@ collection:
       - UPDATE
       - DELETE
 
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md
+    title: "L9: Normalisierung & ER-Diagramme"
+    tags:
+      - Normalisierung
+      - ER-Diagramme
+      - 1NF
+      - 2NF
+      - 3NF
+      - Hands-on
+      - Live-Session
+
   # Additional Resources
   - html: >
       <hr>

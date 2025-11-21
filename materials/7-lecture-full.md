@@ -1,8 +1,20 @@
 <!--
+language: de
+narrator: German Male
+
+version:  1.0.0
+
+author:   André Dietrich; GitHub Copilot
+email:    LiaScript@web.de
+
+comment:  Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen.
+
+logo:    ../assets/img/logo/7-lecture.jpg
+
 import: https://raw.githubusercontent.com/LiaTemplates/DuckDB/refs/heads/main/README.md
 -->
 
-# Session 7 – SQL Introduction & SELECT Statements
+# Session 7 – SQL Introduction & SELECT Statements (Komplettlösung)
 
 > **Session-Typ:** Lecture  
 > **Dauer:** 90 Minuten  
