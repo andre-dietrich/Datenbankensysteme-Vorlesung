@@ -138,3 +138,13 @@ Nach dieser Session können Studierende:
 - **Fehlerkultur:** Bewusst schlechtes Design zeigen, dann gemeinsam verbessern
 - **Visual Aid:** ERD nach jedem Refactoring-Schritt aktualisieren
 - **Overflow:** Falls Session 8 überzogen hat, kurz wiederholen: PRIMARY KEY, FOREIGN KEY
+
+## Logo - Prompt
+
+Wide aspect 16:9 flat minimal educational tech illustration. Mittelpunkt: stilisierte Transformation von chaotisch zu strukturiert – links eine ungeordnete, überladene Tabelle (0NF: alle Daten durcheinander, Redundanz-Markierungen in Rot), die sich über 3 Stufen nach rechts hin zu einem sauberen, normalisierten ER-Diagramm (3NF) entwickelt: 1) Links "0NF": chaotische Tabelle mit vielen duplizierten Zeilen, rote Warnzeichen (❌), 2) Mitte: Zwischenstufe mit aufgeteilten Tabellen (1NF → 2NF), gelbe Pfeile zeigen Aufteilung, 3) Rechts "3NF": sauberes ER-Diagramm mit 3-4 verbundenen Entitäten (Rechtecke: USER, ORDER, PRODUCT), grüne Häkchen (✅), klare Beziehungslinien (1:1, 1:N, N:M). Oben über der Transformation: 3 große Zahlen "1 → 2 → 3" (für 1NF, 2NF, 3NF) mit Fortschrittsbalken darunter. Unten: stilisiertes Twitter-Vogel-Icon (vereinfacht) mit ER-DiagWide aspect 16:9 flat minimal educational tech illustration. Mittelpunkt: stilisierte Transformation von chaotisch zu strukturiert – links eine ungeordnete, überladene Tabelle (0NF: alle Daten durcheinander, Redundanz-Markierungen in Rot), die sich über 3 Stufen nach rechts hin zu einem sauberen, normalisierten ER-Diagramm (3NF) entwickelt:
+
+1) Links "0NF": chaotische Tabelle mit vielen duplizierten Zeilen, rote Warnzeichen (❌),
+2) Mitte: Zwischenstufe mit aufgeteilten Tabellen (1NF → 2NF), gelbe Pfeile zeigen Aufteilung,
+3) Rechts "3NF": sauberes ER-Diagramm mit 3-4 verbundenen Entitäten (Rechtecke: USER, ORDER, PRODUCT), grüne Häkchen (✅), klare Beziehungslinien (1:1, 1:N, N:M).
+
+Oben über der Transformation: 3 große Zahlen "1 → 2 → 3" (für 1NF, 2NF, 3NF) mit Fortschrittsbalken darunter. Unten: stilisiertes Twitter-Vogel-Icon (vereinfacht) mit ER-Diagramm-Knotenpunkten um ihn herum (Andeutung: Twitter-Modellierung). Hintergrund: subtiler Datenfluss von links (chaotisch, geschwungene Linien) nach rechts (strukturiert, gerade Linien). Schriftzug (optional) "Session 9: Normalisierung & ER" dezent, sans-serif, unten rechts. Farbschema: Petrol (#0B6E75 – ER-Diagramm-Entitäten), Warm Orange (#FF8C42 – Highlights auf 3NF/Erfolg), Red (#E63946 – 0NF-Probleme), Yellow (#F4A261 – Zwischenstufen), Sand (#F2E9DC – Background), Dark Gray (#333 – Tabellenlinien), Off-White (#F9F9F9 – Flächen). Keine Gradients, klare Konturen, weiche Rundungen, hoher Kontrast, kein Photorealismus, educational diagram style, clean edges, negative space sinnvoll nutzen.

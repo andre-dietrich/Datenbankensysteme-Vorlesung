@@ -127,6 +127,8 @@ collection:
       - SELECT
       - Query
       - Praxis
+    arguments:
+      - pdf-timeout: 120000
   
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md
     title: "L7: SQL Introduction & Query Data (SELECT) – Vollversion"
@@ -135,6 +137,8 @@ collection:
       - SELECT
       - Query
       - Praxis
+    arguments:
+      - pdf-timeout: 120000
   
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md
     title: "L8: SQL Data Definition (DDL) & Manipulation (DML)"

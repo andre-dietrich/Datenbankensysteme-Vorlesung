@@ -31,9 +31,23 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 
 ## Datenbankensysteme-Vorlesung
 
+### Einführung
+
+- [L0: Course Start / Orientation](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/0-lecture.md)
+
+### Block 1: Daten-Paradigmen – Vom File zum Column Store
+
 - [L1: Daten & Serialisierung + DIKW](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/1-lecture.md)
 - [L2: Key-Value Stores](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/2-lecture.md)
+- [L3: Document Stores](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md)
+- [L5: Relationale Datenbanken (SQL) – Von der Idee zum Model](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md)
 
+### Block 2: Relationale Grundlagen
+
+- [L7: SQL Introduction & Query Data (SELECT)](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture.md)
+- [L7: SQL Introduction & Query Data (SELECT) – Vollversion](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md)
+- [L8: SQL Data Definition (DDL) & Manipulation (DML)](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md)
+- [L9: Normalisierung & ER-Diagramme](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md)
 
 ### Zusätzliche Materialien
 
