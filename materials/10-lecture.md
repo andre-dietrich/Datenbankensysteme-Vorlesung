@@ -404,14 +404,12 @@ Table orders {
 -- Zeigen Sie nur Kunden mit ihren eigenen Bestellungen.
 -- Tipp: c.customer_id = o.customer_id
 SELECT 
-  c.customer_id,
-  c.first_name,
-  o.order_id,
-  o.order_date,
-  o.total_amount
-FROM customers c, orders o
-WHERE c.customer_id = o.customer_id
-ORDER BY c.last_name;
+  customer_id,
+  first_name,
+  order_id,
+  order_date,
+  total_amount
+FROM ???
 ```
 @PGlite.eval(online-shop)
 
@@ -473,15 +471,12 @@ Table order_items {
 -- TODO: Verbinden Sie customers, orders, order_items, products
 -- Hinweis: Sie brauchen 3 WHERE-Bedingungen!
 SELECT 
-  c.first_name || ' ' || c.last_name AS customer,
-  o.order_id,
-  p.product_name,
-  oi.quantity
-FROM customers c, orders o, order_items oi, products p
-WHERE c.customer_id = o.customer_id
-  AND o.order_id = oi.order_id
-  AND oi.product_id = p.product_id
-ORDER BY o.order_id;
+  first_name || ' ' || last_name AS customer,
+  order_id,
+  product_name,
+  quantity
+FROM ???
+WHERE ???
 ```
 @PGlite.eval(online-shop)
 
@@ -566,19 +561,43 @@ Schauen wir uns beide Syntaxen direkt nebeneinander an – für die gleiche Aufg
 
 ### Übung: Implizit
 
-    --{{0}}--
-Übersetzen Sie diese implizite Query in moderne Syntax!
+**Aufgabe:** Zeigen Sie Vorname, Stadt und Bestelldatum für alle abgeschlossenen Bestellungen.
+
+``` sql @dbdiagram
+Table locations {
+  location_id int [pk]
+  city varchar [not null]
+  postal_code varchar [not null]
+  country varchar [default: 'Germany']
+}
+
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int [ref: > locations.location_id]
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
+```
 
 ```sql
 -- Gegeben (implizit):
 SELECT 
-  c.first_name,
-  l.city,
-  o.order_date
-FROM customers c, locations l, orders o
-WHERE c.location_id = l.location_id
-  AND c.customer_id = o.customer_id
-  AND o.status = 'completed';
+  first_name,
+  city,
+  order_date
+FROM ???
+WHERE ???
 ```
 @PGlite.eval(online-shop)
 
@@ -821,9 +840,9 @@ SELECT
   product_id,
   product_name,
   price,
-  (SELECT AVG(price) FROM products) AS avg_price
+  ??? AS avg_price
 FROM products
-WHERE price > (SELECT AVG(price) FROM products);
+WHERE ???;
 ```
 @PGlite.eval(online-shop)
 
@@ -884,11 +903,7 @@ SELECT
   c.customer_id,
   c.first_name,
   c.last_name,
-  (
-    SELECT COUNT(*)
-    FROM orders o
-    WHERE o.customer_id = c.customer_id
-  ) AS order_count
+  (???)
 FROM customers c;
 ```
 @PGlite.terminal(online-shop)

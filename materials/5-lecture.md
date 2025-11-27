@@ -7,6 +7,8 @@ email:    LiaScript@web.de
 
 version:  1.0.0
 
+edit:     true
+
 comment:  Einführung in das relationale Modell: Tabellen, Zeilen, Spalten, Primär-/Fremdschlüssel, Normalisierung und Integritätsbedingungen. Diese Session liefert das konzeptionelle Fundament für die SQL-Praxis ab L7.
 
 logo:     ../assets/img/logo/5-lecture.jpg

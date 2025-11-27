@@ -6,6 +6,8 @@ comment:  Grundlagen der Datenspeicherung: Von der DIKW-Pyramide (Daten → Info
 
 logo:     ../assets/img/logo/1-lecture.jpg
 
+edit:     true
+
 import: https://raw.githubusercontent.com/liaTemplates/PyScript/main/README.md
         https://raw.githubusercontent.com/LiaScript/CodeRunner/master/README.md
 -->

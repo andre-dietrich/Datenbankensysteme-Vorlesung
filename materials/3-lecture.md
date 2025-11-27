@@ -6,6 +6,8 @@ author:   André Dietrich; GitHub Copilot
 
 logo:     ../assets/img/logo/3-lecture.jpg
 
+edit:     true
+
 import:   https://raw.githubusercontent.com/LiaTemplates/PouchDB/main/README.md
           https://raw.githubusercontent.com/LiaTemplates/Redis/main/README.md
           https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md

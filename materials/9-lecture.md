@@ -5,6 +5,8 @@ version:  0.1.0
 language: de
 narrator: Deutsch Female
 
+edit:     true
+
 comment:  Interaktive Session zur Datenbank-Normalisierung und ER-Modellierung: Studierende lernen ER-Diagramm-Basics (Entitäten, Beziehungen, Kardinalitäten 1:1, 1:N, N:M), entwickeln schrittweise ein normalisiertes Online-Shop-Schema (0NF → 1NF → 2NF → 3NF) mit Visualisierung via dbdiagram.io und bauen gemeinsam ein Twitter-Datenmodell von Grund auf (User, Follower, Tweets, Likes, Many-to-Many-Beziehungen). Hands-on Didaktik: Anomalien werden live erlebbar gemacht.
 
 logo:    ../assets/img/logo/9-lecture.jpg
@@ -201,7 +203,7 @@ SELECT * FROM shop_nf0;
 ### Schritt 1: Erste Normalform (1NF)
 
 
-**Regel:** Atomare Werte – keine Listen, keine verschachtelten Strukturen. Jede Zelle enthält genau einen Wert.
+**Regel:** Eine Tabelle ist in 1NF, wenn alle Attribute atomar sind (keine Listen, keine verschachtelten Strukturen). Jede Zelle enthält genau einen Wert.
 
       {{1}}
 <div>
@@ -225,7 +227,7 @@ CREATE TABLE shop_nf1 (
 
 ### Schritt 2: Zweite Normalform (2NF)
 
-**Regel:** Keine partiellen Abhängigkeiten. Alle Nicht-Schlüssel-Attribute müssen vom gesamten Primärschlüssel abhängen.
+**Regel:** Eine Tabelle ist in 2NF, wenn sie in 1NF ist und jedes Nicht-Schlüssel-Attribut voll funktional vom Primärschlüssel abhängt (keine partiellen Abhängigkeiten).
 
       {{1}}
 <div>
@@ -249,7 +251,7 @@ CREATE TABLE shop_nf1 (
 ### Schritt 3: Dritte Normalform (3NF) – Transitivität eliminieren
 
 
-**Regel:** Keine transitiven Abhängigkeiten. Nicht-Schlüssel-Attribute dürfen nicht voneinander abhängen.
+**Regel:** Eine Tabelle ist in 3NF, wenn sie in 2NF ist und kein Nicht-Schlüssel-Attribut transitiv vom Primärschlüssel abhängt.
 
     {{1}}
 <div>

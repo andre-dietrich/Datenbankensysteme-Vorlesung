@@ -8,6 +8,8 @@ version:  1.0.1
 author:   André Dietrich; GitHub Copilot
 email:    LiaScript@web.de
 
+edit:     true
+
 comment:  Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen.
 
 logo:     ../assets/img/logo/7-lecture.jpg

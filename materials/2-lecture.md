@@ -10,8 +10,7 @@ logo:     ../assets/img/logo/2-lecture.jpg
 import:    https://raw.githubusercontent.com/LiaTemplates/Redis/main/README.md
            https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md
 
-
-
+edit:     true
 
 @onload
 window.sleep = function (ms) {
