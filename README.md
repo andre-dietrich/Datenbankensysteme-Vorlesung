@@ -48,6 +48,7 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 - [L7: SQL Introduction & Query Data (SELECT) – Vollversion](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md)
 - [L8: SQL Data Definition (DDL) & Manipulation (DML)](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md)
 - [L9: Normalisierung & ER-Diagramme](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md)
+- [L10: Mehr FROM Subqueries, CTEs, Joins](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md)
 
 ### Zusätzliche Materialien
 
