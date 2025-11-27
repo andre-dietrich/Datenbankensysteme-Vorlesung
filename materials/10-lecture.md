@@ -1,9 +1,15 @@
 <!--
 author:   André Dietrich; GitHub Copilot
 email:    LiaScript@web.de
-version:  0.1.0
+version:  1.0.0
 language: de
 narrator: Deutsch Female
+
+comment:  Diese Session erschließt die wahre Macht relationaler Datenbanken: das Kombinieren von Daten über Tabellengrenzen hinweg. Sie lernen vier Techniken kennen – vom kartesischen Produkt über Subqueries und CTEs bis zu expliziten JOINs (INNER, LEFT, RIGHT, FULL, CROSS) – und verstehen, wann welcher Ansatz optimal ist. Praxisnah am E-Commerce-Schema mit 7 normalisierten Tabellen erleben Sie, wie Foreign Keys Beziehungen herstellen, wie Anti-Joins fehlende Daten aufspüren, und wie Set-Operationen (UNION, INTERSECT, EXCEPT) Ergebnisse vertikal kombinieren. Am Ende beherrschen Sie Multi-Table-Queries – das Herzstück von SQL in Produktion.
+
+edit:     true
+
+logo:     ../assets/images/logo/10-lecture.jpg
 
 @style
 .lia-effect__circle {
@@ -35,7 +41,7 @@ import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/RE
 
 -->
 
-# L10: SQL Joins & Combining Data
+# L10: Daten über Tabellengrenzen hinweg kombinieren – Von Subqueries zu CTEs zu Joins
 
 > **Session 10 – Lecture**  
 > **Dauer:** 90 Minuten  
@@ -48,15 +54,15 @@ import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/RE
 Willkommen zur zehnten Session! Bisher haben Sie mit einzelnen Tabellen gearbeitet – SELECT, WHERE, GROUP BY, alles auf einer Tabelle. Das war wichtig zum Lernen, aber die wahre Macht relationaler Datenbanken liegt woanders: in Beziehungen.
 
     --{{1}}--
-Kunden haben Bestellungen. Bestellungen haben Positionen. Produkte gehören zu Kategorien. Mitarbeiter haben Manager. All diese Informationen leben in verschiedenen Tabellen – und Joins sind der Schlüssel, sie zusammenzubringen.
+Kunden haben Bestellungen. Bestellungen haben Positionen. Produkte gehören zu Kategorien. All diese Informationen leben in verschiedenen Tabellen – aber wie kombinieren wir sie? Es gibt drei Hauptansätze: Subqueries, CTEs und Joins.
 
     --{{2}}--
-In dieser Session lernen Sie, wie Sie Daten über Tabellen hinweg kombinieren. Sie verstehen, wann Sie welchen Join-Typ brauchen. Sie können Multi-Table-Queries schreiben. Und Sie wissen, wie Sie fehlende Beziehungen finden – eine der mächtigsten Analysetechniken überhaupt.
+In dieser Session lernen Sie alle drei Techniken kennen – und verstehen, wann Sie welche einsetzen. Wir beginnen mit dem intuitiven Weg (Subqueries), zeigen dessen Grenzen, verbessern ihn mit CTEs, und landen schließlich bei der elegantesten Lösung: Joins.
 
     --{{3}}--
-Los geht's mit der Frage: Warum brauchen wir Joins überhaupt?
+Los geht's mit der Frage: Warum müssen wir Daten überhaupt kombinieren?
 
-## Warum Joins?
+## Warum Daten kombinieren?
 
     --{{0}}--
 Stellen Sie sich vor, Sie speichern alles in einer Tabelle: Kundendaten, Bestellungen, Produktdetails – alles zusammen. Was passiert?
@@ -77,7 +83,9 @@ Stellen Sie sich vor, Sie speichern alles in einer Tabelle: Kundendaten, Bestell
 Die Lösung? Normalisierung. Wir teilen Daten in mehrere Tabellen auf. Jede Tabelle hat eine klar definierte Verantwortung. Beziehungen werden über Foreign Keys hergestellt.
 
     {{4}}
-**Normalisierung führt zu mehreren Tabellen.**  
+**Normalisierung führt zu mehreren Tabellen.**
+
+    {{5}}
 **Joins rekonstruieren die Informationen.**
 
 ## Unser E-Commerce-Schema
@@ -151,7 +159,7 @@ CREATE TABLE order_items (
 );
  
 -- Sample Data: Locations
-INSERT INTO locations VALUES
+INSERT INTO locations(location_id, city, postal_code, country) VALUES
   (1, 'Berlin', '10115', 'Germany'),
   (2, 'Hamburg', '20095', 'Germany'),
   (3, 'Munich', '80331', 'Germany'),
@@ -159,39 +167,39 @@ INSERT INTO locations VALUES
   (5, 'Frankfurt', '60311', 'Germany');
 
 -- Sample Data: Categories
-INSERT INTO categories VALUES
+INSERT INTO categories(category_id, category_name, description) VALUES
   (1, 'Electronics', 'Electronic devices and accessories'),
   (2, 'Furniture', 'Office and home furniture'),
   (3, 'Stationery', 'Office supplies and paper products'),
   (4, 'Office Equipment', 'Professional office tools and devices');
 
 -- Sample Data: Customers (mit strukturierten Adressen)
-INSERT INTO customers VALUES
+INSERT INTO customers(customer_id, first_name, last_name, email, street, street_number, location_id) VALUES
   (1, 'Alice', 'Anderson', 'alice@email.com', 'Unter den Linden', '42', 1),
-  (2, 'Bob', 'Brown', 'bob@email.com', 'Reeperbahn', '15', 2),
-  (3, 'Carol', 'Clark', 'carol@email.com', 'Marienplatz', '8', 3),
-  (4, 'David', 'Davis', 'david@email.com', 'Hohe Straße', '123', 4),
-  (5, 'Emma', 'Evans', 'emma@email.com', 'Zeil', '99', 5);
+  (2, 'Bob',   'Brown',    'bob@email.com',   'Reeperbahn',       '15', 2),
+  (3, 'Carol', 'Clark',    'carol@email.com', 'Marienplatz',       '8', 3),
+  (4, 'David', 'Davis',    'david@email.com', 'Hohe Straße',     '123', 4),
+  (5, 'Emma',  'Evans',    'emma@email.com',  'Zeil',             '99', 5);
 
 -- Sample Data: Orders (Note: Customer 5 has NO orders!)
-INSERT INTO orders VALUES
+INSERT INTO orders(order_id, customer_id, order_date, total_amount, status) VALUES
   (101, 1, '2024-01-15', 299.99, 'completed'),
   (102, 1, '2024-02-20', 149.50, 'completed'),
   (103, 2, '2024-01-22', 499.99, 'completed'),
-  (104, 3, '2024-03-10', 89.99, 'pending'),
+  (104, 3, '2024-03-10',  89.99, 'pending'  ),
   (105, 4, '2024-03-15', 199.99, 'completed');
 
 -- Sample Data: Products (ohne direkte Category-Referenz)
-INSERT INTO products VALUES
-  (1, 'Laptop', 999.99),
-  (2, 'Mouse', 29.99),
-  (3, 'Keyboard', 79.99),
-  (4, 'Monitor', 299.99),
+INSERT INTO products(product_id, product_name, price) VALUES
+  (1, 'Laptop',     999.99),
+  (2, 'Mouse',       29.99),
+  (3, 'Keyboard',    79.99),
+  (4, 'Monitor',    299.99),
   (5, 'Desk Chair', 199.99),
-  (6, 'Notebook', 9.99);
+  (6, 'Notebook',     9.99);
 
 -- Sample Data: Product Categories (N:M-Beziehungen)
-INSERT INTO product_categories VALUES
+INSERT INTO product_categories(product_id, category_id) VALUES
   (1, 1),  -- Laptop → Electronics
   (1, 4),  -- Laptop → Office Equipment
   (2, 1),  -- Mouse → Electronics
@@ -205,20 +213,75 @@ INSERT INTO product_categories VALUES
   (6, 3);  -- Notebook → Stationery (nur eine Kategorie!)
 
 -- Sample Data: Order Items
-INSERT INTO order_items VALUES
+INSERT INTO order_items(order_item_id, order_id, product_id, quantity, line_total) VALUES
   (1, 101, 4, 1, 299.99),
-  (2, 102, 2, 2, 59.98),
-  (3, 102, 3, 1, 79.99),
+  (2, 102, 2, 2,  59.98),
+  (3, 102, 3, 1,  79.99),
   (4, 103, 1, 1, 999.99),
-  (5, 104, 6, 5, 49.95),
+  (5, 104, 6, 5,  49.95),
   (6, 105, 5, 1, 199.99);
-
-ERDIAGRAM
 ```
 @PGlite.terminal(online-shop)
 
     {{1}}
 **Beziehungen:**
+
+    {{1}}
+``` sql @dbdiagram
+Table locations {
+  location_id int [pk]
+  city varchar [not null]
+  postal_code varchar [not null]
+  country varchar [default: 'Germany']
+}
+
+Table categories {
+  category_id int [pk]
+  category_name varchar [not null, unique]
+  description varchar
+}
+
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int [ref: > locations.location_id]
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
+
+Table products {
+  product_id int [pk]
+  product_name varchar [not null]
+  price decimal(10,2)
+}
+
+Table product_categories {
+  product_id int [ref: > products.product_id]
+  category_id int [ref: > categories.category_id]
+
+  indexes {
+    (product_id, category_id) [pk]
+  }
+}
+
+Table order_items {
+  order_item_id int [pk]
+  order_id int [ref: > orders.order_id]
+  product_id int [ref: > products.product_id]
+  quantity int
+  line_total decimal(10,2)
+}
+```
 
     {{1}}
 - Ein Ort kann viele Kunden haben (1:N)
@@ -229,1283 +292,635 @@ ERDIAGRAM
 - Ein Produkt kann in vielen Positionen vorkommen (N:M über order_items)
 
     --{{2}}--
-Diese Struktur ist typisch für relationale Datenbanken. Joins erlauben uns, die Informationen bei Bedarf wieder zusammenzusetzen.
+Diese Struktur ist typisch für relationale Datenbanken. Aber wie kombinieren wir diese Informationen? Schauen wir uns vier Ansätze an – beginnend mit dem ältesten, aber wichtigsten zum Verstehen.
+
+## Technik 0: Verknüpfen von Tabellen über `FROM`
+
+    --{{0}}--
+Bevor wir zu modernen Techniken kommen, müssen wir die Basis verstehen: Wie kombiniert SQL überhaupt Tabellen? Die Antwort liegt im FROM. Sie können mehrere Tabellen einfach durch Kommata trennen – und erhalten das kartesische Produkt.
+
+### Das kartesische Produkt: Alle Kombinationen
+
+    --{{0}}--
+Wenn Sie zwei Tabellen im FROM auflisten, verbindet SQL jede Zeile der ersten Tabelle mit jeder Zeile der zweiten Tabelle. Das nennt man kartesisches Produkt oder Cross Product.
+
+    {{1}}
+**Konzept:**
+
+    {{1}}
+```ascii
+Customers (3 Zeilen)   Orders (5 Zeilen)
++----+-------+         +-----+------+
+| ID | Name  |         | OID | CID  |
++----+-------+         +-----+------+
+| 1  | Alice |         | 101 | 1    |
+| 2  | Bob   |         | 102 | 1    |
+| 5  | Emma  |         | 103 | 2    |
++----+-------+         | 104 | 3    |
+                       | 105 | 4    |
+                       +-----+------+
+
+FROM customers, orders → 3 × 5 = 15 Kombinationen!
+```
+
+    --{{2}}--
+Jeder Kunde wird mit jeder Bestellung kombiniert – auch wenn die Bestellung gar nicht zu diesem Kunden gehört! Das ist meist nicht das, was wir wollen.
 
 ---
 
-## Join-Grundlagen
+### Live-Beispiel: Kartesisches Produkt im Online-Shop
 
-### Join-Syntax: Modern vs. Veraltet
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
+```
+
+    {{1}}
+**Experiment:** Listen Sie Customers und Orders im FROM auf, ohne Bedingung.
+
+    {{1}}
+```sql
+-- VORSICHT: Kartesisches Produkt!
+SELECT 
+  c.customer_id,
+  c.first_name,
+  o.order_id,
+  o.customer_id AS order_customer_id
+FROM customers c, orders o
+LIMIT 10;  -- Nur erste 10 Zeilen zeigen
+```
+@PGlite.eval(online-shop)
+
+    --{{2}}--
+Führen Sie die Query aus. Was sehen Sie? Alice (customer_id = 1) erscheint mit allen Bestellungen – auch mit Bestellungen von Bob und Carol! Das ist das kartesische Produkt: 5 Kunden × 5 Bestellungen = 25 Zeilen.
+
+    {{2}}
+**Problem:** Die meisten dieser Kombinationen sind unsinnig! Alice sollte nur mit ihren eigenen Bestellungen verknüpft werden.
+
+---
+
+### Die Lösung: WHERE-Bedingung
 
     --{{0}}--
-Es gibt zwei Wege, Joins zu schreiben. Einen modernen, expliziten Weg – und einen veralteten, impliziten Weg. Schauen wir uns beide an.
+Um nur sinnvolle Kombinationen zu bekommen, filtern wir im WHERE: Verbinde nur Zeilen, wo customer_id übereinstimmt.
 
-    {{1}}
-**Moderne Syntax (empfohlen):**
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int
+}
 
-    {{1}}
-```sql
-SELECT c.first_name, o.order_id
-FROM customers c
-INNER JOIN orders o ON c.customer_id = o.customer_id;
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
 ```
-@PGlite.terminal(online-shop)
 
-    {{2}}
-**Veraltete Syntax (nicht empfohlen):**
-
-    {{2}}
 ```sql
-SELECT c.first_name, o.order_id
+-- TODO: Filtern Sie das kartesische Produkt:
+-- Zeigen Sie nur Kunden mit ihren eigenen Bestellungen.
+-- Tipp: c.customer_id = o.customer_id
+SELECT 
+  c.customer_id,
+  c.first_name,
+  o.order_id,
+  o.order_date,
+  o.total_amount
+FROM customers c, orders o
+WHERE c.customer_id = o.customer_id
+ORDER BY c.last_name;
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**So funktioniert das:**
+
+    {{1}}
+1. SQL erzeugt zunächst das kartesische Produkt (5 × 5 = 25 Zeilen)
+2. Dann filtert WHERE: Nur Zeilen, wo customer_id übereinstimmt
+3. Ergebnis: Nur 5 Zeilen (Kunde mit seiner Bestellung)
+
+    --{{2}}--
+Das ist die klassische Methode, Tabellen zu verbinden – und genau so wurde SQL in den 1980ern geschrieben! Aber diese Syntax hat Nachteile.
+
+---
+
+### Mehrere Tabellen kombinieren
+
+    --{{0}}--
+Sie können beliebig viele Tabellen auflisten – aber die WHERE-Bedingungen werden schnell komplex.
+
+**Aufgabe:** Zeigen Sie Kunde, Bestellung UND Produkt zusammen.
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
+
+Table products {
+  product_id int [pk]
+  product_name varchar [not null]
+  price decimal(10,2)
+}
+
+Table order_items {
+  order_item_id int [pk]
+  order_id int [ref: > orders.order_id]
+  product_id int [ref: > products.product_id]
+  quantity int
+  line_total decimal(10,2)
+}
+```
+
+```sql
+-- TODO: Verbinden Sie customers, orders, order_items, products
+-- Hinweis: Sie brauchen 3 WHERE-Bedingungen!
+SELECT 
+  c.first_name || ' ' || c.last_name AS customer,
+  o.order_id,
+  p.product_name,
+  oi.quantity
+FROM customers c, orders o, order_items oi, products p
+WHERE c.customer_id = o.customer_id
+  AND o.order_id = oi.order_id
+  AND oi.product_id = p.product_id
+ORDER BY o.order_id;
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Das funktioniert, aber:**
+
+    {{1}}
+- Die WHERE-Bedingungen mischen Join-Logik mit Filter-Logik
+- Bei 4 Tabellen sind das schon 3 Bedingungen – bei 10 Tabellen?
+- Vergessen Sie eine Bedingung → versehentliches kartesisches Produkt!
+- Unleserlich: Was ist Join, was ist Filter?
+
+---
+
+### Das Problem mit der impliziten Syntax
+
+    --{{0}}--
+Diese Methode wird **implizite Join-Syntax** genannt. Sie hat mehrere Nachteile:
+
+| Problem                | Beschreibung                                           | Beispiel                          |
+|------------------------|--------------------------------------------------------|-----------------------------------|
+| **Unleserlich**        | Join-Bedingungen vermischt mit Filter-Bedingungen      | `WHERE a.id = b.id AND b.status = 'active'` |
+| **Fehleranfällig**     | Vergessene Bedingung → kartesisches Produkt            | `FROM t1, t2, t3 WHERE t1.id = t2.id` (t3 fehlt!) |
+| **Kein LEFT/RIGHT**    | Outer Joins nicht möglich (ohne proprietary Syntax)    | Oracle: (`+`) Notation              |
+| **Veraltet**           | SQL-92 Standard hat explizite JOIN-Syntax eingeführt   | Vor 30+ Jahren!                   |
+
+    --{{1}}--
+Deshalb gilt heute: **Nutzen Sie immer die explizite JOIN-Syntax!** Die ist moderner, klarer und mächtiger.
+
+---
+
+### Warum Sie das trotzdem kennen müssen
+
+    --{{0}}--
+Warum habe ich Ihnen dann die implizite Syntax gezeigt? Drei Gründe:
+
+    {{1}}
+**1. Legacy-Code verstehen**
+
+    --{{1}}--
+Viele alte Datenbanken und Anwendungen nutzen diese Syntax noch. Wenn Sie bestehenden Code warten, werden Sie ihr begegnen.
+
+    {{2}}
+**2. Kartesisches Produkt verstehen**
+
+    --{{2}}--
+Die explizite JOIN-Syntax versteckt, was wirklich passiert. Mit FROM + WHERE sehen Sie: SQL erzeugt zunächst alle Kombinationen, dann filtert es. Das hilft beim Performance-Verständnis.
+
+    {{3}}
+**3. CROSS JOIN erkennen**
+
+    --{{3}}--
+Wenn Sie versehentlich mehrere Tabellen auflisten ohne JOIN-Bedingung, passiert ein CROSS JOIN (kartesisches Produkt). Sie müssen das erkennen können!
+
+```sql
+-- ❌ Versehentlicher CROSS JOIN (häufiger Fehler!):
+SELECT * FROM customers, orders;
+-- 5 × 5 = 25 Zeilen, meist ungewollt!
+
+-- ✅ Expliziter CROSS JOIN (wenn gewollt):
+SELECT * FROM customers CROSS JOIN orders;
+```
+@PGlite.eval(online-shop)
+
+---
+
+### Vergleich: Implizit vs. Explizit
+
+    --{{0}}--
+Schauen wir uns beide Syntaxen direkt nebeneinander an – für die gleiche Aufgabe.
+
+| Implizite Syntax (veraltet)                          | Explizite Syntax (modern)                          |
+|------------------------------------------------------|----------------------------------------------------|
+| `FROM customers c, orders o`                         | `FROM customers c INNER JOIN orders o`             |
+| `WHERE c.customer_id = o.customer_id`                | `ON c.customer_id = o.customer_id`                 |
+| Filter UND Join vermischt                            | Join getrennt von Filter                           |
+| Kein LEFT/RIGHT JOIN möglich                         | Alle Join-Typen verfügbar                          |
+| Kartesisches Produkt bei Fehler                      | Fehler bei fehlender ON-Bedingung                  |
+
+    {{1}}
+**Faustregel:** Implizite Syntax = INNER JOIN ohne `ON`. Mehr geht nicht.
+
+### Übung: Implizit
+
+    --{{0}}--
+Übersetzen Sie diese implizite Query in moderne Syntax!
+
+```sql
+-- Gegeben (implizit):
+SELECT 
+  c.first_name,
+  l.city,
+  o.order_date
+FROM customers c, locations l, orders o
+WHERE c.location_id = l.location_id
+  AND c.customer_id = o.customer_id
+  AND o.status = 'completed';
+```
+@PGlite.eval(online-shop)
+
+
+### Zusammenfassung: FROM mit mehreren Tabellen
+
+    {{1}}
+**Was passiert intern:**
+
+    {{1}}
+1. SQL erzeugt das kartesische Produkt aller Tabellen im FROM
+2. WHERE filtert dann die gewünschten Kombinationen
+3. Das ist ineffizient – aber so funktioniert die logische Verarbeitung
+
+    {{2}}
+**Warum explizite JOINs besser sind:**
+
+    {{2}}
+- ✅ Klar getrennt: Join-Bedingungen (`ON`) vs. Filter (`WHERE`)
+- ✅ Alle Join-Typen verfügbar (`LEFT`, `RIGHT`, `FULL OUTER`)
+- ✅ Weniger fehleranfällig (kein versehentliches kartesisches Produkt)
+- ✅ Bessere Performance-Optimierung durch Query Planner
+
+    {{3}}
+> **Best Practice:** Nutzen Sie immer `JOIN ... ON` statt `FROM ..., ... WHERE`!
+
+    --{{4}}--
+Jetzt, wo Sie verstehen, was im Hintergrund passiert, schauen wir uns die ersten echten Abfrage-Techniken an: Subqueries!
+
+## Technik 1: Subqueries (Verschachtelte SELECT)
+
+    --{{0}}--
+Der erste Ansatz, um Daten aus verschiedenen Tabellen zu kombinieren, sind Subqueries – verschachtelte SELECT-Statements. Das fühlt sich natürlich an: "Ich brauche Daten aus Tabelle B, um Tabelle A zu filtern."
+
+    --{{1}}--
+Aber was ist eine Subquery genau? Und wo können wir sie überall einsetzen?
+
+### Was ist eine Subquery?
+
+    --{{0}}--
+Eine Subquery ist ein SELECT-Statement, das innerhalb eines anderen SQL-Statements ausgeführt wird. Statt erst eine Query auszuführen, das Ergebnis zu notieren und dann in einer zweiten Query zu verwenden, verschachteln wir beide.
+
+    {{1}}
+**Konzept:**
+
+    {{1}}
+```sql
+-- Ohne Subquery (zwei Schritte):
+-- Schritt 1: Welche customer_ids haben Bestellungen?
+SELECT DISTINCT customer_id FROM orders;
+-- Ergebnis: 1, 2, 3, 4
+
+-- Schritt 2: Zeige diese Kunden
+SELECT * FROM customers WHERE customer_id IN (1, 2, 3, 4);
+```
+@PGlite.eval(online-shop)
+
+    {{2}}
+<section>
+
+**Mit Subquery (ein Schritt):**
+
+```sql
+SELECT * FROM "TABLE" 
+WHERE id IN (
+  SELECT ... FROM "OTHER TABLE"
+);
+```
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
+```
+
+```sql
+-- TODO: Schreiben sie die Bestellung um und ermitteln sie alle Kunden, die eine Bestellung haben.
+SELECT * 
 FROM customers c, orders o
 WHERE c.customer_id = o.customer_id;
 ```
-@PGlite.terminal(online-shop)
+@PGlite.eval(online-shop)
+
+</section>
 
     --{{3}}--
-Beide Queries liefern das gleiche Ergebnis. Aber die moderne Syntax ist klarer: Sie trennt die Join-Bedingung vom WHERE-Filter. Das macht Queries lesbarer und weniger fehleranfällig.
+Die innere Query (Subquery) wird zuerst ausgeführt. Ihr Ergebnis wird dann von der äußeren Query verwendet.
 
-    {{3}}
-> **Best Practice:** Nutzen Sie immer die explizite `JOIN ... ON` Syntax!
 
----
-
-### USING-Klausel (Shortcut)
+### Subquery-Typen: Übersicht
 
     --{{0}}--
-Wenn die Join-Spalten in beiden Tabellen den gleichen Namen haben, können Sie eine Abkürzung nutzen: die USING-Klausel.
+Je nachdem, was eine Subquery zurückgibt, unterscheiden wir verschiedene Typen:
 
-```sql
--- Statt:
-SELECT * FROM customers c
-INNER JOIN orders o ON c.customer_id = o.customer_id;
-
--- Können Sie schreiben:
-SELECT * FROM customers
-INNER JOIN orders USING (customer_id);
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-> **Achtung:** USING funktioniert nur, wenn die Spaltennamen identisch sind. Bei verschiedenen Namen (z.B. `customer_id` vs. `cust_id`) müssen Sie `ON` verwenden.
-
----
-
-### Join-Typen: Überblick
-
-    --{{0}}--
-Es gibt fünf Haupt-Join-Typen. Jeder hat seinen Einsatzzweck.
-
-| Join-Typ         | Ergebnis                                      | Use Case                        |
-|------------------|-----------------------------------------------|---------------------------------|
-| **INNER JOIN**   | Nur Matches                                   | Standard-Fall                   |
-| **LEFT JOIN**    | Alle links + Matches rechts                   | Fehlende Beziehungen finden     |
-| **RIGHT JOIN**   | Alle rechts + Matches links                   | Selten (meist LEFT stattdessen) |
-| **FULL OUTER**   | Alle von beiden Seiten                        | Daten-Sync-Vergleich            |
-| **CROSS JOIN**   | Kartesisches Produkt (alle Kombinationen)     | Test-Kombinationen generieren   |
+| Subquery-Typ         | Rückgabewert                | Beispiel-Operator         | Use Case                          |
+|----------------------|-----------------------------|---------------------------|-----------------------------------|
+| **Scalar Subquery**  | Ein einzelner Wert          | `=`, `>`, `<`             | Durchschnitt, Maximum vergleichen |
+| **Row Subquery**     | Eine Zeile (mehrere Spalten)| `= (col1, col2)`          | Selten, Multi-Column-Vergleich    |
+| **Table Subquery**   | Mehrere Zeilen, eine Spalte | `IN`, `ANY`, `ALL`        | Filtern mit Liste                 |
+| **Derived Table**    | Mehrere Zeilen/Spalten      | Im `FROM`                 | Komplexe Aggregationen            |
+| **Correlated**       | Referenziert äußere Query   | Mit Spalte aus äußerer Q. | Pro-Zeile-Berechnung              |
 
     --{{1}}--
-In der Praxis sind INNER JOIN und LEFT JOIN die mit Abstand häufigsten. CROSS JOIN und FULL OUTER sind Spezialfälle. Schauen wir uns jeden im Detail an.
+Schauen wir uns jetzt die wichtigsten dieser Typen im Detail an, beginnend mit dem häufigsten: WHERE Subqueries.
 
----
 
-## INNER JOIN: Nur Matches
+### WHERE Subqueries: Filtern mit Ergebnissen aus anderen Tabellen
 
     --{{0}}--
-Der INNER JOIN ist der Standard. Er gibt nur Zeilen zurück, bei denen es in beiden Tabellen einen Match gibt.
+Die häufigste Form: Eine Subquery im WHERE liefert Werte zum Filtern.
 
-### Konzept
-
-```ascii
-Customers        Orders
-+----+-----+    +----+--------+
-| ID | Name|    | ID | Cust_ID|
-+----+-----+    +----+--------+
-| 1  | Alice    | 101| 1      |  ← Match!
-| 2  | Bob      | 102| 1      |  ← Match!
-| 3  | Carol    | 103| 2      |  ← Match!
-| 5  | Emma     | 105| 4      |  ← Match!
-+----+-----+    +----+--------+
-
-Ergebnis (INNER JOIN):
-Alice - Order 101
-Alice - Order 102
-Bob   - Order 103
-David - Order 105
-
-Emma hat KEINE Bestellung → taucht NICHT auf!
-```
-
-    --{{1}}--
-Emma ist Kundin, hat aber noch nie bestellt. Im INNER JOIN verschwindet sie aus dem Ergebnis. Das ist manchmal genau das, was Sie wollen – manchmal aber auch nicht.
-
----
-
-### Live-Beispiel: Kunden mit Bestellungen
-
-    {{1}}
 **Aufgabe:** Zeigen Sie alle Kunden, die mindestens eine Bestellung haben.
 
-    {{1}}
 ```sql
-SELECT 
-  c.first_name,
-  c.last_name,
-  o.order_id,
-  o.order_date,
-  o.total_amount
-FROM customers c
-INNER JOIN orders o ON c.customer_id = o.customer_id
-ORDER BY c.last_name, o.order_date;
+-- Ohne Subquery (zwei Schritte):
+-- Schritt 1: Welche customer_ids haben Bestellungen?
+SELECT DISTINCT customer_id FROM orders;
+-- Ergebnis: 1, 2, 3, 4
+
+-- Schritt 2: Zeige diese Kunden
+SELECT * FROM customers WHERE customer_id IN (1, 2, 3, 4);
 ```
 @PGlite.terminal(online-shop)
 
-    --{{2}}--
-Führen Sie die Query aus. Sie sehen: Nur Kunden mit Bestellungen erscheinen. Emma (customer_id = 5) fehlt komplett.
 
----
-
-### Multi-Table Joins
-
-    --{{0}}--
-Sie können beliebig viele Tabellen verbinden. Jeder weitere JOIN wird an den vorherigen angehängt.
-
-**Aufgabe:** Zeigen Sie für jede Bestellung die gekauften Produkte.
 
 ```sql
 SELECT 
-  c.first_name || ' ' || c.last_name AS customer,
-  o.order_id,
-  p.product_name,
-  oi.quantity,
-  oi.line_total
-FROM customers c
-INNER JOIN orders o ON c.customer_id = o.customer_id
-INNER JOIN order_items oi ON o.order_id = oi.order_id
-INNER JOIN products p ON oi.product_id = p.product_id
-ORDER BY o.order_id;
+  column_1,
+  column_2,
+  ...
+FROM table_1
+WHERE column_x IN (
+  -- Subquery
+  SELECT column
+  FROM table_n
+  WHERE condition
+);
 ```
-@PGlite.terminal(online-shop)
 
-    {{1}}
-> **Lesbarkeit:** Ketten Sie Joins schrittweise – erst Kunde → Bestellung, dann Bestellung → Positionen, dann Positionen → Produkte.
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
+```
 
 ---
-
-### Normalisierung in Aktion: Vollständige Kundenadresse
-
-    --{{0}}--
-Unser Schema ist jetzt realistisch normalisiert. Wie holen wir die vollständige Adresse eines Kunden?
-
-**Aufgabe:** Zeigen Sie für jeden Kunden die komplette Adresse inkl. PLZ und Stadt.
 
 ```sql
-SELECT 
-  c.first_name || ' ' || c.last_name AS customer,
-  c.street || ' ' || c.street_number AS address,
-  l.postal_code || ' ' || l.city AS city,
-  l.country
-FROM customers c
-LEFT JOIN locations l ON c.location_id = l.location_id
-ORDER BY l.city;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Vorteil der Normalisierung:** Stadt und PLZ stehen nur einmal in `locations`. Bei Änderungen (z.B. PLZ-Reform) müssen wir nur eine Zeile updaten, nicht hunderte Kunden!
-
----
-
-### Multi-Table Join mit Categories
-
-    --{{0}}--
-Jetzt wird es interessant: Produkte mit Kategorien kombinieren über die Junction Table product_categories.
-
-**Aufgabe:** Zeigen Sie alle verkauften Produkte mit ihren Kategorien (ein Produkt kann mehrere haben!).
-
-```sql
-SELECT 
-  p.product_name,
-  p.price,
-  cat.category_name,
-  SUM(oi.quantity) AS total_sold
-FROM products p
-INNER JOIN product_categories pc ON p.product_id = pc.product_id
-INNER JOIN categories cat ON pc.category_id = cat.category_id
-INNER JOIN order_items oi ON p.product_id = oi.product_id
-GROUP BY p.product_name, p.price, cat.category_name
-ORDER BY p.product_name, total_sold DESC;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** Sie sehen jetzt Produkte mehrfach, wenn sie in mehreren Kategorien sind! Laptop erscheint sowohl unter "Electronics" als auch "Office Equipment". Das ist die Power der N:M-Beziehung!
-
----
-
-### NULL-Werte in Join-Spalten
-
-    --{{0}}--
-Wichtig: Wenn die Join-Spalte NULL enthält, wird die Zeile im INNER JOIN ignoriert.
-
-```sql
--- Angenommen, eine Bestellung hat customer_id = NULL
--- (sollte durch Constraints verhindert werden, aber theoretisch möglich)
-
-SELECT * FROM customers c
-INNER JOIN orders o ON c.customer_id = o.customer_id;
--- Bestellung mit NULL customer_id taucht NICHT auf!
-```
-
-    {{1}}
-> **Best Practice:** Definieren Sie Foreign Keys als `NOT NULL`, um solche Situationen zu vermeiden.
-
----
-
-## LEFT JOIN: Alle von links + Matches
-
-    --{{0}}--
-Der LEFT JOIN (auch LEFT OUTER JOIN) gibt alle Zeilen der linken Tabelle zurück – auch wenn es keinen Match rechts gibt. Fehlende Matches werden mit NULL aufgefüllt.
-
-### Konzept
-
-```ascii
-Customers (links)   Orders (rechts)
-+----+-----+       +----+--------+
-| ID | Name|       | ID | Cust_ID|
-+----+-----+       +----+--------+
-| 1  | Alice       | 101| 1      |  ← Match
-| 2  | Bob         | 102| 1      |  ← Match
-| 3  | Carol       | 103| 2      |  ← Match
-| 4  | David       | 105| 4      |  ← Match
-| 5  | Emma        (keine Bestellung)
-+----+-----+       +----+--------+
-
-Ergebnis (LEFT JOIN):
-Alice - Order 101
-Alice - Order 102
-Bob   - Order 103
-David - Order 105
-Emma  - NULL     ← Emma bleibt erhalten!
-```
-
-    --{{1}}--
-Emma erscheint jetzt im Ergebnis – aber die Order-Spalten sind NULL. Das ist der Schlüssel: LEFT JOIN behält alle linken Zeilen.
-
----
-
-### Live-Beispiel: Alle Kunden (auch ohne Bestellungen)
-
-    {{1}}
-```sql
-SELECT 
-  c.first_name,
-  c.last_name,
-  o.order_id,
-  o.order_date,
-  o.total_amount
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-ORDER BY c.last_name;
-```
-@PGlite.terminal(online-shop)
-
-    --{{2}}--
-Führen Sie die Query aus. Jetzt sehen Sie Emma – mit NULL bei allen Order-Feldern.
-
----
-
-### Use Case: Fehlende Beziehungen finden (Anti-Join)
-
-    --{{0}}--
-Der mächtigste Einsatz von LEFT JOIN: Finden Sie Datensätze, die KEINE Beziehung haben.
-
-**Frage:** Welche Kunden haben noch NIE bestellt?
-
-```sql
+-- TODO: Verändern sie die folgende Query, sodass sie eine Subquery im WHERE nutzt,
 SELECT 
   c.customer_id,
   c.first_name,
   c.last_name,
   c.email
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-WHERE o.order_id IS NULL;
+FROM customers c, orders o
+WHERE c.customer_id = o.customer_id;
 ```
 @PGlite.terminal(online-shop)
 
     {{1}}
-**Trick:** Nach dem LEFT JOIN filtern Sie auf `IS NULL` der rechten Tabelle. Das sind genau die Zeilen ohne Match.
+**Wie funktioniert das?**
+
+    {{1}}
+1. Die **innere Query** (Subquery) wird zuerst ausgeführt: `SELECT customer_id FROM orders`
+2. Ergebnis: Liste von customer_ids, die Bestellungen haben: `(1, 1, 2, 3, 4)`
+3. Die **äußere Query** filtert damit: `WHERE customer_id IN (1, 1, 2, 3, 4)`
 
     --{{2}}--
-Diese Technik nennt man „Anti-Join". Sie kommt in der Praxis extrem häufig vor: Fehlende Übersetzungen, nicht verkaufte Produkte, inaktive Nutzer – alles Anti-Joins.
+Das ist einfach zu lesen und zu verstehen. Aber Emma (customer_id = 5) fehlt – die hat keine Bestellung. Subqueries im WHERE sind gut für "zeige mir nur die mit..."
 
 ---
 
-### NULL-Handling: COALESCE
+### Scalar Subqueries: Einzelwerte berechnen
 
     --{{0}}--
-Wenn Sie NULL-Werte nicht mögen, können Sie Defaults setzen.
+Eine Subquery kann auch einen einzelnen Wert zurückgeben – zum Vergleichen oder Berechnen.
+
+```sql
+SELECT
+    column_a,
+    column_b,
+    ...,
+    (
+        -- Subquery: liefert einen Wert (z. B. Durchschnitt)
+        SELECT AGG(target_column)
+        FROM source_table
+    ) AS computed_value
+FROM main_table
+WHERE filter_column > (
+        -- Subquery: derselbe Wert für die WHERE-Bedingung
+        SELECT AGG(target_column)
+        FROM source_table
+    );
+```
+
+    {{1}}
+<section>
+
+**Aufgabe:** Zeigen Sie alle Produkte, die teurer sind als der Durchschnittspreis.
+
+``` sql @dbdiagram
+Table products {
+  product_id int [pk]
+  product_name varchar [not null]
+  price decimal(10,2)
+}
+```
 
 ```sql
 SELECT 
-  c.first_name,
-  COALESCE(o.order_id, 'No Orders') AS order_status,
-  COALESCE(o.total_amount, 0) AS total
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id;
+  product_id,
+  product_name,
+  price,
+  (SELECT AVG(price) FROM products) AS avg_price
+FROM products
+WHERE price > (SELECT AVG(price) FROM products);
 ```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-> `COALESCE(value, default)` gibt den ersten Nicht-NULL-Wert zurück.
-
----
-
-## RIGHT JOIN (kurz)
-
-    --{{0}}--
-RIGHT JOIN ist das Spiegelbild von LEFT JOIN: Alle Zeilen der rechten Tabelle, Matches links.
-
-```sql
-SELECT * FROM customers c
-RIGHT JOIN orders o ON c.customer_id = o.customer_id;
--- Alle Bestellungen (auch ohne zugehörigen Kunden)
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**In der Praxis:** RIGHT JOIN wird selten genutzt – meist schreiben Sie die Query so um, dass Sie LEFT JOIN verwenden können. Das ist intuitiver.
+@PGlite.eval(online-shop)
 
     {{2}}
-```sql
--- Statt RIGHT JOIN:
-SELECT * FROM orders o
-LEFT JOIN customers c ON o.customer_id = c.customer_id;
--- Gleicher Effekt, aber links = Haupttabelle
-```
-@PGlite.terminal(online-shop)
+**Problem:** Wir berechnen den Durchschnitt zweimal! Subquery in SELECT UND in WHERE. Das ist ineffizient und schwer wartbar.
 
----
+</section>
 
-## FULL OUTER JOIN: Alle von beiden Seiten
+    --{{2}}--
+Scalar Subqueries sind nützlich, aber wenn Sie denselben Wert mehrfach brauchen, wird es unübersichtlich. Später sehen wir, wie CTEs dieses Problem lösen.
+
+### Subqueries in SELECT: Spalten aus anderen Tabellen
 
     --{{0}}--
-FULL OUTER JOIN kombiniert LEFT und RIGHT: Alle Zeilen von beiden Seiten, Matches wo möglich, NULL wo nicht.
+Sie können Subqueries auch nutzen, um zusätzliche Spalten zu berechnen.
 
-### Konzept
-
-```ascii
-Table A         Table B
-+----+-----+   +----+-----+
-| ID | Name|   | ID | Attr|
-+----+-----+   +----+-----+
-| 1  | X        | 1  | A   |  ← Match
-| 2  | Y        | 3  | B   |  ← Kein Match links
-| 4  | Z        +----+-----+
-+----+-----+
-
-Ergebnis (FULL OUTER):
-1 - X - A   ← Match
-2 - Y - NULL ← Nur links
-4 - Z - NULL ← Nur links
-NULL - NULL - 3 - B  ← Nur rechts
+``` sql
+SELECT
+    column_1,
+    column_2,
+    ...,
+    (
+        -- Subquery: berechnet einen Wert pro Zeile der äußeren Tabelle
+        SELECT AGG(*)
+        FROM inner_table
+        WHERE inner_table.foreign_key = outer_table.primary_key
+    ) AS computed_value
+FROM outer_table;
 ```
-
-    --{{1}}--
-Jede Zeile aus beiden Tabellen erscheint mindestens einmal. Fehlende Matches werden mit NULL aufgefüllt – auf beiden Seiten.
-
----
-
-### Use Case: Daten-Sync-Vergleich
-
-    --{{0}}--
-FULL OUTER JOIN wird oft für Vergleiche genutzt: Quelle vs. Ziel, Soll vs. Ist.
-
-**Beispiel:** Vergleich zweier Produktkataloge (alt vs. neu).
-
-```sql
--- Hypothetisches Beispiel (nicht mit unserem Schema ausführbar)
-SELECT 
-  COALESCE(old.product_id, new.product_id) AS product_id,
-  old.product_name AS old_name,
-  new.product_name AS new_name,
-  CASE
-    WHEN old.product_id IS NULL THEN 'Neu hinzugefügt'
-    WHEN new.product_id IS NULL THEN 'Entfernt'
-    ELSE 'Vorhanden'
-  END AS status
-FROM old_products old
-FULL OUTER JOIN new_products new ON old.product_id = new.product_id;
-```
-@PGlite.terminal(online-shop)
 
     {{1}}
-> **Performance:** FULL OUTER kann langsam sein. Alternative: `UNION` von LEFT und RIGHT JOIN.
+<section>
 
----
+**Aufgabe:** Zeigen Sie für jeden Kunden die Anzahl seiner Bestellungen.
 
-## CROSS JOIN: Kartesisches Produkt
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique]
+  street varchar
+  street_number varchar
+  location_id int
+}
 
-    --{{0}}--
-CROSS JOIN verbindet jede Zeile der ersten Tabelle mit jeder Zeile der zweiten Tabelle. Keine Bedingung, kein Filter – alle Kombinationen.
-
-### Konzept
-
-```ascii
-Table A (3 Zeilen)   Table B (2 Zeilen)
-+----+             +----+
-| A1 |             | B1 |
-| A2 |             | B2 |
-| A3 |             +----+
-+----+
-
-CROSS JOIN → 3 × 2 = 6 Zeilen:
-A1-B1, A1-B2, A2-B1, A2-B2, A3-B1, A3-B2
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal(10,2)
+  status varchar
+}
 ```
-
-    --{{1}}--
-Das nennt man kartesisches Produkt. Wenn Sie 1000 Kunden und 500 Produkte haben, entstehen 500.000 Zeilen!
-
----
-
-### Syntax
-
-```sql
--- Explizit:
-SELECT * FROM customers CROSS JOIN products;
-
--- Implizit (veraltet):
-SELECT * FROM customers, products;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-> **Achtung:** Vergessen Sie bei der impliziten Syntax die WHERE-Bedingung, passiert ein versehentlicher CROSS JOIN!
-
----
-
-### Use Case: Kombinationen generieren
-
-    --{{0}}--
-CROSS JOIN ist nützlich, um alle möglichen Kombinationen zu erzeugen.
-
-**Beispiel:** Testdaten – jeder Kunde mit jedem Produkt kombinieren (für A/B-Tests).
 
 ```sql
 SELECT 
   c.customer_id,
   c.first_name,
-  p.product_id,
-  p.product_name
-FROM customers c
-CROSS JOIN products p
-LIMIT 10;  -- Nur erste 10 Kombinationen zeigen
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** 5 Kunden × 6 Produkte = 30 Kombinationen (wir zeigen nur 10).
-
----
-
-### Gefahr: Explosion der Zeilenzahl
-
-    --{{0}}--
-Seien Sie vorsichtig mit CROSS JOIN bei großen Tabellen!
-
-| Tabelle A | Tabelle B | Ergebnis       |
-|-----------|-----------|----------------|
-| 100       | 100       | 10.000         |
-| 1.000     | 1.000     | 1.000.000      |
-| 10.000    | 10.000    | 100.000.000 ❌ |
-
-    {{1}}
-> **Regel:** Nutzen Sie CROSS JOIN nur, wenn Sie wirklich alle Kombinationen brauchen – und meist mit `LIMIT`.
-
----
-
-## Self Joins: Tabelle mit sich selbst verbinden
-
-    --{{0}}--
-Manchmal müssen Sie eine Tabelle mit sich selbst verbinden – für hierarchische Daten.
-
-### Konzept: Mitarbeiter-Manager-Beziehung
-
-```ascii
-employees Tabelle:
-+-----+------+--------+
-| ID  | Name | Mgr_ID |
-+-----+------+--------+
-| 1   | Alice| NULL   |  (CEO, kein Manager)
-| 2   | Bob  | 1      |  (Manager: Alice)
-| 3   | Carol| 1      |  (Manager: Alice)
-| 4   | David| 2      |  (Manager: Bob)
-+-----+------+--------+
-
-Self Join → Mitarbeiter + Manager-Name:
-Bob   → Manager: Alice
-Carol → Manager: Alice
-David → Manager: Bob
-```
-
-    --{{1}}--
-Die Mgr_ID zeigt auf die ID in derselben Tabelle. Um beide Namen zu sehen, joinen Sie die Tabelle mit sich selbst.
-
----
-
-### Live-Beispiel (simuliert mit Kunden)
-
-    --{{0}}--
-Unser Schema hat keine Hierarchie, aber wir simulieren eine: „Empfehlungs-Beziehung".
-
-Angenommen, Kunde 2 wurde von Kunde 1 empfohlen, Kunde 3 von Kunde 1, usw.
-
-```sql
--- Hypothetischer Self Join (Schema müsste erweitert werden)
--- customers: customer_id, first_name, referred_by_id
-
-SELECT 
-  c1.first_name AS customer,
-  c2.first_name AS referred_by
-FROM customers c1
-LEFT JOIN customers c2 ON c1.referred_by_id = c2.customer_id;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Wichtig:** Aliase (`c1`, `c2`) sind zwingend – sonst weiß die Datenbank nicht, welche Instanz gemeint ist!
-
----
-
-### Rekursive Hierarchien (Vorschau)
-
-    --{{0}}--
-Self Joins zeigen nur eine Ebene. Für ganze Hierarchien (alle Vorgesetzten eines Mitarbeiters) brauchen Sie rekursive CTEs – das kommt in Session 13.
-
-```sql
--- Vorschau: WITH RECURSIVE (noch nicht heute!)
-WITH RECURSIVE hierarchy AS (
-  SELECT employee_id, name, manager_id, 0 AS level
-  FROM employees WHERE manager_id IS NULL
-  UNION ALL
-  SELECT e.employee_id, e.name, e.manager_id, h.level + 1
-  FROM employees e
-  INNER JOIN hierarchy h ON e.manager_id = h.employee_id
-)
-SELECT * FROM hierarchy;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-> Das ist **advanced SQL** – kommt später!
-
----
-
-## Anti-Joins: Fehlende Beziehungen finden
-
-    --{{0}}--
-Anti-Joins sind eine der mächtigsten Analysetechniken. Frage: „Zeige mir alle A, die KEIN B haben."
-
-    {{1}}
-**Use Cases:**
-
-    {{1}}
-- Kunden ohne Bestellungen (Inaktive identifizieren)
-- Produkte ohne Verkäufe (Ladenhüter)
-- Fehlende Übersetzungen (Content-Lücken)
-- Orphaned Records (Datenqualität)
-
-    --{{2}}--
-Es gibt drei Methoden für Anti-Joins. Alle liefern das gleiche Ergebnis, aber mit unterschiedlicher Performance.
-
----
-
-### Methode 1: LEFT JOIN + IS NULL
-
-    --{{0}}--
-Das ist die klassische Methode. Sie joinen links und filtern dann auf NULL rechts.
-
-```sql
-SELECT 
-  c.customer_id,
-  c.first_name,
-  c.last_name
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-WHERE o.order_id IS NULL;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Vorteil:** Einfach zu verstehen, intuitiv.  
-**Nachteil:** Bei großen Tabellen kann das langsamer sein als NOT EXISTS.
-
----
-
-### Methode 2: NOT EXISTS (Subquery)
-
-    --{{0}}--
-NOT EXISTS prüft, ob eine Subquery mindestens eine Zeile zurückgibt. Wenn nicht → Zeile kommt ins Ergebnis.
-
-```sql
-SELECT 
-  c.customer_id,
-  c.first_name,
-  c.last_name
-FROM customers c
-WHERE NOT EXISTS (
-  SELECT 1 
-  FROM orders o 
-  WHERE o.customer_id = c.customer_id
-);
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Vorteil:** Oft performanter (stoppt bei erstem Match).  
-**Nachteil:** Etwas weniger intuitiv als LEFT JOIN.
-
----
-
-### Methode 3: NOT IN (mit Vorsicht!)
-
-    --{{0}}--
-NOT IN prüft, ob ein Wert NICHT in einer Liste vorkommt.
-
-```sql
-SELECT 
-  c.customer_id,
-  c.first_name,
-  c.last_name
-FROM customers c
-WHERE c.customer_id NOT IN (
-  SELECT customer_id FROM orders
-);
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Problem:** Wenn die Subquery NULL enthält, liefert NOT IN **kein Ergebnis**!
-
-    {{2}}
-```sql
--- Beispiel: Wenn orders.customer_id NULL enthalten kann:
-WHERE customer_id NOT IN (1, 2, NULL)
--- → Evaluiert zu: customer_id != 1 AND customer_id != 2 AND customer_id != NULL
--- → NULL-Vergleiche sind UNKNOWN → Gesamtergebnis: UNKNOWN → Keine Zeilen!
-```
-
-    --{{3}}--
-Deshalb: Vermeiden Sie NOT IN für Anti-Joins. Nutzen Sie NOT EXISTS oder LEFT JOIN + IS NULL.
-
----
-
-### Performance-Vergleich
-
-    --{{0}}--
-Welche Methode ist am schnellsten? Das hängt vom DBMS und der Datenmenge ab.
-
-| Methode               | Typische Performance | Best Case                     |
-|-----------------------|----------------------|-------------------------------|
-| LEFT JOIN + IS NULL   | Mittel               | Kleine bis mittlere Tabellen  |
-| NOT EXISTS            | Schnell              | Große Tabellen, stoppt früh   |
-| NOT IN                | Langsam (+ NULL-Bug) | Vermeiden!                    |
-
-    {{1}}
-> **Empfehlung:** Nutzen Sie **NOT EXISTS** für große Tabellen, **LEFT JOIN + IS NULL** für Klarheit bei kleinen Datenmengen.
-
----
-
-### Anti-Join Use Case: Produkte ohne Verkäufe
-
-    --{{0}}--
-Welche Produkte wurden noch nie verkauft?
-
-```sql
-SELECT 
-  p.product_id,
-  p.product_name,
-  p.category
-FROM products p
-WHERE NOT EXISTS (
-  SELECT 1 
-  FROM order_items oi 
-  WHERE oi.product_id = p.product_id
-);
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** Alle Produkte, die in keiner Bestellung vorkommen (Ladenhüter-Analyse).
-
----
-
-## Set-Operationen: Vertikal kombinieren
-
-    --{{0}}--
-Joins kombinieren Tabellen horizontal (Spalten hinzufügen). Set-Operationen kombinieren vertikal (Zeilen anhängen).
-
-| Operation    | Bedeutung                                 | SQL-Operator  |
-|--------------|-------------------------------------------|---------------|
-| Vereinigung  | Alle aus A + alle aus B (ohne Duplikate)  | `UNION`       |
-| Vereinigung  | Alle aus A + alle aus B (mit Duplikaten)  | `UNION ALL`   |
-| Schnittmenge | Nur Zeilen, die in beiden vorkommen       | `INTERSECT`   |
-| Differenz    | Nur in A, nicht in B                      | `EXCEPT`      |
-
-    --{{1}}--
-Set-Operationen funktionieren wie mathematische Mengenoperationen. Sie brauchen kompatible Strukturen: gleiche Anzahl Spalten, passende Datentypen.
-
----
-
-### UNION: Vereinigung (ohne Duplikate)
-
-    --{{0}}--
-UNION kombiniert Ergebnisse zweier Queries und entfernt Duplikate.
-
-**Beispiel:** Liste aller Städte – aus Kunden UND aus einer Lieferantentabelle (die wir simulieren).
-
-```sql
-SELECT city FROM customers
-UNION
-SELECT 'Stuttgart' AS city
-UNION
-SELECT 'Berlin' AS city;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** Jede Stadt nur einmal (Berlin erscheint nur einmal, obwohl es bei Kunden vorkommt).
-
----
-
-### UNION ALL: Vereinigung (mit Duplikaten)
-
-    --{{0}}--
-UNION ALL behält alle Zeilen – Duplikate inklusive.
-
-```sql
-SELECT city FROM customers
-UNION ALL
-SELECT 'Stuttgart' AS city
-UNION ALL
-SELECT 'Berlin' AS city;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** Berlin erscheint mehrfach.
-
-    --{{2}}--
-UNION ALL ist schneller als UNION, weil keine Duplikate-Prüfung nötig ist. Nutzen Sie UNION ALL, wenn Sie sicher sind, dass keine Duplikate entstehen – oder Duplikate ok sind.
-
----
-
-### INTERSECT: Schnittmenge
-
-    --{{0}}--
-INTERSECT gibt nur Zeilen zurück, die in beiden Ergebnissen vorkommen.
-
-**Beispiel:** Welche Städte haben sowohl Kunden als auch (hypothetische) Lieferanten?
-
-```sql
-SELECT city FROM customers
-INTERSECT
-SELECT city FROM (
-  VALUES ('Berlin'), ('Munich'), ('Vienna')
-) AS suppliers(city);
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** Nur Berlin und Munich (Vienna hat keine Kunden).
-
----
-
-### EXCEPT: Differenz
-
-    --{{0}}--
-EXCEPT (in einigen DBMS `MINUS`) gibt Zeilen aus der ersten Query zurück, die NICHT in der zweiten vorkommen.
-
-**Beispiel:** Welche Städte haben Kunden, aber keine (hypothetischen) Lieferanten?
-
-```sql
-SELECT city FROM customers
-EXCEPT
-SELECT city FROM (
-  VALUES ('Berlin'), ('Munich')
-) AS suppliers(city);
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** Hamburg, Cologne, Frankfurt (Berlin und Munich sind ausgeschlossen).
-
----
-
-### Bedingungen für Set-Operationen
-
-    --{{0}}--
-Damit Set-Operationen funktionieren, müssen beide Queries kompatibel sein:
-
-1. **Gleiche Anzahl Spalten**
-2. **Kompatible Datentypen** (Position für Position)
-3. **Spaltennamen aus erster Query** (zweite Query ignoriert Namen)
-
-```sql
--- ❌ Fehler: Unterschiedliche Spaltenanzahl
-SELECT first_name, last_name FROM customers
-UNION
-SELECT product_name FROM products;
-
--- ✅ Korrekt: Gleiche Spaltenanzahl
-SELECT first_name FROM customers
-UNION
-SELECT product_name FROM products;
-```
-@PGlite.terminal(online-shop)
-
----
-
-## Join-Strategien & Performance
-
-    --{{0}}--
-Bisher haben wir uns auf die Syntax konzentriert. Aber was passiert intern? Wie führt die Datenbank Joins aus?
-
-### Join-Algorithmen (Übersicht)
-
-    {{1}}
-**1. Nested Loop Join**
-
-    {{1}}
-- Für jede Zeile der äußeren Tabelle durchsucht die Datenbank die innere Tabelle
-- Einfach, aber langsam bei großen Tabellen
-- Gut bei: Kleine äußere Tabelle × große innere (mit Index!)
-
-    {{2}}
-**2. Hash Join**
-
-    {{2}}
-- Erstellt Hash-Tabelle für eine Tabelle, scannt die andere
-- Schnell bei großen Tabellen mit Gleichheitsbedingung (`=`)
-- Braucht Speicher für Hash-Tabelle
-
-    {{3}}
-**3. Merge Join**
-
-    {{3}}
-- Beide Tabellen werden sortiert, dann parallel gescannt
-- Sehr schnell, wenn Daten bereits sortiert sind
-- Gut bei vorhandenen Indexes auf Join-Spalten
-
-    --{{4}}--
-Welcher Algorithmus gewählt wird, entscheidet der Query Optimizer basierend auf Statistiken, Indexes und Datenmenge.
-
----
-
-### EXPLAIN: Query Plans analysieren
-
-    --{{0}}--
-Mit `EXPLAIN` sehen Sie, wie die Datenbank Ihre Query ausführt.
-
-```sql
-EXPLAIN QUERY PLAN
-SELECT c.first_name, o.order_id
-FROM customers c
-INNER JOIN orders o ON c.customer_id = o.customer_id;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Typisches Ergebnis:**
-
-    {{1}}
-```
-QUERY PLAN
-|--SCAN customers AS c
-`--SEARCH orders AS o USING INDEX orders_customer_id (customer_id=?)
-```
-
-    --{{2}}--
-Hier sehen Sie: Die Datenbank scannt alle Kunden, sucht dann für jeden Kunden in der orders-Tabelle via Index. Das ist ein Nested Loop Join mit Index-Lookup.
-
----
-
-### Index auf Join-Spalten (essentiell!)
-
-    --{{0}}--
-Ohne Indexes auf Join-Spalten (besonders Foreign Keys!) werden Joins extrem langsam.
-
-```sql
--- ❌ Kein Index auf orders.customer_id:
--- Für jeden Kunden muss die gesamte orders-Tabelle gescannt werden!
-
--- ✅ Mit Index:
-CREATE INDEX idx_orders_customer ON orders(customer_id);
--- Lookup ist O(log n) statt O(n)
-```
-
-    {{1}}
-> **Best Practice:** Erstellen Sie immer Indexes auf Foreign Key-Spalten wie `customer_id`, `location_id`, `category_id`!
-
----
-
-### Geografische Analyse: Umsatz pro Stadt
-
-    --{{0}}--
-Dank normalisierter Locations können wir jetzt einfach geografische Analysen machen.
-
-**Aufgabe:** Zeigen Sie den Gesamtumsatz pro Stadt mit PLZ.
-
-```sql
-SELECT 
-  l.postal_code,
-  l.city,
-  COUNT(DISTINCT c.customer_id) AS customers,
-  COUNT(o.order_id) AS total_orders,
-  COALESCE(SUM(o.total_amount), 0) AS total_revenue
-FROM locations l
-LEFT JOIN customers c ON l.location_id = c.location_id
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY l.postal_code, l.city
-ORDER BY total_revenue DESC;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Ergebnis:** Sie sehen sofort, welche Städte am meisten Umsatz bringen – und welche noch Potenzial haben (viele Kunden, wenig Umsatz).
-
----
-
-### Join-Reihenfolge optimieren
-
-    --{{0}}--
-Bei Multi-Table Joins kann die Reihenfolge die Performance beeinflussen.
-
-**Faustregel:** Joinen Sie kleinere Tabellen zuerst, filtern Sie früh.
-
-```sql
--- ❌ Schlechter Plan:
-SELECT * 
-FROM huge_table
-INNER JOIN small_table ON ...
-WHERE small_table.status = 'active';
-
--- ✅ Besserer Plan:
-SELECT * 
-FROM small_table
-INNER JOIN huge_table ON ...
-WHERE small_table.status = 'active';
--- Filter auf small_table wird zuerst angewendet
-```
-
-    {{1}}
-**Noch besser:** Nutzen Sie Subqueries/CTEs, um vor dem Join zu filtern.
-
-    {{1}}
-```sql
-WITH active_small AS (
-  SELECT * FROM small_table WHERE status = 'active'
-)
-SELECT * FROM active_small
-INNER JOIN huge_table ON ...;
-```
-
----
-
-## Erweiterte Join-Techniken
-
-### JOIN mit mehreren Bedingungen
-
-    --{{0}}--
-Sie können mehrere Bedingungen im ON kombinieren.
-
-```sql
-SELECT *
-FROM customers c
-INNER JOIN orders o 
-  ON c.customer_id = o.customer_id 
-  AND o.status = 'completed';
--- Nur abgeschlossene Bestellungen
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Unterschied zu WHERE:**
-
-    {{1}}
-```sql
--- Bei INNER JOIN: ON vs. WHERE ist (oft) äquivalent
--- Bei LEFT JOIN: ON filtert vor dem Join, WHERE filtert nach dem Join!
-
--- Beispiel: LEFT JOIN + Bedingung im ON
-SELECT c.first_name, o.order_id
-FROM customers c
-LEFT JOIN orders o 
-  ON c.customer_id = o.customer_id 
-  AND o.status = 'completed';
--- Alle Kunden, nur completed Orders (andere Orders werden NULL)
-
--- vs. Bedingung im WHERE:
-SELECT c.first_name, o.order_id
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-WHERE o.status = 'completed';
--- Nur Kunden mit completed Orders (funktioniert wie INNER JOIN!)
-```
-@PGlite.terminal(online-shop)
-
-    --{{2}}--
-Bei LEFT/RIGHT/FULL OUTER Joins macht der Ort der Bedingung einen Unterschied!
-
----
-
-### Range Joins (Non-Equi Joins)
-
-    --{{0}}--
-Joins müssen nicht immer auf Gleichheit (`=`) basieren.
-
-```sql
--- Beispiel: Zeiträume überlappen
-SELECT 
-  e1.employee_name AS emp1,
-  e2.employee_name AS emp2
-FROM employment e1
-INNER JOIN employment e2 
-  ON e1.start_date <= e2.end_date 
-  AND e1.end_date >= e2.start_date
-  AND e1.employee_id < e2.employee_id;
--- Findet Mitarbeiter, deren Beschäftigungszeiten sich überlappen
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Use Cases:** Zeitreihen-Overlaps, Preis-Ranges, geografische Bereiche.
-
----
-
-### JOIN mit Aggregation
-
-    --{{0}}--
-Sie können nach einem Join aggregieren – oder vor dem Join aggregieren (in einer Subquery).
-
-**Nach dem Join:**
-
-```sql
-SELECT 
-  c.first_name,
-  COUNT(o.order_id) AS order_count,
-  SUM(o.total_amount) AS total_spent
-FROM customers c
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY c.customer_id, c.first_name;
-```
-@PGlite.terminal(online-shop)
-
-    {{1}}
-**Vor dem Join (Subquery):**
-
-    {{1}}
-```sql
-SELECT 
-  c.first_name,
-  COALESCE(order_stats.order_count, 0) AS order_count,
-  COALESCE(order_stats.total_spent, 0) AS total_spent
-FROM customers c
-LEFT JOIN (
-  SELECT 
-    customer_id,
-    COUNT(*) AS order_count,
-    SUM(total_amount) AS total_spent
-  FROM orders
-  GROUP BY customer_id
-) order_stats ON c.customer_id = order_stats.customer_id;
-```
-@PGlite.terminal(online-shop)
-
-    --{{2}}--
-Zweite Variante ist oft performanter: Sie aggregieren zuerst (kleineres Ergebnis), dann joinen Sie.
-
----
-
-## Zusammenfassung & Entscheidungsmatrix
-
-    --{{0}}--
-Wann nutzen Sie welchen Join? Hier ist Ihre Entscheidungshilfe:
-
-| Szenario                                   | Join-Typ                                    |
-| ------------------------------------------ | ------------------------------------------- |
-| Nur Datensätze mit Match                   | **INNER JOIN**                              |
-| Alle von Tabelle A, auch ohne Match        | **LEFT JOIN**                               |
-| Fehlende Beziehungen finden (A ohne B)     | **LEFT JOIN + IS NULL** oder **NOT EXISTS** |
-| Daten-Sync-Vergleich (A vs. B vollständig) | **FULL OUTER JOIN**                         |
-| Alle Kombinationen erzeugen                | **CROSS JOIN** (mit Vorsicht!)              |
-| Hierarchie/Rekursion (eine Ebene)          | **Self Join**                               |
-| Ergebnisse vertikal kombinieren            | **UNION** / **INTERSECT** / **EXCEPT**      |
-
-    --{{1}}--
-90% aller Joins in Produktion sind INNER oder LEFT. Beherrschen Sie diese beiden, und Sie sind für die meisten Szenarien gerüstet.
-
-## Live-Demo: Komplexe Multi-Table Query
-
-    --{{0}}--
-Zum Abschluss eine komplexe Query, die alle 7 normalisierten Tabellen nutzt und zeigt, warum Normalisierung mit N:M-Beziehungen so mächtig ist.
-
-**Aufgabe:** Zeigen Sie für jeden Kunden:
-
-- Name & vollständige Adresse (Straße, PLZ, Stadt)
-- Anzahl Bestellungen
-- Gesamtumsatz
-- Meist gekaufte Produkt-Kategorie
-
-```sql
-SELECT 
-  c.first_name || ' ' || c.last_name AS customer,
-  c.street || ' ' || c.street_number AS address,
-  l.postal_code || ' ' || l.city AS location,
-  COUNT(DISTINCT o.order_id) AS order_count,
-  COALESCE(SUM(o.total_amount), 0) AS total_spent,
+  c.last_name,
   (
-    SELECT cat.category_name
-    FROM order_items oi
-    INNER JOIN products p ON oi.product_id = p.product_id
-    INNER JOIN product_categories pc ON p.product_id = pc.product_id
-    INNER JOIN categories cat ON pc.category_id = cat.category_id
-    WHERE oi.order_id IN (
-      SELECT order_id FROM orders WHERE customer_id = c.customer_id
-    )
-    GROUP BY cat.category_name
-    ORDER BY SUM(oi.quantity) DESC
-    LIMIT 1
-  ) AS favorite_category
-FROM customers c
-LEFT JOIN locations l ON c.location_id = l.location_id
-LEFT JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY c.customer_id, c.first_name, c.last_name, c.street, c.street_number, 
-         l.postal_code, l.city
-ORDER BY total_spent DESC;
+    SELECT COUNT(*)
+    FROM orders o
+    WHERE o.customer_id = c.customer_id
+  ) AS order_count
+FROM customers c;
 ```
 @PGlite.terminal(online-shop)
 
-    --{{1}}--
-Diese Query nutzt LEFT JOIN, GROUP BY, Subquery, Aggregation UND alle 7 Tabellen: customers, locations, orders, order_items, products, product_categories (Junction Table!), categories. Das ist ein realistisches Beispiel aus der Praxis für Business-Analytics mit N:M-Beziehungen. Normalisierung macht solche Analysen erst möglich!
-
----
-
-## Reflexionsfragen
-
-    --{{0}}--
-Bevor wir schließen, zwei Fragen zum Nachdenken:
-
-    {{1}}
-> **Frage 1:** Wann würden Sie LEFT JOIN statt INNER JOIN nutzen? Geben Sie zwei konkrete Beispiele.
+</section>
 
     {{2}}
-<details>
-<summary>Mögliche Antworten</summary>
+**Das ist eine correlated Subquery** – sie referenziert die äußere Query (`c.customer_id`). Für jeden Kunden wird die Subquery neu ausgeführt.
 
-- Kunden ohne Bestellungen finden (Inaktive identifizieren)
-- Produkte ohne Verkäufe (Ladenhüter-Analyse)
-- Mitarbeiter ohne zugewiesene Projekte
-- Kategorien ohne zugehörige Artikel
+    --{{2}}--
+Funktioniert, aber: Bei 10.000 Kunden wird die Subquery 10.000 Mal ausgeführt! Performance-Problem.
 
-</details>
-
-    {{3}}
-> **Frage 2:** Was ist der Unterschied zwischen UNION und UNION ALL? Welches ist schneller und warum?
-
-    {{4}}
-<details>
-<summary>Antwort</summary>
-
-- **UNION:** Entfernt Duplikate (benötigt zusätzlichen Schritt: Sortieren/Hashing)
-- **UNION ALL:** Behält alle Zeilen, keine Duplikate-Prüfung
-- **Schneller:** UNION ALL (keine Overhead für Duplikate-Entfernung)
-- **Nutzen Sie UNION ALL**, wenn keine Duplikate erwartet oder Duplikate ok sind
-
-</details>
-
----
-
-## 1-Minute-Paper
+### Subquery-Grenzen: Wann wird es problematisch?
 
     --{{0}}--
-Zum Abschluss eine Minute Zeit zum Nachdenken:
+Subqueries sind intuitiv, aber sie haben Grenzen:
 
-> **Was ist heute klarer geworden?**  
-> Notieren Sie 1–2 Sätze:
->
-> - Was war neu für Sie?
-> - Welches Konzept hat „Klick" gemacht?
-> - Gibt es noch Unklarheiten?
+| Problem                      | Beschreibung                                                | Beispiel                          |
+| ---------------------------- | ----------------------------------------------------------- | --------------------------------- |
+| **Unleserlich**              | Verschachtelte Queries sind schwer zu verstehen             | 3+ Ebenen Verschachtelung         |
+| **Nicht wiederverwendbar**   | Berechnete Werte können nicht mehrfach genutzt werden       | Durchschnitt 2× berechnen         |
+| **Performance**              | Correlated Subqueries werden oft wiederholt ausgeführt      | 10.000 Kunden = 10.000 Subqueries |
+| **Keine parallelen Spalten** | Schwierig, Spalten aus mehreren Tabellen parallel zu zeigen | Kunde + Bestellung + Produkt      |
 
-    {{1}}
-**Teilen Sie Ihre Gedanken im Forum oder in der nächsten Übung!**
+    --{{1}}--
+Es muss einen besseren Weg geben! Und den gibt es: CTEs (Common Table Expressions).
 
----
-
-## Ausblick: Session 11
+## Technik 2: CTEs (WITH) – Benannte Zwischenergebnisse
 
     --{{0}}--
-In der nächsten Session tauchen wir in **Row-Level Functions** ein: String-Manipulation, Zahlen-Funktionen, Datum-Operationen, CASE-Statements.
+CTEs sind "benannte Subqueries". Sie machen Queries lesbarer und wiederverwendbar. Statt alles in einer verschachtelten Monster-Query zu schreiben, teilen Sie es in logische Schritte auf.
 
-Sie lernen, Daten innerhalb von Zeilen zu transformieren – bevor Sie aggregieren oder joinen.
+### CTE-Syntax: WITH ... AS
 
-**Bis dahin:**
-
-- Üben Sie Joins mit Übung E4
-- Probieren Sie Anti-Joins auf eigenen Daten
-- Experimentieren Sie mit EXPLAIN (wenn verfügbar)
-
----
-
-## Referenzen & Quellen
-
-### Offizielle Dokumentation
-
-- [PostgreSQL: Joins](https://www.postgresql.org/docs/current/tutorial-join.html)
-- [DuckDB: FROM Clause & Joins](https://duckdb.org/docs/sql/query_syntax/from)
-- [SQLite: Query Language](https://www.sqlite.org/lang_select.html)
-- [ISO SQL Standard (9075)](https://www.iso.org/standard/63555.html)
-
-### Visualisierungen
-
-- [SQL Joins Visualized](https://joins.spathon.com/) – Interaktive Venn-Diagramme
-- [Visual Representation of SQL Joins](https://www.codeproject.com/Articles/33052/Visual-Representation-of-SQL-Joins)
-
-### Best Practices & Performance
-
-- [Use The Index, Luke: SQL Joins](https://use-the-index-luke.com/sql/join) – Performance-Guide
-- [Modern SQL: Join](https://modern-sql.com/feature/join) – SQL-99/2003 Features
-- [PostgreSQL Wiki: Join Performance](https://wiki.postgresql.org/wiki/Performance_Optimization)
-
-### Weiterführende Themen
-
-- **Subqueries & CTEs:** Session 13
-- **Window Functions:** Session 12 (Aggregation mit Kontext)
-- **Query Plans & EXPLAIN:** Session 15 (Performance Optimization)
-- **Recursive CTEs:** Session 13 (Hierarchien & Graphen)
-
----
-
-## Übung E4: Hands-on Joins & Set Operations
-
-    --{{0}}--
-Die Übung zu dieser Session finden Sie in `materials/4-exercise.md`.
-
-**Aufgaben:**
-
-1. Einfache Joins (INNER, LEFT)
-2. Multi-Table Queries (3+ Tabellen)
-3. Anti-Joins (fehlende Beziehungen)
-4. Set-Operationen (UNION, INTERSECT, EXCEPT)
-5. Performance-Vergleich (EXPLAIN für verschiedene Join-Strategien)
-
-**Datensets:**
-
-- E-Commerce Schema (Customers, Orders, Products, Order_Items)
-- Erweitert um: Categories, Suppliers, Inventory
-
----
-
-**Viel Erfolg – und bis zur nächsten Session! 🚀**
+Todo

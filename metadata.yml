@@ -124,6 +124,12 @@ hasPart:
     learningResourceType: "Course"
     image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/9-lecture.jpg"
 
+  - name: "L10: Mehr FROM Subqueries, CTEs, Joins"
+    description: "Vertiefung zu SQL-Join-Typen (INNER, LEFT, RIGHT, FULL) mit praktischen Beispielen und Visualisierungen. Einführung in Subqueries in SELECT- und FROM-Klauseln sowie Common Table Expressions (CTEs) zur Strukturierung komplexer Abfragen. Hands-on Übungen zur Festigung des Verständnisses."
+    url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md"
+    learningResourceType: "Course"
+    image: "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/10-lecture.jpg"
+
   - name: "JavaScript Primer"
     description: "Kompakter JavaScript-Primer für Studierende ohne JS-Vorkenntnisse: Variablen (const/let), Datentypen (primitiv & komplex), Kontrollstrukturen (if/loops), Funktionen (klassisch & Arrow), Objekte & Arrays (mit wichtigen Methoden wie map/filter/reduce), Asynchronität (async/await, Promises, fetch), JSON-Parsing und Classes. Fokus auf Code-Verständnis für Browser-basierte Datenbankbeispiele – keine Frontend-Entwicklung, keine Frameworks. Alle Beispiele direkt ausführbar in der Browser Console."
     url: "https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md"

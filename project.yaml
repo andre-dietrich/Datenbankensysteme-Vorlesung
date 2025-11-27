@@ -163,6 +163,16 @@ collection:
       - Hands-on
       - Live-Session
 
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md
+    title: "L10: Mehr FROM Subqueries, CTEs, Joins"
+    tags:
+      - Joins
+      - SQL
+      - Subqueries
+      - CTEs
+      - Hands-on
+      - Live-Session
+
   # Additional Resources
   - html: >
       <hr>
