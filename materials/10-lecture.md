@@ -1,5 +1,5 @@
 <!--
-author:   André Dietrich
+author:   André Dietrich; GitHub Copilot
 email:    LiaScript@web.de
 version:  0.1.0
 language: de
@@ -27,132 +27,11 @@ details[open] summary {
   border-bottom: 1px solid #ccc;
   margin-bottom: 0.5em;
 }
-
 @end
 
 import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
         https://raw.githubusercontent.com/LiaTemplates/dbdiagram/main/README.md
         https://raw.githubusercontent.com/liaScript/mermaid_template/master/README.md
-
-@SQL.exec
-<script>
-function loadDB(resolve, reject) {
-  initSqlJs({locateFile: filename => `https://cdn.jsdelivr.net/npm/sql.js@1.10.2/dist/${filename}`}).then(SQL => {
-    const db = new SQL.Database();
-    
-    // Sample E-Commerce Schema
-    db.run(`
-      CREATE TABLE customers (
-        customer_id INTEGER PRIMARY KEY,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        email TEXT UNIQUE,
-        city TEXT
-      );
-      
-      CREATE TABLE orders (
-        order_id INTEGER PRIMARY KEY,
-        customer_id INTEGER,
-        order_date DATE,
-        total_amount DECIMAL(10,2),
-        status TEXT,
-        FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
-      );
-      
-      CREATE TABLE products (
-        product_id INTEGER PRIMARY KEY,
-        product_name TEXT NOT NULL,
-        category TEXT,
-        price DECIMAL(10,2)
-      );
-      
-      CREATE TABLE order_items (
-        order_item_id INTEGER PRIMARY KEY,
-        order_id INTEGER,
-        product_id INTEGER,
-        quantity INTEGER,
-        line_total DECIMAL(10,2),
-        FOREIGN KEY (order_id) REFERENCES orders(order_id),
-        FOREIGN KEY (product_id) REFERENCES products(product_id)
-      );
-      
-      -- Sample Data: Customers
-      INSERT INTO customers VALUES
-        (1, 'Alice', 'Anderson', 'alice@email.com', 'Berlin'),
-        (2, 'Bob', 'Brown', 'bob@email.com', 'Hamburg'),
-        (3, 'Carol', 'Clark', 'carol@email.com', 'Munich'),
-        (4, 'David', 'Davis', 'david@email.com', 'Cologne'),
-        (5, 'Emma', 'Evans', 'emma@email.com', 'Frankfurt');
-      
-      -- Sample Data: Orders (Note: Customer 5 has NO orders!)
-      INSERT INTO orders VALUES
-        (101, 1, '2024-01-15', 299.99, 'completed'),
-        (102, 1, '2024-02-20', 149.50, 'completed'),
-        (103, 2, '2024-01-22', 499.99, 'completed'),
-        (104, 3, '2024-03-10', 89.99, 'pending'),
-        (105, 4, '2024-03-15', 199.99, 'completed');
-      
-      -- Sample Data: Products
-      INSERT INTO products VALUES
-        (1, 'Laptop', 'Electronics', 999.99),
-        (2, 'Mouse', 'Electronics', 29.99),
-        (3, 'Keyboard', 'Electronics', 79.99),
-        (4, 'Monitor', 'Electronics', 299.99),
-        (5, 'Desk Chair', 'Furniture', 199.99),
-        (6, 'Notebook', 'Stationery', 9.99);
-      
-      -- Sample Data: Order Items
-      INSERT INTO order_items VALUES
-        (1, 101, 4, 1, 299.99),
-        (2, 102, 2, 2, 59.98),
-        (3, 102, 3, 1, 79.99),
-        (4, 103, 1, 1, 999.99),
-        (5, 104, 6, 5, 49.95),
-        (6, 105, 5, 1, 199.99);
-    `);
-    
-    try {
-      let result = db.exec(`@input`);
-      if (result.length > 0) {
-        let columns = result[0].columns;
-        let values = result[0].values;
-        
-        let output = '<table style="width:100%; border-collapse: collapse;">';
-        output += '<thead><tr>';
-        columns.forEach(col => {
-          output += `<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">${col}</th>`;
-        });
-        output += '</tr></thead><tbody>';
-        
-        values.forEach(row => {
-          output += '<tr>';
-          row.forEach(cell => {
-            output += `<td style="border: 1px solid #ddd; padding: 8px;">${cell !== null ? cell : '<em>NULL</em>'}</td>`;
-          });
-          output += '</tr>';
-        });
-        output += '</tbody></table>';
-        
-        send.lia(output);
-        send.lia("LIA: stop");
-      } else {
-        send.lia("Query executed successfully (no results returned)");
-        send.lia("LIA: stop");
-      }
-    } catch (e) {
-      send.lia("Error: " + e.message);
-      send.lia("LIA: stop");
-    }
-  }).catch(err => {
-    send.lia("Error loading SQL.js: " + err.message);
-    send.lia("LIA: stop");
-  });
-}
-
-loadDB();
-"LIA: wait";
-</script>
-@end
 
 -->
 
@@ -204,34 +83,147 @@ Die Lösung? Normalisierung. Wir teilen Daten in mehrere Tabellen auf. Jede Tabe
 ## Unser E-Commerce-Schema
 
     --{{0}}--
-Für alle Beispiele heute nutzen wir ein einfaches E-Commerce-Schema mit vier Tabellen.
+Für alle Beispiele heute nutzen wir ein realistisches E-Commerce-Schema mit sieben normalisierten Tabellen inklusive einer N:M-Beziehung über eine Junction Table.
 
-```ascii
-+-------------+       +------------+       +---------------+
-| customers   |       | orders     |       | order_items   |
-+-------------+       +------------+       +---------------+
-| customer_id |<---+  | order_id   |<---+  | order_item_id |
-| first_name  |    |  | customer_id|    |  | order_id      |
-| last_name   |    +--| order_date |    +--| product_id    |
-| email       |       | total_amt  |       | quantity      |
-| city        |       | status     |       | line_total    |
-+-------------+       +------------+       +---------------+
-                                                   |
-                                                   v
-                                           +-------------+
-                                           | products    |
-                                           +-------------+
-                                           | product_id  |
-                                           | product_name|
-                                           | category    |
-                                           | price       |
-                                           +-------------+
+```SQL
+-- Locations: Normalisierte Orte mit PLZ
+CREATE TABLE locations (
+  location_id INTEGER PRIMARY KEY,
+  city TEXT NOT NULL,
+  postal_code TEXT NOT NULL,
+  country TEXT DEFAULT 'Germany'
+);
+
+-- Categories: Normalisierte Produktkategorien
+CREATE TABLE categories (
+  category_id INTEGER PRIMARY KEY,
+  category_name TEXT NOT NULL UNIQUE,
+  description TEXT
+);
+
+-- Customers: Erweitert mit strukturierten Adressdaten
+CREATE TABLE customers (
+  customer_id INTEGER PRIMARY KEY,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  street TEXT,
+  street_number TEXT,
+  location_id INTEGER,
+  FOREIGN KEY (location_id) REFERENCES locations(location_id)
+);
+
+-- Orders: Unverändert
+CREATE TABLE orders (
+  order_id INTEGER PRIMARY KEY,
+  customer_id INTEGER,
+  order_date DATE,
+  total_amount DECIMAL(10,2),
+  status TEXT,
+  FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- Products: Ohne direkte Category-Referenz (N:M über Junction Table)
+CREATE TABLE products (
+  product_id INTEGER PRIMARY KEY,
+  product_name TEXT NOT NULL,
+  price DECIMAL(10,2)
+);
+
+-- Product Categories: Junction Table für N:M-Beziehung
+CREATE TABLE product_categories (
+  product_id INTEGER,
+  category_id INTEGER,
+  PRIMARY KEY (product_id, category_id),
+  FOREIGN KEY (product_id) REFERENCES products(product_id),
+  FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Order Items: Unverändert
+CREATE TABLE order_items (
+  order_item_id INTEGER PRIMARY KEY,
+  order_id INTEGER,
+  product_id INTEGER,
+  quantity INTEGER,
+  line_total DECIMAL(10,2),
+  FOREIGN KEY (order_id) REFERENCES orders(order_id),
+  FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+ 
+-- Sample Data: Locations
+INSERT INTO locations VALUES
+  (1, 'Berlin', '10115', 'Germany'),
+  (2, 'Hamburg', '20095', 'Germany'),
+  (3, 'Munich', '80331', 'Germany'),
+  (4, 'Cologne', '50667', 'Germany'),
+  (5, 'Frankfurt', '60311', 'Germany');
+
+-- Sample Data: Categories
+INSERT INTO categories VALUES
+  (1, 'Electronics', 'Electronic devices and accessories'),
+  (2, 'Furniture', 'Office and home furniture'),
+  (3, 'Stationery', 'Office supplies and paper products'),
+  (4, 'Office Equipment', 'Professional office tools and devices');
+
+-- Sample Data: Customers (mit strukturierten Adressen)
+INSERT INTO customers VALUES
+  (1, 'Alice', 'Anderson', 'alice@email.com', 'Unter den Linden', '42', 1),
+  (2, 'Bob', 'Brown', 'bob@email.com', 'Reeperbahn', '15', 2),
+  (3, 'Carol', 'Clark', 'carol@email.com', 'Marienplatz', '8', 3),
+  (4, 'David', 'Davis', 'david@email.com', 'Hohe Straße', '123', 4),
+  (5, 'Emma', 'Evans', 'emma@email.com', 'Zeil', '99', 5);
+
+-- Sample Data: Orders (Note: Customer 5 has NO orders!)
+INSERT INTO orders VALUES
+  (101, 1, '2024-01-15', 299.99, 'completed'),
+  (102, 1, '2024-02-20', 149.50, 'completed'),
+  (103, 2, '2024-01-22', 499.99, 'completed'),
+  (104, 3, '2024-03-10', 89.99, 'pending'),
+  (105, 4, '2024-03-15', 199.99, 'completed');
+
+-- Sample Data: Products (ohne direkte Category-Referenz)
+INSERT INTO products VALUES
+  (1, 'Laptop', 999.99),
+  (2, 'Mouse', 29.99),
+  (3, 'Keyboard', 79.99),
+  (4, 'Monitor', 299.99),
+  (5, 'Desk Chair', 199.99),
+  (6, 'Notebook', 9.99);
+
+-- Sample Data: Product Categories (N:M-Beziehungen)
+INSERT INTO product_categories VALUES
+  (1, 1),  -- Laptop → Electronics
+  (1, 4),  -- Laptop → Office Equipment
+  (2, 1),  -- Mouse → Electronics
+  (2, 4),  -- Mouse → Office Equipment
+  (3, 1),  -- Keyboard → Electronics
+  (3, 4),  -- Keyboard → Office Equipment
+  (4, 1),  -- Monitor → Electronics
+  (4, 4),  -- Monitor → Office Equipment
+  (5, 2),  -- Desk Chair → Furniture
+  (5, 4),  -- Desk Chair → Office Equipment
+  (6, 3);  -- Notebook → Stationery (nur eine Kategorie!)
+
+-- Sample Data: Order Items
+INSERT INTO order_items VALUES
+  (1, 101, 4, 1, 299.99),
+  (2, 102, 2, 2, 59.98),
+  (3, 102, 3, 1, 79.99),
+  (4, 103, 1, 1, 999.99),
+  (5, 104, 6, 5, 49.95),
+  (6, 105, 5, 1, 199.99);
+
+ERDIAGRAM
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Beziehungen:**
 
     {{1}}
+- Ein Ort kann viele Kunden haben (1:N)
+- **Ein Produkt kann viele Kategorien haben (N:M über product_categories)**
+- **Eine Kategorie kann viele Produkte haben (N:M über product_categories)**
 - Ein Kunde kann viele Bestellungen haben (1:N)
 - Eine Bestellung hat viele Positionen (1:N)
 - Ein Produkt kann in vielen Positionen vorkommen (N:M über order_items)
@@ -257,6 +249,7 @@ SELECT c.first_name, o.order_id
 FROM customers c
 INNER JOIN orders o ON c.customer_id = o.customer_id;
 ```
+@PGlite.terminal(online-shop)
 
     {{2}}
 **Veraltete Syntax (nicht empfohlen):**
@@ -267,6 +260,7 @@ SELECT c.first_name, o.order_id
 FROM customers c, orders o
 WHERE c.customer_id = o.customer_id;
 ```
+@PGlite.terminal(online-shop)
 
     --{{3}}--
 Beide Queries liefern das gleiche Ergebnis. Aber die moderne Syntax ist klarer: Sie trennt die Join-Bedingung vom WHERE-Filter. Das macht Queries lesbarer und weniger fehleranfällig.
@@ -290,6 +284,7 @@ INNER JOIN orders o ON c.customer_id = o.customer_id;
 SELECT * FROM customers
 INNER JOIN orders USING (customer_id);
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 > **Achtung:** USING funktioniert nur, wenn die Spaltennamen identisch sind. Bei verschiedenen Namen (z.B. `customer_id` vs. `cust_id`) müssen Sie `ON` verwenden.
@@ -363,7 +358,7 @@ FROM customers c
 INNER JOIN orders o ON c.customer_id = o.customer_id
 ORDER BY c.last_name, o.order_date;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     --{{2}}--
 Führen Sie die Query aus. Sie sehen: Nur Kunden mit Bestellungen erscheinen. Emma (customer_id = 5) fehlt komplett.
@@ -390,10 +385,61 @@ INNER JOIN order_items oi ON o.order_id = oi.order_id
 INNER JOIN products p ON oi.product_id = p.product_id
 ORDER BY o.order_id;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 > **Lesbarkeit:** Ketten Sie Joins schrittweise – erst Kunde → Bestellung, dann Bestellung → Positionen, dann Positionen → Produkte.
+
+---
+
+### Normalisierung in Aktion: Vollständige Kundenadresse
+
+    --{{0}}--
+Unser Schema ist jetzt realistisch normalisiert. Wie holen wir die vollständige Adresse eines Kunden?
+
+**Aufgabe:** Zeigen Sie für jeden Kunden die komplette Adresse inkl. PLZ und Stadt.
+
+```sql
+SELECT 
+  c.first_name || ' ' || c.last_name AS customer,
+  c.street || ' ' || c.street_number AS address,
+  l.postal_code || ' ' || l.city AS city,
+  l.country
+FROM customers c
+LEFT JOIN locations l ON c.location_id = l.location_id
+ORDER BY l.city;
+```
+@PGlite.terminal(online-shop)
+
+    {{1}}
+**Vorteil der Normalisierung:** Stadt und PLZ stehen nur einmal in `locations`. Bei Änderungen (z.B. PLZ-Reform) müssen wir nur eine Zeile updaten, nicht hunderte Kunden!
+
+---
+
+### Multi-Table Join mit Categories
+
+    --{{0}}--
+Jetzt wird es interessant: Produkte mit Kategorien kombinieren über die Junction Table product_categories.
+
+**Aufgabe:** Zeigen Sie alle verkauften Produkte mit ihren Kategorien (ein Produkt kann mehrere haben!).
+
+```sql
+SELECT 
+  p.product_name,
+  p.price,
+  cat.category_name,
+  SUM(oi.quantity) AS total_sold
+FROM products p
+INNER JOIN product_categories pc ON p.product_id = pc.product_id
+INNER JOIN categories cat ON pc.category_id = cat.category_id
+INNER JOIN order_items oi ON p.product_id = oi.product_id
+GROUP BY p.product_name, p.price, cat.category_name
+ORDER BY p.product_name, total_sold DESC;
+```
+@PGlite.terminal(online-shop)
+
+    {{1}}
+**Ergebnis:** Sie sehen jetzt Produkte mehrfach, wenn sie in mehreren Kategorien sind! Laptop erscheint sowohl unter "Electronics" als auch "Office Equipment". Das ist die Power der N:M-Beziehung!
 
 ---
 
@@ -462,7 +508,7 @@ FROM customers c
 LEFT JOIN orders o ON c.customer_id = o.customer_id
 ORDER BY c.last_name;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     --{{2}}--
 Führen Sie die Query aus. Jetzt sehen Sie Emma – mit NULL bei allen Order-Feldern.
@@ -486,7 +532,7 @@ FROM customers c
 LEFT JOIN orders o ON c.customer_id = o.customer_id
 WHERE o.order_id IS NULL;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Trick:** Nach dem LEFT JOIN filtern Sie auf `IS NULL` der rechten Tabelle. Das sind genau die Zeilen ohne Match.
@@ -509,7 +555,7 @@ SELECT
 FROM customers c
 LEFT JOIN orders o ON c.customer_id = o.customer_id;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 > `COALESCE(value, default)` gibt den ersten Nicht-NULL-Wert zurück.
@@ -526,6 +572,7 @@ SELECT * FROM customers c
 RIGHT JOIN orders o ON c.customer_id = o.customer_id;
 -- Alle Bestellungen (auch ohne zugehörigen Kunden)
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 **In der Praxis:** RIGHT JOIN wird selten genutzt – meist schreiben Sie die Query so um, dass Sie LEFT JOIN verwenden können. Das ist intuitiver.
@@ -537,6 +584,7 @@ SELECT * FROM orders o
 LEFT JOIN customers c ON o.customer_id = c.customer_id;
 -- Gleicher Effekt, aber links = Haupttabelle
 ```
+@PGlite.terminal(online-shop)
 
 ---
 
@@ -590,6 +638,7 @@ SELECT
 FROM old_products old
 FULL OUTER JOIN new_products new ON old.product_id = new.product_id;
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 > **Performance:** FULL OUTER kann langsam sein. Alternative: `UNION` von LEFT und RIGHT JOIN.
@@ -629,6 +678,7 @@ SELECT * FROM customers CROSS JOIN products;
 -- Implizit (veraltet):
 SELECT * FROM customers, products;
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 > **Achtung:** Vergessen Sie bei der impliziten Syntax die WHERE-Bedingung, passiert ein versehentlicher CROSS JOIN!
@@ -652,7 +702,7 @@ FROM customers c
 CROSS JOIN products p
 LIMIT 10;  -- Nur erste 10 Kombinationen zeigen
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Ergebnis:** 5 Kunden × 6 Produkte = 30 Kombinationen (wir zeigen nur 10).
@@ -721,6 +771,7 @@ SELECT
 FROM customers c1
 LEFT JOIN customers c2 ON c1.referred_by_id = c2.customer_id;
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Wichtig:** Aliase (`c1`, `c2`) sind zwingend – sonst weiß die Datenbank nicht, welche Instanz gemeint ist!
@@ -744,6 +795,7 @@ WITH RECURSIVE hierarchy AS (
 )
 SELECT * FROM hierarchy;
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 > Das ist **advanced SQL** – kommt später!
@@ -783,7 +835,7 @@ FROM customers c
 LEFT JOIN orders o ON c.customer_id = o.customer_id
 WHERE o.order_id IS NULL;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Vorteil:** Einfach zu verstehen, intuitiv.  
@@ -808,7 +860,7 @@ WHERE NOT EXISTS (
   WHERE o.customer_id = c.customer_id
 );
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Vorteil:** Oft performanter (stoppt bei erstem Match).  
@@ -831,7 +883,7 @@ WHERE c.customer_id NOT IN (
   SELECT customer_id FROM orders
 );
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Problem:** Wenn die Subquery NULL enthält, liefert NOT IN **kein Ergebnis**!
@@ -882,7 +934,7 @@ WHERE NOT EXISTS (
   WHERE oi.product_id = p.product_id
 );
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Ergebnis:** Alle Produkte, die in keiner Bestellung vorkommen (Ladenhüter-Analyse).
@@ -920,7 +972,7 @@ SELECT 'Stuttgart' AS city
 UNION
 SELECT 'Berlin' AS city;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Ergebnis:** Jede Stadt nur einmal (Berlin erscheint nur einmal, obwohl es bei Kunden vorkommt).
@@ -939,7 +991,7 @@ SELECT 'Stuttgart' AS city
 UNION ALL
 SELECT 'Berlin' AS city;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Ergebnis:** Berlin erscheint mehrfach.
@@ -963,7 +1015,7 @@ SELECT city FROM (
   VALUES ('Berlin'), ('Munich'), ('Vienna')
 ) AS suppliers(city);
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Ergebnis:** Nur Berlin und Munich (Vienna hat keine Kunden).
@@ -984,7 +1036,7 @@ SELECT city FROM (
   VALUES ('Berlin'), ('Munich')
 ) AS suppliers(city);
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Ergebnis:** Hamburg, Cologne, Frankfurt (Berlin und Munich sind ausgeschlossen).
@@ -1011,6 +1063,7 @@ SELECT first_name FROM customers
 UNION
 SELECT product_name FROM products;
 ```
+@PGlite.terminal(online-shop)
 
 ---
 
@@ -1061,6 +1114,7 @@ SELECT c.first_name, o.order_id
 FROM customers c
 INNER JOIN orders o ON c.customer_id = o.customer_id;
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Typisches Ergebnis:**
@@ -1092,7 +1146,34 @@ CREATE INDEX idx_orders_customer ON orders(customer_id);
 ```
 
     {{1}}
-> **Best Practice:** Erstellen Sie immer Indexes auf Foreign Key-Spalten!
+> **Best Practice:** Erstellen Sie immer Indexes auf Foreign Key-Spalten wie `customer_id`, `location_id`, `category_id`!
+
+---
+
+### Geografische Analyse: Umsatz pro Stadt
+
+    --{{0}}--
+Dank normalisierter Locations können wir jetzt einfach geografische Analysen machen.
+
+**Aufgabe:** Zeigen Sie den Gesamtumsatz pro Stadt mit PLZ.
+
+```sql
+SELECT 
+  l.postal_code,
+  l.city,
+  COUNT(DISTINCT c.customer_id) AS customers,
+  COUNT(o.order_id) AS total_orders,
+  COALESCE(SUM(o.total_amount), 0) AS total_revenue
+FROM locations l
+LEFT JOIN customers c ON l.location_id = c.location_id
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY l.postal_code, l.city
+ORDER BY total_revenue DESC;
+```
+@PGlite.terminal(online-shop)
+
+    {{1}}
+**Ergebnis:** Sie sehen sofort, welche Städte am meisten Umsatz bringen – und welche noch Potenzial haben (viele Kunden, wenig Umsatz).
 
 ---
 
@@ -1147,7 +1228,7 @@ INNER JOIN orders o
   AND o.status = 'completed';
 -- Nur abgeschlossene Bestellungen
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Unterschied zu WHERE:**
@@ -1172,6 +1253,7 @@ LEFT JOIN orders o ON c.customer_id = o.customer_id
 WHERE o.status = 'completed';
 -- Nur Kunden mit completed Orders (funktioniert wie INNER JOIN!)
 ```
+@PGlite.terminal(online-shop)
 
     --{{2}}--
 Bei LEFT/RIGHT/FULL OUTER Joins macht der Ort der Bedingung einen Unterschied!
@@ -1195,6 +1277,7 @@ INNER JOIN employment e2
   AND e1.employee_id < e2.employee_id;
 -- Findet Mitarbeiter, deren Beschäftigungszeiten sich überlappen
 ```
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Use Cases:** Zeitreihen-Overlaps, Preis-Ranges, geografische Bereiche.
@@ -1217,7 +1300,7 @@ FROM customers c
 LEFT JOIN orders o ON c.customer_id = o.customer_id
 GROUP BY c.customer_id, c.first_name;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     {{1}}
 **Vor dem Join (Subquery):**
@@ -1238,7 +1321,7 @@ LEFT JOIN (
   GROUP BY customer_id
 ) order_stats ON c.customer_id = order_stats.customer_id;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     --{{2}}--
 Zweite Variante ist oft performanter: Sie aggregieren zuerst (kleineres Ergebnis), dann joinen Sie.
@@ -1250,29 +1333,27 @@ Zweite Variante ist oft performanter: Sie aggregieren zuerst (kleineres Ergebnis
     --{{0}}--
 Wann nutzen Sie welchen Join? Hier ist Ihre Entscheidungshilfe:
 
-| Szenario                                      | Join-Typ                       |
-|-----------------------------------------------|--------------------------------|
-| Nur Datensätze mit Match                      | **INNER JOIN**                 |
-| Alle von Tabelle A, auch ohne Match           | **LEFT JOIN**                  |
-| Fehlende Beziehungen finden (A ohne B)        | **LEFT JOIN + IS NULL** oder **NOT EXISTS** |
-| Daten-Sync-Vergleich (A vs. B vollständig)    | **FULL OUTER JOIN**            |
-| Alle Kombinationen erzeugen                   | **CROSS JOIN** (mit Vorsicht!) |
-| Hierarchie/Rekursion (eine Ebene)             | **Self Join**                  |
-| Ergebnisse vertikal kombinieren               | **UNION** / **INTERSECT** / **EXCEPT** |
+| Szenario                                   | Join-Typ                                    |
+| ------------------------------------------ | ------------------------------------------- |
+| Nur Datensätze mit Match                   | **INNER JOIN**                              |
+| Alle von Tabelle A, auch ohne Match        | **LEFT JOIN**                               |
+| Fehlende Beziehungen finden (A ohne B)     | **LEFT JOIN + IS NULL** oder **NOT EXISTS** |
+| Daten-Sync-Vergleich (A vs. B vollständig) | **FULL OUTER JOIN**                         |
+| Alle Kombinationen erzeugen                | **CROSS JOIN** (mit Vorsicht!)              |
+| Hierarchie/Rekursion (eine Ebene)          | **Self Join**                               |
+| Ergebnisse vertikal kombinieren            | **UNION** / **INTERSECT** / **EXCEPT**      |
 
     --{{1}}--
 90% aller Joins in Produktion sind INNER oder LEFT. Beherrschen Sie diese beiden, und Sie sind für die meisten Szenarien gerüstet.
 
----
-
 ## Live-Demo: Komplexe Multi-Table Query
 
     --{{0}}--
-Zum Abschluss eine komplexe Query, die alles kombiniert.
+Zum Abschluss eine komplexe Query, die alle 7 normalisierten Tabellen nutzt und zeigt, warum Normalisierung mit N:M-Beziehungen so mächtig ist.
 
 **Aufgabe:** Zeigen Sie für jeden Kunden:
 
-- Name
+- Name & vollständige Adresse (Straße, PLZ, Stadt)
 - Anzahl Bestellungen
 - Gesamtumsatz
 - Meist gekaufte Produkt-Kategorie
@@ -1280,28 +1361,34 @@ Zum Abschluss eine komplexe Query, die alles kombiniert.
 ```sql
 SELECT 
   c.first_name || ' ' || c.last_name AS customer,
+  c.street || ' ' || c.street_number AS address,
+  l.postal_code || ' ' || l.city AS location,
   COUNT(DISTINCT o.order_id) AS order_count,
   COALESCE(SUM(o.total_amount), 0) AS total_spent,
   (
-    SELECT p.category
+    SELECT cat.category_name
     FROM order_items oi
     INNER JOIN products p ON oi.product_id = p.product_id
+    INNER JOIN product_categories pc ON p.product_id = pc.product_id
+    INNER JOIN categories cat ON pc.category_id = cat.category_id
     WHERE oi.order_id IN (
       SELECT order_id FROM orders WHERE customer_id = c.customer_id
     )
-    GROUP BY p.category
+    GROUP BY cat.category_name
     ORDER BY SUM(oi.quantity) DESC
     LIMIT 1
   ) AS favorite_category
 FROM customers c
+LEFT JOIN locations l ON c.location_id = l.location_id
 LEFT JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY c.customer_id, c.first_name, c.last_name
+GROUP BY c.customer_id, c.first_name, c.last_name, c.street, c.street_number, 
+         l.postal_code, l.city
 ORDER BY total_spent DESC;
 ```
-@SQL.exec
+@PGlite.terminal(online-shop)
 
     --{{1}}--
-Diese Query nutzt LEFT JOIN, GROUP BY, Subquery und Aggregation. Solche Queries sind in der Praxis Standard für analytische Berichte.
+Diese Query nutzt LEFT JOIN, GROUP BY, Subquery, Aggregation UND alle 7 Tabellen: customers, locations, orders, order_items, products, product_categories (Junction Table!), categories. Das ist ein realistisches Beispiel aus der Praxis für Business-Analytics mit N:M-Beziehungen. Normalisierung macht solche Analysen erst möglich!
 
 ---
 
