@@ -53,3 +53,4 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 ### Zusätzliche Materialien
 
 - [JavaScript Primer](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md)
+- [SQL Cheat Sheet](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/sql-cheat-sheet.md)

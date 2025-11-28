@@ -179,6 +179,17 @@ collection:
       <h2 style="color: #FF8C42;">📖 Zusatzmaterialien</h2>
       <p>Weitere Ressourcen und Primer für die Vorlesung</p>
 
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/sql-cheat-sheet.md
+    title: "SQL Cheat Sheet"
+    tags:
+      - SQL
+      - Primer
+      - Grundlagen
+      - Abfragen
+      - DDL
+      - DML
+      - SQL
+
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md
     title: "JavaScript Primer"
     tags:
