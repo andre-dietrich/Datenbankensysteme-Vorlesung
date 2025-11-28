@@ -1,70 +1,70 @@
 name: Generate and Deploy Project Website
 
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 permissions:
-    contents: write
+  contents: write
 
 jobs:
-    build_and_deploy:
-        runs-on: ubuntu-latest
+  build_and_deploy:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Install LiaScript-Exporter
-              run: npm install -g @liascript/exporter
+    steps:
+      - name: Install LiaScript-Exporter
+        run: npm install -g @liascript/exporter
 
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-            - name: Generate Project Website with PDFs and SCORM
-              run: |
-                  echo "🚀 Generating project website with resources..."
-                  liaex -i project.yaml --format project --output index --project-generate-pdf --pdf-timeout 60000 --project-generate-scrom12
-                  echo "✅ Generation completed successfully."
+      - name: Generate Project Website with PDFs and SCORM
+        run: |
+          echo "🚀 Generating project website with resources..."
+          liaex -i project.yaml --format project --output index --project-generate-pdf --pdf-timeout 60000 --project-generate-scorm2004 --scorm-embed
+          echo "✅ Generation completed successfully."
 
-            - name: Prepare Deployment Directory
-              run: |
-                  echo "📦 Preparing deployment directory..."
-                  mkdir -p gh-pages-deploy/assets/pdf
-                  mkdir -p gh-pages-deploy/assets/scorm
+      - name: Prepare Deployment Directory
+        run: |
+          echo "📦 Preparing deployment directory..."
+          mkdir -p gh-pages-deploy/assets/pdf
+          mkdir -p gh-pages-deploy/assets/scorm
 
-                  # Copy main index file
-                  cp index.html gh-pages-deploy/
+          # Copy main index file
+          cp index.html gh-pages-deploy/
 
-                  # Copy all generated PDFs to assets/pdf/
-                  echo "📄 Copying PDFs to assets/pdf/..."
-                  find . -name "*.pdf" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/assets/pdf/ \;
+          # Copy all generated PDFs to assets/pdf/
+          echo "📄 Copying PDFs to assets/pdf/..."
+          find . -name "*.pdf" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/assets/pdf/ \;
 
-                  # Copy all generated SCORM packages to assets/scorm/
-                  echo "📦 Copying SCORM packages to assets/scorm/..."
-                  find . -name "*.zip" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/assets/scorm/ \;
+          # Copy all generated SCORM packages to assets/scorm/
+          echo "📦 Copying SCORM packages to assets/scorm/..."
+          find . -name "*.zip" -not -path "./gh-pages-deploy/*" -exec cp {} gh-pages-deploy/assets/scorm/ \;
 
-                  # List what will be deployed
-                  echo "📋 Files to be deployed:"
-                  echo "Root files:"
-                  ls -lh gh-pages-deploy/
-                  echo ""
-                  echo "PDFs in assets/pdf/:"
-                  ls -lh gh-pages-deploy/assets/pdf/ || echo "No PDFs found"
-                  echo ""
-                  echo "SCORM packages in assets/scorm/:"
-                  ls -lh gh-pages-deploy/assets/scorm/ || echo "No SCORM packages found"
+          # List what will be deployed
+          echo "📋 Files to be deployed:"
+          echo "Root files:"
+          ls -lh gh-pages-deploy/
+          echo ""
+          echo "PDFs in assets/pdf/:"
+          ls -lh gh-pages-deploy/assets/pdf/ || echo "No PDFs found"
+          echo ""
+          echo "SCORM packages in assets/scorm/:"
+          ls -lh gh-pages-deploy/assets/scorm/ || echo "No SCORM packages found"
 
-                  echo "✅ Deployment directory prepared successfully."
+          echo "✅ Deployment directory prepared successfully."
 
-            - name: Deploy to GitHub Pages
-              uses: peaceiris/actions-gh-pages@v3
-              with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_branch: gh-pages
-                  publish_dir: gh-pages-deploy
-                  force_orphan: true
-                  commit_message: "Deploy: ${{ github.event.head_commit.message }}"
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: gh-pages-deploy
+          force_orphan: true
+          commit_message: "Deploy: ${{ github.event.head_commit.message }}"
 
-            - name: Output Website URL
-              run: |
-                  echo "✅ Website deployed successfully!"
-                  echo "🌐 Visit: https://${{ github.repository_owner }}.github.io/Datenbankensysteme-Vorlesung/"
+      - name: Output Website URL
+        run: |
+          echo "✅ Website deployed successfully!"
+          echo "🌐 Visit: https://${{ github.repository_owner }}.github.io/Datenbankensysteme-Vorlesung/"
