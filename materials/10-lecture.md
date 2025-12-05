@@ -1,7 +1,7 @@
 <!--
 author:   André Dietrich; GitHub Copilot
 email:    LiaScript@web.de
-version:  1.0.0
+version:  2.0.0
 language: de
 narrator: Deutsch Female
 
@@ -179,15 +179,17 @@ INSERT INTO customers(customer_id, first_name, last_name, email, street, street_
   (2, 'Bob',   'Brown',    'bob@email.com',   'Reeperbahn',       '15', 2),
   (3, 'Carol', 'Clark',    'carol@email.com', 'Marienplatz',       '8', 3),
   (4, 'David', 'Davis',    'david@email.com', 'Hohe Straße',     '123', 4),
-  (5, 'Emma',  'Evans',    'emma@email.com',  'Zeil',             '99', 5);
+  (5, 'Emma',  'Evans',    'emma@email.com',  'Zeil',             '99', 5),
+  (99, 'Zoe',   'Zimmer',  'zoe@emailcom',    'Unter den Linden',  '1', 1); -- Orphaned customer! No orders.
 
--- Sample Data: Orders (Note: Customer 5 has NO orders!)
+-- Sample Data: Orders (Note: Customer 5 has NO orders! Order 106 has invalid customer_id!)
 INSERT INTO orders(order_id, customer_id, order_date, total_amount, status) VALUES
   (101, 1, '2024-01-15', 299.99, 'completed'),
   (102, 1, '2024-02-20', 149.50, 'completed'),
   (103, 2, '2024-01-22', 499.99, 'completed'),
   (104, 3, '2024-03-10',  89.99, 'pending'  ),
-  (105, 4, '2024-03-15', 199.99, 'completed');
+  (105, 4, '2024-03-15', 199.99, 'completed'),
+  (106, 99, '2023-03-20', 79.99, 'completed'); -- Orphaned order! Customer 99 doesn't exist!
 
 -- Sample Data: Products (ohne direkte Category-Referenz)
 INSERT INTO products(product_id, product_name, price) VALUES
@@ -196,7 +198,10 @@ INSERT INTO products(product_id, product_name, price) VALUES
   (3, 'Keyboard',    79.99),
   (4, 'Monitor',    299.99),
   (5, 'Desk Chair', 199.99),
-  (6, 'Notebook',     9.99);
+  (6, 'Notebook',     9.99),
+  (7, 'USB Cable',   14.99),
+  (8, 'Desk Lamp',   49.99),
+  (9, 'Paper',        4.99);
 
 -- Sample Data: Product Categories (N:M-Beziehungen)
 INSERT INTO product_categories(product_id, category_id) VALUES
@@ -210,7 +215,11 @@ INSERT INTO product_categories(product_id, category_id) VALUES
   (4, 4),  -- Monitor → Office Equipment
   (5, 2),  -- Desk Chair → Furniture
   (5, 4),  -- Desk Chair → Office Equipment
-  (6, 3);  -- Notebook → Stationery (nur eine Kategorie!)
+  (6, 3),  -- Notebook → Stationery (nur eine Kategorie!)
+  (7, 1),  -- USB Cable → Electronics (nicht verkauft!)
+  (8, 2),  -- Desk Lamp → Furniture (nicht verkauft!)
+  (8, 4),  -- Desk Lamp → Office Equipment
+  (9, 3);  -- Paper → Stationery (nicht verkauft!)
 
 -- Sample Data: Order Items
 INSERT INTO order_items(order_item_id, order_id, product_id, quantity, line_total) VALUES
@@ -219,7 +228,16 @@ INSERT INTO order_items(order_item_id, order_id, product_id, quantity, line_tota
   (3, 102, 3, 1,  79.99),
   (4, 103, 1, 1, 999.99),
   (5, 104, 6, 5,  49.95),
-  (6, 105, 5, 1, 199.99);
+  (6, 105, 5, 1, 199.99),
+  (7, 106, 7, 5,  74.95); -- Orphaned order 106: USB Cable
+
+-- Create orphan data for testing purposes
+UPDATE orders
+SET customer_id = NULL
+WHERE customer_id = 99;
+
+DELETE FROM customers
+WHERE customer_id = 99;
 ```
 @PGlite.terminal(online-shop)
 
@@ -938,4 +956,1392 @@ CTEs sind "benannte Subqueries". Sie machen Queries lesbarer und wiederverwendba
 
 ### CTE-Syntax: WITH ... AS
 
-Todo
+    --{{0}}--
+Die Syntax ist einfach: `WITH name AS (SELECT ...)`.
+
+**Aufgabe:** Durchschnittspreis berechnen und wiederverwenden.
+
+``` sql @dbdiagram
+Table products {
+  product_id int [pk]
+  product_name varchar [not null]
+  price decimal(10,2)
+}
+```
+
+```sql
+WITH avg_price_cte AS (
+  SELECT AVG(price) AS avg_price FROM products
+)
+
+SELECT 
+  p.product_id,
+  p.product_name,
+  p.price,
+  (SELECT avg_price FROM avg_price_cte) AS avg_price,
+  p.price - (SELECT avg_price FROM avg_price_cte) AS difference
+FROM products p
+WHERE p.price > (SELECT avg_price FROM avg_price_cte);
+```
+@PGlite.terminal(online-shop)
+
+    {{1}}
+**Vorteil:** Der Durchschnitt wird nur einmal in der CTE berechnet. Die Query ist lesbar: "Was ist avg_price_cte? Schaue am Anfang!"
+
+---
+
+### Multiple CTEs: Logische Schritte
+
+    --{{0}}--
+Sie können mehrere CTEs definieren – jede kann auf vorherige zugreifen.
+
+**Aufgabe:** Finden Sie alle Produkte, die teurer sind als der durchschnittliche Preis in ihrer Kategorie.
+
+```sql
+WITH product_with_categories AS (
+  SELECT 
+    p.product_id,
+    p.product_name,
+    p.price,
+    pc.category_id
+  FROM products p, product_categories pc
+  WHERE p.product_id = pc.product_id
+),
+category_avg_prices AS (
+  SELECT 
+    category_id,
+    AVG(price) AS avg_price
+  FROM product_with_categories
+  GROUP BY category_id
+)
+SELECT 
+  pwc.product_name,
+  pwc.price,
+  pwc.category_id,
+  (SELECT avg_price FROM category_avg_prices cap WHERE cap.category_id = pwc.category_id) AS category_avg
+FROM product_with_categories pwc
+WHERE pwc.price > (SELECT avg_price FROM category_avg_prices cap WHERE cap.category_id = pwc.category_id);
+```
+@PGlite.terminal(online-shop)
+
+    {{1}}
+**Das ist jetzt viel lesbarer!**
+
+    {{1}}
+1. `product_with_categories`: Produkte mit ihren Kategorien verknüpfen
+2. `category_avg_prices`: Durchschnittspreis pro Kategorie berechnen
+3. Hauptquery: Zeigt Produkte, die teurer als der Kategorie-Durchschnitt sind
+
+    --{{2}}--
+Jeder Schritt ist klar benannt. Die Logik ist in kleine, verständliche Blöcke aufgeteilt.
+
+---
+
+### CTEs vs. Subqueries: Wann was?
+
+| Kriterium            | Subqueries                   | CTEs                         |
+| -------------------- | ---------------------------- | ---------------------------- |
+| **Lesbarkeit**       | Schlecht bei Verschachtelung | Gut (logische Schritte)      |
+| **Wiederverwendung** | Nein                         | Ja (mehrfach referenzierbar) |
+| **Performance**      | Identisch                    | Identisch (meist)            |
+| **Komplexität**      | Einfache Fälle ok            | Komplexe Queries besser      |
+
+    {{1}}
+> **Faustregel:** Bei mehr als einer Verschachtelungsebene → nutzen Sie CTEs!
+
+---
+
+### CTEs: Die Grenze
+
+    --{{0}}--
+CTEs sind großartig für komplexe Berechnungen und schrittweise Aggregationen, aber sie haben eine Einschränkung: Das **parallele Zusammenführen von Spalten aus mehreren Tabellen** wird schnell unübersichtlich.
+
+**Problem:** Zeigen Sie für jede Bestellung den Kundennamen UND die bestellten Produkte.
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar [not null]
+  last_name varchar [not null]
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+}
+
+Table order_items {
+  order_item_id int [pk]
+  order_id int [ref: > orders.order_id]
+  product_id int [ref: > products.product_id]
+}
+
+Table products {
+  product_id int [pk]
+  product_name varchar [not null]
+}
+```
+
+```sql
+-- Mit CTE und Subqueries: Umständlich!
+WITH order_data AS (
+  SELECT 
+    o.order_id,
+    o.order_date,
+    o.customer_id
+  FROM orders o
+)
+SELECT 
+  od.order_id,
+  od.order_date,
+  (SELECT c.first_name || ' ' || c.last_name 
+   FROM customers c 
+   WHERE c.customer_id = od.customer_id) AS customer_name,
+  (SELECT p.product_name 
+   FROM order_items oi, products p 
+   WHERE oi.order_id = od.order_id 
+     AND oi.product_id = p.product_id 
+   LIMIT 1) AS first_product
+FROM order_data od;
+```
+@PGlite.terminal(online-shop)
+
+    {{1}}
+**Problem mit diesem Ansatz:**
+
+    {{1}}
+- Mehrere verschachtelte Subqueries – schwer zu lesen
+- Zeigt nur das *erste* Produkt pro Bestellung (LIMIT 1)
+- Performance: Subqueries werden für jede Zeile neu ausgeführt
+- Wenn eine Bestellung mehrere Produkte hat, fehlen diese
+
+    --{{2}}--
+CTEs helfen bei Komplexität und schrittweisen Berechnungen, aber für das **elegante Zusammenführen von Daten aus mehreren Tabellen** brauchen wir ein besseres Werkzeug: Joins!
+
+    --{{3}}--
+Zeit für Technik 3: Joins – die Lösung für genau dieses Problem!
+
+---
+
+## Technik 3: Joins – Die elegante Lösung
+
+    --{{0}}--
+Joins sind das Werkzeug, um Spalten aus mehreren Tabellen **parallel** in einer Zeile zusammenzuführen. Statt verschachtelt zu denken (Subqueries) oder in Schritten (CTEs), denken Sie horizontal: "Füge Tabellen nebeneinander zusammen."
+
+    --{{1}}--
+Ein Join ist wie ein Reißverschluss: Sie haben zwei Listen und verbinden passende Einträge. Kunden und ihre Bestellungen. Produkte und ihre Kategorien. Das Ergebnis? Eine Zeile mit Informationen aus beiden Tabellen.
+
+    --{{2}}--
+Aber es gibt verschiedene Arten von Joins – je nachdem, was Sie mit nicht-passenden Einträgen machen wollen. Schauen wir uns die wichtigsten an.
+
+---
+
+### Die JOIN-Syntax
+
+    --{{0}}--
+Moderne Joins nutzen das Schlüsselwort `JOIN` mit einer `ON`-Bedingung. Das trennt die Join-Logik sauber vom WHERE-Filter.
+
+```sql
+SELECT 
+  spalten_aus_tabelle_a,
+  spalten_aus_tabelle_b
+FROM tabelle_a
+JOIN_TYP tabelle_b ON tabelle_a.key = tabelle_b.key
+WHERE weitere_filter;
+```
+
+    {{1}}
+**Bestandteile:**
+
+    {{1}}
+- `JOIN_TYP`: INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN, CROSS JOIN
+- `ON`: Die Bedingung, wie Zeilen zusammenpassen (meist Foreign Key = Primary Key)
+- `WHERE`: Zusätzliche Filter (optional, nach dem Join)
+
+    --{{2}}--
+Wichtig: ON definiert die Beziehung, WHERE filtert das Ergebnis. Das nicht zu verwechseln macht Queries klar und wartbar!
+
+---
+
+### Überblick: Die 5 Join-Typen
+
+    --{{0}}--
+Es gibt fünf Haupt-Join-Typen. Jeder beantwortet eine andere Frage.
+
+| Join-Typ           | Frage                                                  | Wann nutzen?                         |
+|--------------------|--------------------------------------------------------|--------------------------------------|
+| **INNER JOIN**     | Zeige nur Einträge, die in beiden Tabellen existieren  | Standard-Fall, nur Matches wichtig   |
+| **LEFT JOIN**      | Zeige alle aus Tabelle A, auch ohne Match in B        | "Wer hat KEINE Bestellung?"          |
+| **RIGHT JOIN**     | Zeige alle aus Tabelle B, auch ohne Match in A        | Selten (meist LEFT stattdessen)      |
+| **FULL OUTER JOIN**| Zeige alles aus beiden Tabellen                        | Vergleiche, Sync-Checks              |
+| **CROSS JOIN**     | Zeige alle Kombinationen (kartesisches Produkt)        | Test-Kombinationen, Kalender         |
+
+    --{{1}}--
+In der Praxis machen INNER JOIN und LEFT JOIN etwa 95% aller Joins aus. Die anderen sind Spezialfälle. Beginnen wir mit dem häufigsten: INNER JOIN.
+
+---
+
+## INNER JOIN: Nur die Matches
+
+    --{{0}}--
+INNER JOIN ist der Standard-Join. Er gibt nur Zeilen zurück, bei denen es in **beiden** Tabellen einen passenden Eintrag gibt.
+
+### Visualisierung: Venn-Diagramm
+
+
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Kreise definieren -->
+    <circle id="circleCustomers" cx="240" cy="130" r="80" />
+    <circle id="circleOrders"   cx="360" cy="130" r="80" />
+
+    <!-- ClipPath für die Schnittmenge -->
+    <clipPath id="clipIntersection">
+      <use href="#circleOrders" />
+    </clipPath>
+  </defs>
+
+  <!-- Linker Kreis -->
+  <use href="#circleCustomers"
+       fill="#e3f2fd"
+       stroke="#1976d2"
+       stroke-width="4"
+       opacity="0.8" />
+
+  <!-- Rechter Kreis -->
+  <use href="#circleOrders"
+       fill="#fff3e0"
+       stroke="#f57c00"
+       stroke-width="4"
+       opacity="0.8" />
+
+  <!-- Schnittmenge -->
+  <use href="#circleCustomers"
+       fill="#4caf50"
+       opacity="0.85"
+       clip-path="url(#clipIntersection)" />
+
+  <!-- Titel der Kreise -->
+  <text x="240" y="45"
+        font-size="18"
+        fill="#1976d2"
+        font-weight="bold"
+        text-anchor="middle">
+    Customers
+  </text>
+
+  <text x="360" y="45"
+        font-size="18"
+        fill="#f57c00"
+        font-weight="bold"
+        text-anchor="middle">
+    Orders
+  </text>
+</svg>
+
+    --{{1}}--
+Denken Sie an die Überschneidung zweier Kreise: Nur der grüne Bereich (wo sich beide überlappen) kommt ins Ergebnis. Alles andere wird ignoriert.
+
+---
+
+### Konzept: Wie funktioniert INNER JOIN?
+
+    --{{0}}--
+Stellen Sie sich zwei Listen vor:
+
+```ascii
+Customers                 Orders
++----+---------+          +-----+-------------+
+| ID | Name    |          | OID | customer_id |
++----+---------+          +-----+-------------+
+| 1  | Alice   |          | 101 | 1           | ← Passt zu Alice
+| 2  | Bob     |          | 102 | 1           | ← Passt zu Alice
+| 3  | Carol   |          | 103 | 2           | ← Passt zu Bob
+| 5  | Emma    |          | 105 | 4           | ← Passt zu David
++----+---------+          +-----+-------------+
+
+INNER JOIN ON customer_id:
+Alice - Order 101 ✓
+Alice - Order 102 ✓
+Bob   - Order 103 ✓
+David - Order 105 ✓
+
+Emma? Hat keine Bestellung → kommt NICHT ins Ergebnis!
+```
+
+    --{{1}}--
+SQL geht beide Tabellen durch und verbindet nur Zeilen, wo die customer_id übereinstimmt. Emma hat keine Bestellung, also keine Übereinstimmung, also kein Ergebnis.
+
+### Beispiel 1: Kunden mit ihren Bestellungen
+
+    --{{0}}--
+Zeigen Sie jeden Kunden zusammen mit seinen Bestellungen.
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar
+  last_name varchar
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal
+}
+```
+
+```sql
+SELECT 
+  c.first_name,
+  c.last_name,
+  o.order_id,
+  o.order_date
+FROM customers c, orders o
+WHERE c.customer_id = o.customer_id
+ORDER BY c.last_name, o.order_date;
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Was passiert hier?**
+
+    {{1}}
+1. SQL nimmt jeden Kunden aus `customers`
+2. Sucht alle passenden Bestellungen in `orders` (wo `customer_id` übereinstimmt)
+3. Erstellt eine Zeile pro Match: Kunde + Bestellung
+4. Emma hat keine Bestellung → erscheint nicht
+
+    --{{2}}--
+Führen Sie die Query aus. Sie sehen: Alice erscheint zweimal (hat zwei Bestellungen), Emma fehlt komplett.
+
+---
+
+### Beispiel 2: Bestellungen mit Produktnamen
+
+    --{{0}}--
+Zeigen Sie für jede Bestellposition das Produkt mit Namen.
+
+``` sql @dbdiagram
+Table order_items {
+  order_item_id int [pk]
+  order_id int
+  product_id int [ref: > products.product_id]
+  quantity int
+}
+
+Table products {
+  product_id int [pk]
+  product_name varchar
+  price decimal
+}
+```
+
+```sql
+SELECT 
+  oi.order_id,
+  oi.quantity
+FROM order_items oi
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Was sehen Sie?**
+
+    {{1}}
+- Order 101: Monitor
+- Order 102: Mouse (2×) + Keyboard
+- Order 103: Laptop
+- ...
+- Jede Zeile kombiniert Bestellposition mit Produktdetails
+
+    --{{2}}--
+Das ist die Essenz von Joins: Informationen aus verschiedenen Tabellen landen in einer Zeile. Praktisch!
+
+---
+
+### Wann INNER JOIN nutzen?
+
+    --{{0}}--
+INNER JOIN ist Ihre Standard-Wahl, wenn Sie nur an **existierenden Beziehungen** interessiert sind.
+
+    {{1}}
+**Typische Anwendungsfälle:**
+
+    {{1}}
+- Bestellungen mit Kundendaten anzeigen (nur abgeschlossene Bestellungen)
+- Produkte mit Kategorien (nur kategorisierte Produkte)
+- Rechnungen mit Zahlungen (nur bezahlte Rechnungen)
+- Log-Einträge mit User-Details (nur bekannte User)
+
+    {{2}}
+> **Faustregel:** INNER JOIN = "Zeige mir nur, wo beides existiert"
+
+---
+
+## LEFT JOIN: Alle von links + Matches
+
+    --{{0}}--
+LEFT JOIN (auch LEFT OUTER JOIN genannt) gibt **alle Zeilen der linken Tabelle** zurück – auch wenn es rechts keinen Match gibt. Fehlende Matches werden mit NULL aufgefüllt.
+
+### Visualisierung: Venn-Diagramm
+
+
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Basis-Kreise -->
+    <circle id="circleLeft"  cx="240" cy="130" r="80" />
+    <circle id="circleRight" cx="360" cy="130" r="80" />
+
+    <!-- Schnittmenge: rechter Kreis schneidet linken -->
+    <clipPath id="clipIntersection">
+      <use href="#circleRight" />
+    </clipPath>
+  </defs>
+
+  <!-- Linker Kreis (Customers) – komplettes Ergebnis grün -->
+  <use href="#circleLeft"
+       fill="#4caf50"
+       stroke="#1976d2"
+       stroke-width="4"
+       opacity="0.85" />
+
+  <!-- Rechter Kreis (Orders) nur als Umriss / Kontext -->
+  <use href="#circleRight"
+       fill="#fff3e0"
+       stroke="#f57c00"
+       stroke-width="4"
+       opacity="0.4" />
+
+  <!-- Titel der Kreise -->
+  <text x="240" y="45"
+        font-size="18"
+        fill="#1976d2"
+        font-weight="bold"
+        text-anchor="middle">
+    Customers
+  </text>
+
+  <text x="360" y="45"
+        font-size="18"
+        fill="#f57c00"
+        font-weight="bold"
+        text-anchor="middle">
+    Orders
+  </text>
+
+  <!-- Beschriftung -->
+  <text x="240" y="130"
+        font-size="18"
+        fill="white"
+        font-weight="bold"
+        text-anchor="middle"
+        alignment-baseline="middle">
+    LEFT
+  </text>
+
+  <!-- Erklärung unten -->
+  <text x="300" y="235"
+        font-size="14"
+        fill="#666"
+        text-anchor="middle">
+    Alle Werte aus der linken Tabelle (Customer) + deren Matches (LEFT JOIN)
+  </text>
+</svg>
+
+
+
+    --{{1}}--
+Der komplette linke Kreis ist grün – das bedeutet: ALLE Einträge aus der linken Tabelle kommen ins Ergebnis, egal ob es rechts einen Match gibt.
+
+---
+
+### Konzept: Wie funktioniert LEFT JOIN?
+
+    --{{0}}--
+LEFT JOIN behält alle Zeilen der linken Tabelle und fügt passende Daten von rechts hinzu – oder NULL, wenn nichts passt.
+
+```ascii
+Customers (links)         Orders (rechts)
++----+---------+          +-----+-------------+
+| ID | Name    |          | OID | customer_id |
++----+---------+          +-----+-------------+
+| 1  | Alice   |          | 101 | 1           | ← Match
+| 2  | Bob     |          | 102 | 1           | ← Match
+| 3  | Carol   |          | 103 | 2           | ← Match
+| 4  | David   |          | 105 | 4           | ← Match
+| 5  | Emma    |          (keine Bestellung)
++----+---------+          +-----+-------------+
+
+LEFT JOIN ON customer_id:
+Alice - Order 101 ✓
+Alice - Order 102 ✓
+Bob   - Order 103 ✓
+David - Order 105 ✓
+Emma  - NULL      ← Emma bleibt im Ergebnis, aber Order-Felder sind NULL!
+```
+
+    --{{1}}--
+Das ist der Schlüssel: Die linke Tabelle bestimmt, welche Zeilen im Ergebnis erscheinen. Die rechte Tabelle ergänzt nur.
+
+---
+
+### Beispiel 1: Alle Kunden (auch ohne Bestellungen)
+
+    --{{0}}--
+Zeigen Sie ALLE Kunden – egal ob sie bestellt haben oder nicht.
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar
+  last_name varchar
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal
+}
+```
+
+```sql
+SELECT 
+  first_name,
+  last_name
+FROM customers c
+-- JOIN 
+ORDER BY last_name;
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Was sehen Sie?**
+
+    {{1}}
+- Alice, Bob, Carol, David: Jeweils mit ihren Bestellungen
+- Emma: Erscheint auch! Aber `order_id`, `order_date`, `total_amount` sind NULL
+
+    --{{2}}--
+Das ist der Unterschied zu INNER JOIN: Emma wird nicht ignoriert. Links bestimmt das Ergebnis!
+
+---
+
+### Beispiel 2: Produkte mit Verkaufszahlen (auch unverkaufte)
+
+    --{{0}}--
+Zeigen Sie alle Produkte – auch die, die noch nie verkauft wurden.
+
+``` sql @dbdiagram
+Table products {
+  product_id int [pk]
+  product_name varchar
+  price decimal
+}
+
+Table order_items {
+  order_item_id int [pk]
+  product_id int [ref: > products.product_id]
+  quantity int
+}
+```
+
+```sql
+SELECT 
+  p.product_name,
+  p.price,
+FROM products p
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Was passiert hier?**
+
+    {{1}}
+- Produkte mit Verkäufen: `times_sold` > 0
+- Unverkaufte Produkte: `times_sold` = 0 (COUNT zählt NULL als 0)
+
+    --{{2}}--
+LEFT JOIN ermöglicht es, fehlende Beziehungen zu finden. Das ist extrem wertvoll für Analysen!
+
+---
+
+### Wann LEFT JOIN nutzen?
+
+    --{{0}}--
+LEFT JOIN ist perfekt, wenn Sie **fehlende Beziehungen** identifizieren wollen.
+
+    {{1}}
+**Typische Anwendungsfälle:**
+
+    {{1}}
+- Kunden ohne Bestellungen (Inaktive finden)
+- Produkte ohne Verkäufe (Ladenhüter)
+- Artikel ohne Übersetzungen (Content-Lücken)
+- Rechnungen ohne Zahlung (Offene Posten)
+
+    {{2}}
+> **Faustregel:** LEFT JOIN = "Zeige alle von links, ergänze rechts wenn möglich"
+
+---
+
+### Anti-Join: Fehlende finden mit IS NULL
+
+    --{{0}}--
+Eine mächtige Technik: LEFT JOIN + WHERE IS NULL = "Zeige nur die OHNE Match"
+
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Basis-Kreise -->
+    <circle id="circleLeft"  cx="240" cy="130" r="80" />
+    <circle id="circleRight" cx="360" cy="130" r="80" />
+
+    <!-- Maske: rechter Kreis "stanzt" sich aus dem linken aus -->
+    <mask id="maskLeftAnti">
+      <!-- Alles sichtbar machen -->
+      <rect x="0" y="0" width="600" height="260" fill="white" />
+      <!-- Bereich der rechten Kugel ausblenden -->
+      <use href="#circleRight" fill="black" />
+    </mask>
+  </defs>
+
+  <!-- Linker Kreis (leicht im Hintergrund) -->
+  <use href="#circleLeft"
+       fill="#e3f2fd"
+       stroke="#1976d2"
+       stroke-width="4"
+       opacity="0.4" />
+
+  <!-- Rechter Kreis (Kontext) -->
+  <use href="#circleRight"
+       fill="#fff3e0"
+       stroke="#f57c00"
+       stroke-width="4"
+       opacity="0.4" />
+
+  <!-- LEFT ANTI JOIN: nur der Teil des linken Kreises,
+       der NICHT mit dem rechten überlappt -->
+  <use href="#circleLeft"
+       fill="#4caf50"
+       stroke="#1976d2"
+       stroke-width="4"
+       mask="url(#maskLeftAnti)"
+       opacity="0.9" />
+
+  <!-- Titel der Kreise -->
+  <text x="240" y="45"
+        font-size="18"
+        fill="#1976d2"
+        font-weight="bold"
+        text-anchor="middle">
+    Customers
+  </text>
+
+  <text x="360" y="45"
+        font-size="18"
+        fill="#f57c00"
+        font-weight="bold"
+        text-anchor="middle">
+    Orders
+  </text>
+
+  <!-- Beschriftung im grünen Bereich (links) -->
+  <text x="235" y="135"
+        font-size="16"
+        fill="white"
+        font-weight="bold"
+        text-anchor="middle"
+        alignment-baseline="middle">
+    LEFT ANTI
+  </text>
+
+  <!-- Erklärung -->
+  <text x="300" y="235"
+        font-size="14"
+        fill="#666"
+        text-anchor="middle">
+    Nur Customers, die KEINE passenden Orders haben (LEFT ANTI JOIN)
+  </text>
+</svg>
+
+
+**Frage:** Welche Kunden haben noch NIE bestellt?
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar
+  last_name varchar
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+}
+```
+
+```sql
+SELECT 
+  c.customer_id,
+  c.first_name,
+  c.last_name
+FROM customers c
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Trick:** Nach dem LEFT JOIN filtern Sie auf NULL in der rechten Tabelle. Das sind exakt die Zeilen ohne Match!
+
+    --{{2}}--
+Diese Technik heißt "Anti-Join" und ist in der Praxis extrem häufig. Sie finden damit Lücken in Ihren Daten.
+
+---
+
+## RIGHT JOIN: Alle von rechts + Matches
+
+    --{{0}}--
+RIGHT JOIN ist das Spiegelbild von LEFT JOIN: Alle Zeilen der **rechten** Tabelle bleiben erhalten, links wird ergänzt.
+
+### Visualisierung: Venn-Diagramm
+
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Basis-Kreise -->
+    <circle id="circleLeft"  cx="240" cy="130" r="80" />
+    <circle id="circleRight" cx="360" cy="130" r="80" />
+
+    <!-- Maske: linker Kreis ausschneiden für Anti-Bereiche (hier nicht benötigt) -->
+  </defs>
+
+  <!-- Linker Kreis (Kontext, nicht Teil des Ergebnisses) -->
+  <use href="#circleLeft"
+       fill="#e3f2fd"
+       stroke="#1976d2"
+       stroke-width="4"
+       opacity="0.35" />
+
+  <!-- Rechter Kreis (Orders) – komplettes Ergebnis grün -->
+  <use href="#circleRight"
+       fill="#4caf50"
+       stroke="#f57c00"
+       stroke-width="4"
+       opacity="0.9" />
+
+  <!-- Titel der Kreise -->
+  <text x="240" y="45"
+        font-size="18"
+        fill="#1976d2"
+        font-weight="bold"
+        text-anchor="middle">
+    Customers
+  </text>
+
+  <text x="360" y="45"
+        font-size="18"
+        fill="#f57c00"
+        font-weight="bold"
+        text-anchor="middle">
+    Orders
+  </text>
+
+  <!-- Beschriftung im Ergebnis-Kreis -->
+  <text x="360" y="130"
+        font-size="18"
+        fill="white"
+        font-weight="bold"
+        alignment-baseline="middle"
+        text-anchor="middle">
+    RIGHT
+  </text>
+
+  <!-- Erklärung -->
+  <text x="300" y="235"
+        font-size="14"
+        fill="#666"
+        text-anchor="middle">
+    Alle Werte aus Orders + deren Matches (RIGHT JOIN)
+  </text>
+</svg>
+
+
+    --{{1}}--
+Der komplette rechte Kreis ist grün. Alle Bestellungen kommen ins Ergebnis – auch wenn der Kunde unbekannt ist (was eigentlich nicht passieren sollte, aber theoretisch möglich ist).
+
+---
+
+### In der Praxis: Selten genutzt
+
+    --{{0}}--
+RIGHT JOIN wird in der Praxis kaum verwendet. Warum? Weil Sie fast immer eine LEFT JOIN Alternative schreiben können, die leichter zu verstehen ist.
+
+```sql
+-- RIGHT JOIN:
+SELECT * FROM customers c
+RIGHT JOIN orders o ON c.customer_id = o.customer_id;
+
+-- Definieren Sie das gleichbedeutende LEFT JOIN:
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Beide Queries liefern identische Ergebnisse!** Die zweite ist aber intuitiver: Links ist die Haupttabelle.
+
+    --{{2}}--
+Mein Rat: Vermeiden Sie RIGHT JOIN. Schreiben Sie stattdessen LEFT JOIN mit vertauschter Reihenfolge. Das ist Standard in den meisten Teams.
+
+---
+
+## FULL OUTER JOIN: Alles aus beiden Tabellen
+
+    --{{0}}--
+FULL OUTER JOIN (oder nur FULL JOIN) kombiniert LEFT und RIGHT JOIN: Alle Zeilen aus **beiden** Tabellen kommen ins Ergebnis. Matches werden verbunden, fehlende Matches mit NULL aufgefüllt.
+
+### Visualisierung: Venn-Diagramm
+
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Basis-Kreise -->
+    <circle id="circleLeft"  cx="240" cy="130" r="80" />
+    <circle id="circleRight" cx="360" cy="130" r="80" />
+  </defs>
+
+  <!-- Linker Kreis (Teil des Ergebnisses) -->
+  <use href="#circleLeft"
+       fill="#4caf50"
+       stroke="#1976d2"
+       stroke-width="4"
+       opacity="0.85" />
+
+  <!-- Rechter Kreis (Teil des Ergebnisses) -->
+  <use href="#circleRight"
+       fill="#4caf50"
+       stroke="#f57c00"
+       stroke-width="4"
+       opacity="0.85" />
+
+  <!-- Titel der Kreise -->
+  <text x="240" y="45"
+        font-size="18"
+        fill="#1976d2"
+        font-weight="bold"
+        text-anchor="middle">
+    Customers
+  </text>
+
+  <text x="360" y="45"
+        font-size="18"
+        fill="#f57c00"
+        font-weight="bold"
+        text-anchor="middle">
+    Orders
+  </text>
+
+  <!-- Beschriftung im Zentrum -->
+  <text x="300" y="130"
+        font-size="18"
+        fill="white"
+        font-weight="bold"
+        alignment-baseline="middle"
+        text-anchor="middle">
+    FULL
+  </text>
+
+  <!-- Erklärung -->
+  <text x="300" y="235"
+        font-size="14"
+        fill="#666"
+        text-anchor="middle">
+    Alle Werte aus Customers und Orders (FULL JOIN)
+  </text>
+</svg>
+
+
+    --{{1}}--
+Beide Kreise sind komplett grün. Jede Zeile aus jeder Tabelle erscheint mindestens einmal – entweder mit Match oder mit NULLs.
+
+---
+
+### Konzept: Die vollständige Vereinigung
+
+    --{{0}}--
+FULL OUTER JOIN ist wie: "Zeige mir alles – Matches, Nur-Links, Nur-Rechts."
+
+```ascii
+Customers           Orders
++----+-------+     +-----+------+
+| 1  | Alice |     | 101 | 1    | ← Match mit Alice
+| 2  | Bob   |     | 102 | 1    | ← Match mit Alice
+| 5  | Emma  |     | 106 | NULL | ← Kunde wurde gelöscht!
++----+-------+     +-----+------+
+
+FULL OUTER JOIN:
+Alice - Order 101 ✓
+Alice - Order 102 ✓
+Bob   - NULL      ✓ (Bob hat keine Bestellung)
+Emma  - NULL      ✓ (Emma hat keine Bestellung)
+NULL  - Order 106 ✓ (Bestellung hat ungültigen Kunden)
+```
+
+    --{{1}}--
+Sie sehen: Sowohl Emma (Kunde ohne Bestellung) als auch Order 106 (Bestellung ohne Kunden) erscheinen im Ergebnis. Nichts geht verloren!
+
+---
+
+### Beispiel 1: Vollständiger Datenabgleich
+
+    --{{0}}--
+Zeigen Sie ALLE Kunden und ALLE Bestellungen – auch wenn Kunden keine Bestellung haben ODER Bestellungen keinen gültigen Kunden haben.
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar
+  last_name varchar
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+  order_date date
+  total_amount decimal
+}
+```
+
+```sql
+SELECT 
+  c.customer_id,
+  c.first_name || ' ' || c.last_name AS customer_name,
+--  o.order_id,
+--  o.order_date,
+--  o.total_amount
+FROM customers c
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Was sehen Sie?**
+
+    {{1}}
+- Emma (customer_id = 5): Erscheint mit NULL bei Bestellungen → Kunde ohne Bestellung
+- Order 106: Erscheint mit NULL bei Kundendaten → Bestellung ohne gültigen Kunden (customer_id = 99 existiert nicht!)
+- Alle anderen: Normale Matches
+
+    --{{2}}--
+FULL OUTER JOIN ist perfekt für Datenqualitäts-Checks: "Zeige mir ALLES, damit ich Inkonsistenzen erkenne." Hier sehen wir beide Probleme: Emma hat nicht bestellt UND Order 106 hat einen ungültigen Kunden.
+
+
+### Wann FULL OUTER JOIN nutzen?
+
+    --{{0}}--
+FULL OUTER JOIN ist selten, aber für spezielle Aufgaben perfekt.
+
+    {{1}}
+**Typische Anwendungsfälle:**
+
+    {{1}}
+- Datenbank-Sync prüfen (Quelle vs. Ziel)
+- Inkonsistenzen finden (Orphaned Records auf beiden Seiten)
+- Audit-Reports (vollständige Übersicht)
+
+    {{2}}
+> **Faustregel:** FULL OUTER JOIN = "Zeige alles aus beiden Welten"
+
+    --{{3}}--
+In der Praxis wird FULL OUTER JOIN selten genutzt – oft kann man das Problem mit zwei LEFT JOINs + UNION lösen. Aber wenn Sie ihn brauchen, ist er unschlagbar praktisch!
+
+---
+
+## CROSS JOIN: Alle Kombinationen (Kartesisches Produkt)
+
+    --{{0}}--
+CROSS JOIN ist der ungewöhnlichste Join: Er verbindet **jede Zeile** der ersten Tabelle mit **jeder Zeile** der zweiten Tabelle. Keine Bedingung, keine Filter – alle Kombinationen.
+
+### Visualisierung: Venn-Diagramm
+
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Kreise -->
+    <circle id="circleLeft"  cx="200" cy="130" r="80" />
+    <circle id="circleRight" cx="400" cy="130" r="80" />
+  </defs>
+
+  <!-- Linker Kreis -->
+  <use href="#circleLeft"
+       fill="#4caf50"
+       stroke="#1976d2"
+       stroke-width="4"
+       opacity="0.85" />
+
+  <!-- Rechter Kreis -->
+  <use href="#circleRight"
+       fill="#4caf50"
+       stroke="#f57c00"
+       stroke-width="4"
+       opacity="0.85" />
+
+  <!-- Titel -->
+  <text x="200" y="45"
+        font-size="18"
+        fill="#1976d2"
+        font-weight="bold"
+        text-anchor="middle">
+    Customers
+  </text>
+
+  <text x="400" y="45"
+        font-size="18"
+        fill="#f57c00"
+        font-weight-bold
+        text-anchor="middle">
+    Orders
+  </text>
+
+  <!-- CROSS JOIN: X zwischen den Kreisen -->
+  <line x1="285" y1="100" x2="315" y2="160"
+        stroke="#666" stroke-width="6" stroke-linecap="round" />
+  <line x1="315" y1="100" x2="285" y2="160"
+        stroke="#666" stroke-width="6" stroke-linecap="round" />
+
+  <!-- Beschreibung -->
+  <text x="300" y="235"
+        font-size="14"
+        fill="#666"
+        text-anchor="middle">
+    Kartesisches Produkt: jede Zeile × jede Zeile
+  </text>
+</svg>
+
+
+    --{{1}}--
+Die Kreise überlappen nicht – weil CROSS JOIN keine Beziehung braucht. Er erzeugt einfach alle Kombinationen. Das nennt man kartesisches Produkt.
+
+---
+
+### Konzept: Alle Kombinationen
+
+    --{{0}}--
+CROSS JOIN ist wie eine Tabelle mit allen möglichen Paarungen erstellen.
+
+```ascii
+Sizes              Colors
++------+          +--------+
+| Size |          | Color  |
++------+          +--------+
+| S    |          | Red    |
+| M    |          | Blue   |
+| L    |          | Green  |
++------+          +--------+
+
+CROSS JOIN → 3 × 3 = 9 Kombinationen:
+S - Red
+S - Blue
+S - Green
+M - Red
+M - Blue
+M - Green
+L - Red
+L - Blue
+L - Green
+```
+
+    --{{1}}--
+Jede Größe wird mit jeder Farbe kombiniert. Kein Filter, keine Bedingung – einfach alle Möglichkeiten.
+
+---
+
+### Syntax: Zwei Varianten
+
+    --{{0}}--
+CROSS JOIN kann explizit oder implizit geschrieben werden.
+
+```sql
+-- Explizit (empfohlen):
+SELECT * FROM customers CROSS JOIN products;
+
+-- Implizit (veraltet):
+SELECT * FROM customers, products;
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+> **Achtung:** Die implizite Syntax (`FROM a, b`) ist gefährlich! Wenn Sie vergessen, eine WHERE-Bedingung hinzuzufügen, passiert ein versehentlicher CROSS JOIN.
+
+    --{{2}}--
+Nutzen Sie immer die explizite Syntax – dann ist klar: "Ich WILL alle Kombinationen!"
+
+---
+
+### Beispiel 1: Produktkombinationen generieren
+
+    --{{0}}--
+Erstellen Sie alle möglichen Kombinationen von zwei Produkten (z.B. für Paket-Angebote).
+
+``` sql @dbdiagram
+Table products {
+  product_id int [pk]
+  product_name varchar
+  price decimal
+}
+```
+
+```sql
+SELECT 
+  p1.product_name AS product_1,
+  p2.product_name AS product_2,
+  p1.price + p2.price AS bundle_price
+FROM products p1
+CROSS JOIN products p2
+WHERE p1.product_id < p2.product_id  -- Vermeidet Duplikate (A-B vs B-A)
+ORDER BY bundle_price
+LIMIT 5;
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Was passiert?**
+
+    {{1}}
+- Jedes Produkt wird mit jedem anderen kombiniert
+- `WHERE p1.product_id < p2.product_id`: Verhindert, dass "Laptop + Mouse" und "Mouse + Laptop" beide erscheinen
+- Ergebnis: Alle möglichen 2er-Pakete mit Gesamtpreis
+
+    --{{2}}--
+Das ist praktisch für Preis-Kombinationen, Test-Daten oder Kalender-Aufgaben!
+
+---
+
+### Beispiel 2: Datumsreihen generieren
+
+    --{{0}}--
+CROSS JOIN ist perfekt, um alle Kombinationen aus zwei Listen zu erzeugen – z.B. jeden Kunden mit jedem Datum (für Reports).
+
+```sql
+-- Simuliere eine Datumsreihe mit VALUES
+WITH dates AS (
+  SELECT * FROM (VALUES 
+    ('2024-01-01'), 
+    ('2024-01-02'), 
+    ('2024-01-03')
+  ) AS d(date)
+)
+SELECT 
+  c.customer_id,
+  c.first_name,
+  dates.date
+FROM customers c
+CROSS JOIN dates
+ORDER BY dates.date, c.customer_id
+LIMIT 10;
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Ergebnis:** Jeder Kunde erscheint für jedes Datum. Perfekt für Kalender-Grids oder A/B-Test-Setups!
+
+---
+
+### Gefahr: Zeilen-Explosion!
+
+    --{{0}}--
+CROSS JOIN kann schnell außer Kontrolle geraten.
+
+| Tabelle A | Tabelle B | Ergebnis          | Status |
+|-----------|-----------|-------------------|--------|
+| 5         | 6         | 30                | ✓ OK   |
+| 100       | 100       | 10.000            | ⚠️ Vorsicht |
+| 1.000     | 1.000     | 1.000.000         | ❌ Langsam |
+| 10.000    | 10.000    | 100.000.000       | 💥 Absturz |
+
+    {{1}}
+> **Best Practice:** Nutzen Sie CROSS JOIN nur mit kleinen Tabellen oder mit `LIMIT`!
+
+    --{{2}}--
+In Produktions-Datenbanken ist CROSS JOIN selten. Aber für Teszdaten-Generierung oder Kombinatorik ist er unschlagbar.
+
+---
+
+## Join-Zusammenfassung: Welchen wann?
+
+    --{{0}}--
+Sie haben jetzt 5 Join-Typen kennengelernt. Hier ist ein Entscheidungsbaum:
+
+``` text
+Brauchen Sie eine Beziehung zwischen Tabellen?
+│
+├─ Ja, nur Matches wichtig
+│  └─ INNER JOIN
+│
+├─ Ja, aber ALLE von links (auch ohne Match)
+│  └─ LEFT JOIN
+│
+├─ Ja, aber ALLE von rechts (auch ohne Match)
+│  └─ RIGHT JOIN (oder besser: LEFT JOIN mit getauschter Reihenfolge)
+│
+├─ Ja, ALLES aus beiden (für Vergleiche)
+│  └─ FULL OUTER JOIN
+│
+└─ Nein, ich brauche ALLE Kombinationen
+   └─ CROSS JOIN
+```
+
+    --{{1}}--
+In der Praxis machen INNER JOIN und LEFT JOIN etwa 95% aller Fälle aus. Die anderen sind Spezialwerkzeuge.
+
+---
+
+### Quick Reference: Join-Cheat-Sheet
+
+| Join-Typ     | Ergebnis                     | Syntax                                                   | Use Case                   |
+|--------------|------------------------------|----------------------------------------------------------|----------------------------|
+| INNER        | Nur Matches                  | `FROM a INNER JOIN b ON a.id = b.id`                     | Standard                   |
+| LEFT         | Alle A + Matches B           | `FROM a LEFT JOIN b ON a.id = b.id`                      | Fehlende finden            |
+| RIGHT        | Alle B + Matches A           | `FROM a RIGHT JOIN b ON a.id = b.id`                     | Selten (nutze LEFT)        |
+| FULL OUTER   | Alles aus beiden             | `FROM a FULL OUTER JOIN b ON a.id = b.id`                | Sync-Checks                |
+| CROSS        | Alle Kombinationen           | `FROM a CROSS JOIN b`                                    | Test-Kombinationen         |
+
+    {{1}}
+> **Faustregel:** Wenn unsicher → starte mit INNER JOIN. Fehlt etwas? → Probiere LEFT JOIN.
+
+---
+
+## Mehrere Tabellen verbinden (Multi-Table Joins)
+
+    --{{0}}--
+In der Realität joinen Sie selten nur zwei Tabellen. Oft sind es drei, vier oder mehr. Wie geht man das systematisch an?
+
+### Die Kette: JOIN nach JOIN
+
+    --{{0}}--
+Sie können beliebig viele Joins aneinanderhängen. Jeder neue JOIN baut auf dem vorherigen Ergebnis auf.
+
+```sql
+SELECT spalten
+FROM tabelle_a
+JOIN tabelle_b ON a.id = b.id
+JOIN tabelle_c ON b.id = c.id
+JOIN tabelle_d ON c.id = d.id
+-- ... und so weiter
+```
+
+    {{1}}
+**Wichtig:** Die Reihenfolge ist logisch, nicht Performance-kritisch. Der Query Optimizer kann die beste Reihenfolge selbst wählen.
+
+---
+
+### Beispiel: Vollständige Bestellung (4 Tabellen)
+
+    --{{0}}--
+Zeigen Sie: Kunde → Bestellung → Positionen → Produkte – alles in einer Zeile.
+
+``` sql @dbdiagram
+Table customers {
+  customer_id int [pk]
+  first_name varchar
+}
+
+Table orders {
+  order_id int [pk]
+  customer_id int [ref: > customers.customer_id]
+}
+
+Table order_items {
+  order_item_id int [pk]
+  order_id int [ref: > orders.order_id]
+  product_id int [ref: > products.product_id]
+  quantity int
+}
+
+Table products {
+  product_id int [pk]
+  product_name varchar
+  price decimal
+}
+```
+
+```sql
+SELECT 
+  c.first_name || ' ' || c.last_name AS customer,
+--  o.order_id,
+--  o.order_date,
+--  p.product_name,
+--  oi.quantity,
+--  oi.quantity * p.price AS line_total
+FROM customers c
+```
+@PGlite.eval(online-shop)
+
+    {{1}}
+**Was passiert hier?**
+
+    {{1}}
+1. customers → orders: Welcher Kunde hat welche Bestellung?
+2. orders → order_items: Welche Positionen gehören zur Bestellung?
+3. order_items → products: Welches Produkt ist das?
+
+    --{{2}}--
+Das Ergebnis: Jede Bestellposition mit allen relevanten Details in einer Zeile. Das ist die Power von Joins!
+
+---
+
+### Best Practices für Multi-Table Joins
+
+    --{{0}}--
+Wenn Sie viele Tabellen joinen, helfen diese Regeln:
+
+    {{1}}
+**1. Logische Reihenfolge einhalten**
+
+    {{1}}
+Joinen Sie in der Reihenfolge der Beziehungen: Kunde → Bestellung → Position → Produkt (nicht wild durcheinander).
+
+    {{2}}
+**2. Aliase nutzen**
+
+    {{2}}
+Kurze Aliase machen Queries lesbarer: `customers c`, `orders o`, `products p`
+
+    {{3}}
+**3. Joins einrücken**
+
+    {{3}}
+```sql
+FROM customers c
+  INNER JOIN orders o ON c.customer_id = o.customer_id
+  INNER JOIN order_items oi ON o.order_id = oi.order_id
+```
+Jeder JOIN eine eigene Zeile – so erkennen Sie die Struktur sofort!
+
+    {{4}}
+**4. Kommentare bei komplexen Joins**
+
+    {{4}}
+```sql
+-- Hole Kundendaten
+FROM customers c
+  -- Füge Bestellungen hinzu
+  INNER JOIN orders o ON c.customer_id = o.customer_id
+```
+
+---
+
+## Abschluss: Joins meistern
+
+    --{{0}}--
+Sie haben jetzt das wichtigste Werkzeug relationaler Datenbanken kennengelernt: Joins. Von INNER bis CROSS, von einfachen 2-Tabellen-Joins bis zu komplexen Multi-Table-Queries.
+
+    {{1}}
+**Was Sie gelernt haben:**
+
+    {{1}}
+- ✅ INNER JOIN: Nur Matches (Standard)
+- ✅ LEFT JOIN: Alle links + Matches rechts (fehlende finden!)
+- ✅ RIGHT JOIN: Alle rechts + Matches links (selten)
+- ✅ FULL OUTER JOIN: Alles aus beiden (Sync-Checks)
+- ✅ CROSS JOIN: Alle Kombinationen (Vorsicht!)
+- ✅ Multi-Table Joins: Systematisch verketten
+
+    --{{2}}--
+Joins sind das Herzstück von SQL. Mit diesem Wissen können Sie jetzt fast jede Abfrage in der Praxis lösen. Zeit, es zu üben!
