@@ -50,6 +50,10 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 - [L9: Normalisierung & ER-Diagramme](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md)
 - [L10: Mehr FROM Subqueries, CTEs, Joins](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md)
 
+### Block 3: Technologien – Datenbankzugriff über APIs & KI
+
+- [MCP Tutorial: KI-gestützte Datenbankabfragen](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md)
+
 ### Zusätzliche Materialien
 
 - [JavaScript Primer](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md)

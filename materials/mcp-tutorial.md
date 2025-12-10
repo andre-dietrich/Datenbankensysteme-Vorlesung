@@ -4,8 +4,8 @@ email:    andre.dietrich@ovgu.de
 version:  0.1.0
 language: de
 narrator: Deutsch Female
-comment:  Hands-on Tutorial: KI-gestützte Datenbankabfragen mit MCP (Model Context Protocol)
-logo:     ../assets/img/logo/logo.png
+comment:  Hands-on Tutorial: KI-gestützte Datenbankabfragen mit MCP (Model Context Protocol) auf der IMDB-Datenbank in VS Code.
+logo:     ../assets/img/logo/mcp-tutorial.jpg
 
 import:   https://raw.githubusercontent.com/LiaTemplates/dbdiagram/main/README.md
 
