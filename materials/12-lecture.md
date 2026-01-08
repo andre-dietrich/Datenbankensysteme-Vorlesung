@@ -663,6 +663,152 @@ Typisches Ergebnis: 5–20× schneller! Bei Millionen von Zeilen wäre der Unter
     --{{8}}--
 Reflexion: Überlegen Sie sich – welche anderen Spalten in der IMDB-Datenbank würden von Indexen profitieren? Welche nicht?
 
+### Experiment 4: Partielle Indexe (Filtered Indexes)
+
+    --{{0}}--
+Partial Indexes sind Indexe mit einer WHERE-Bedingung – sie indexieren nur einen Teil der Daten. Das spart Speicher, beschleunigt Writes und macht Queries auf diesem Subset extrem schnell!
+
+      {{0}}
+**Szenario:** Moderne Film-Discovery-App
+
+      {{0}}
+```sql
+-- Typische Query: Nur moderne Filme (seit 2020)
+SELECT primaryTitle, startYear, titleType
+FROM title_basics
+WHERE startYear >= '2020' AND titleType = 'movie'
+ORDER BY startYear DESC;
+```
+@PGlite.eval(imdb)
+
+    --{{1}}--
+Diese App interessiert sich fast ausschließlich für neue Filme – alte Filme werden selten abgefragt. Ein normaler Index würde alle 178.124 Zeilen indexieren. Brauchen wir das wirklich?
+
+      {{1}}
+**Schritt 10: Datenverteilung analysieren**
+
+      {{1}}
+```sql
+-- Wie viele Filme gibt es ab 2020?
+SELECT 
+  'Moderne Filme (2020+)' as category,
+  COUNT(*) as count,
+  ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM title_basics), 1) as percent
+FROM title_basics 
+WHERE startYear >= '2020'
+UNION ALL
+SELECT 
+  'Alle Filme' as category,
+  COUNT(*) as count,
+  100.0 as percent
+FROM title_basics;
+```
+@PGlite.eval(imdb)
+
+    --{{2}}--
+Sie sehen: Nur 42.396 Filme (24%) sind seit 2020. Warum sollten wir einen Index auf 100% der Daten bauen, wenn 76% irrelevant sind?
+
+      {{2}}
+**Schritt 11: Partial Index erstellen**
+
+      {{2}}
+```sql
+-- Partial Index: NUR moderne Filme indexieren
+CREATE INDEX idx_modern_films 
+ON title_basics(startYear, titleType)
+WHERE startYear >= '2020';
+```
+@PGlite.eval(imdb)
+
+    --{{3}}--
+Dieser Index ist 76% kleiner als ein vollständiger Index – aber genauso schnell für Queries auf moderne Filme!
+
+      {{3}}
+**Schritt 12: Performance-Vergleich**
+
+      {{3}}
+```sql
+-- Query mit Partial Index
+EXPLAIN ANALYZE
+SELECT primaryTitle, startYear
+FROM title_basics
+WHERE startYear >= '2020' AND titleType = 'movie'
+ORDER BY startYear DESC
+LIMIT 100;
+```
+@PGlite.eval(imdb)
+
+    --{{4}}--
+Sie sollten "Index Scan using idx_modern_films" sehen – der Partial Index wird genutzt! Weil die Query-Bedingung (`startYear >= '2020'`) die Index-Bedingung enthält.
+
+      {{4}}
+**Wann wird der Partial Index NICHT genutzt?**
+
+      {{4}}
+```sql
+-- Query außerhalb des Index-Filters
+EXPLAIN ANALYZE
+SELECT primaryTitle, startYear
+FROM title_basics
+WHERE startYear >= '2010' AND titleType = 'movie'
+LIMIT 100;
+```
+@PGlite.eval(imdb)
+
+    --{{5}}--
+Jetzt sehen Sie "Seq Scan" – der Partial Index wird ignoriert! Warum? Die Query fragt nach Filmen ab 2010, aber der Index hat nur Daten ab 2020. PostgreSQL kann ihn nicht nutzen.
+
+      {{5}}
+**Trade-offs: Wann sind Partial Indexes sinnvoll?**
+
+      {{5}}
+<div>
+
+**✅ Verwenden bei:**
+- **Hot Data**: 80% der Queries greifen auf 20% der Daten zu (z.B. nur aktuelle Filme)
+- **Status-Filter**: Nur `status = 'active'` indexieren (oft 5-10% der Daten)
+- **Zeitbasierte Daten**: Nur letzte 2 Jahre (alte Daten selten relevant)
+- **Hohe Write-Last**: Weniger Index-Updates bei INSERTs/UPDATEs
+
+**❌ NICHT verwenden bei:**
+- Queries über verschiedene Zeiträume (manchmal 2020+, manchmal 2010+)
+- Gleichmäßige Datenverteilung (keine Hot Spots)
+- Kleine Tabellen (< 10.000 Zeilen – Overhead nicht wert)
+
+</div>
+
+      {{6}}
+**Reale Performance-Zahlen:**
+
+      {{6}}
+```sql
+-- Normaler Composite Index
+CREATE INDEX idx_all_films ON title_basics(startYear, titleType);
+-- Größe: ~178.124 Einträge
+
+-- Partial Index (unserer)
+CREATE INDEX idx_modern_films ON title_basics(startYear, titleType)
+WHERE startYear >= '2020';
+-- Größe: ~42.396 Einträge (76% kleiner!)
+
+-- Speedup bei INSERTs: ~20% schneller (weniger Index-Updates)
+-- Speedup bei Queries auf 2020+: Gleich schnell wie normaler Index
+-- Memory: 76% weniger RAM-Verbrauch
+```
+
+      {{7}}
+> **Best Practice für IMDB-App:**
+>
+> Wenn 90% der Queries moderne Filme abfragen, ist ein Partial Index optimal:
+> - Schnellere Writes (weniger Index-Maintenance)
+> - Kleinerer Index (passt besser in Cache)
+> - Gleiche Query-Performance für relevante Daten
+>
+> **Trade-off:** Queries auf alte Filme (< 2020) machen Sequential Scan – aber das ist selten!
+
+    --{{8}}--
+Reflexion: Welche anderen Partial Indexes wären für IMDB sinnvoll? Z.B. nur Top-Ratings (`WHERE averageRating >= 8.0`) oder nur Serien (`WHERE titleType = 'tvSeries'`)?
+
 ---
 
 ## EXPLAIN ANALYZE: Query Plans verstehen

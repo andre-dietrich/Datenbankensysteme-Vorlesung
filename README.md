@@ -52,8 +52,13 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 
 ### Block 3: Technologien – Datenbankzugriff über APIs & KI
 
-- [MCP Tutorial: KI-gestützte Datenbankabfragen](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md)
+- [L10: Mehr FROM Subqueries, CTEs, Joins](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md)
 
+### Block 3: Technologien & Performance
+
+- [L11: MCP Tutorial – KI-gestützte Datenbankabfragen](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md)
+- [L12: Indexe & Performance](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/12-lecture.md) *(coming soon)*
+- [L13: Advanced SQL – Views, SET Operations (UNION/INTERSECT/EXCEPT) & Window Functions](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/13-lecture.md) *(coming soon)*
 ### Zusätzliche Materialien
 
 - [JavaScript Primer](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md)
