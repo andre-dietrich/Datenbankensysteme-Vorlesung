@@ -1,11 +1,12 @@
 <!--
 author:   André Dietrich
 email:    andre.dietrich@ovgu.de
-version:  0.1.0
+version:  1.0.0
 language: de
 narrator: Deutsch Female
 comment:  Session 12: Indexe & Performance – Praktische Optimierung mit PGlite
-logo:     ../assets/img/logo/logo.png
+edit:     true
+logo:     ../assets/img/logo/12-lecture.jpg
 
 import:   https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
           https://raw.githubusercontent.com/LiaTemplates/dbdiagram/main/README.md
