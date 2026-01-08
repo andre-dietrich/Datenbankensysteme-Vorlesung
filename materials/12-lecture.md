@@ -4,7 +4,7 @@ email:    andre.dietrich@ovgu.de
 version:  0.1.0
 language: de
 narrator: Deutsch Female
-comment:  Session 12: Indexe & Performance – Von der KI-generierten Query zur Optimierung
+comment:  Session 12: Indexe & Performance – Praktische Optimierung mit PGlite
 logo:     ../assets/img/logo/logo.png
 
 import:   https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
@@ -18,47 +18,19 @@ import:   https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/
 Willkommen zur Session über Indexe und Performance! In der letzten Session haben Sie gesehen, wie KI mit MCP SQL-Queries generiert – aber sind diese Queries auch effizient? Heute lernen Sie, Performance zu messen, zu verstehen und zu optimieren.
 
     --{{1}}--
-Stellen Sie sich vor: Eine Query läuft auf der IMDB-Datenbank mit über 178.000 Titeln. Ohne Index scannt die Datenbank jede einzelne Zeile. Mit dem richtigen Index? Direkter Zugriff in Millisekunden. Das ist der Unterschied, den wir heute erleben werden.
+Stellen Sie sich vor: Eine Query läuft auf der IMDB-Datenbank mit über 178.000 Titeln. Ohne Index scannt die Datenbank jede einzelne Zeile. Mit dem richtigen Index? Direkter Zugriff in Millisekunden. Das ist der Unterschied, den wir heute mit PGlite live erleben werden.
 
       {{1}}
 > **Lernziele dieser Session:**
 >
 > - Verstehen, was Indexe sind und wie sie funktionieren
-> - Praktische Indexe erstellen und Performance messen
+> - Praktische Indexe mit PGlite erstellen und Performance messen
 > - Query Plans mit EXPLAIN ANALYZE lesen können
 > - Kritisch bewerten: Wann Indexe sinnvoll sind (und wann nicht)
 > - Best Practices für Index-Strategien anwenden
 
-``` js
-const response = await fetch("http://localhost:8000/assets/dat/imdb-40.sql");
-if (!response.ok) {
-  console.error("Failed to fetch SQL dump");
-  return;
-}
-
-let sql = await response.text();
-sql = sql
-	.split(/;\s*\n/)   // split on statement-ending semicolon
-  .map(s => s.trim())
-  .filter(Boolean)
-  .map(s => s + ";"); // re-add semicolon
-
-
-let size = Math.round(sql.length / 100);
-for (let i = 0; i < sql.length; i += size) {
-    console.log((i * 100) / sql.length, "%");
-    await db.exec(sql.slice(i, i+size).join("\n"));
-}
-
-// Load into PGlite
-console.log("done")
-```
-@PGlite.js(imdb)
 
 ## Motivation: Der Performance-Unterschied
-
-
-
 
     --{{0}}--
 Lassen Sie uns mit einem konkreten Problem beginnen. Sie haben in Session 11 mit MCP die IMDB-Datenbank erkundet. GitHub Copilot hat Ihnen SQL-Queries generiert – aber niemand hat über Performance gesprochen.
@@ -71,20 +43,36 @@ Nehmen wir eine typische Anfrage: "Zeige mir alle Filme mit einem Rating über 8
 
       {{1}}
 ```sql
-SELECT tb.primaryTitle, tr.averageRating, tb.startYear
+SELECT tb.primarytitle, tr.averagerating, tb.startyear
 FROM title_basics tb
 JOIN title_ratings tr ON tb.tconst = tr.tconst
-WHERE tr.averageRating > 8.0 AND tb.titleType = 'movie';
+WHERE tr.averagerating > 8.0 AND tb.titletype = 'movie';
 ```
-@PGlite.eval(imdb)
+``` @output
+|   # | primarytitle                | averagerating | startyear |
+|-----|-----------------------------|---------------|-----------|
+|   1 | Milionar pentru o zi        |      8.3      |   1924    |
+|   2 | Napoleon                    |      8.2      |   1927    |
+|   3 | Zeinab                      |      8.6      |   1930    |
+|   4 | It's a Wise Child           |      8.4      |   1931    |
+|   5 | Geld fällt vom Himmel       |      8.2      |   1938    |
+|   6 | La tonta del bote           |      8.6      |   1939    |
+|   7 | Herzensfreud - Herzensleid  |      8.6      |   1940    |
+|   8 | The Best Years of Our Lives |      8.1      |   1946    |
+|   9 | Abhimanyu                   |      8.2      |   1948    |
+|  10 | Los tres huastecos          |      8.1      |   1948    |
+|  11 | Pathala Bhairavi            |      8.5      |   1951    |
+|  12 | The Life of Oharu           |      8.1      |   1952    |
+... (more rows) ...
+```
 
     --{{2}}--
-Ohne Index durchsucht SQLite jede einzelne Zeile in title_ratings – das sind über 178.000 Einträge! Bei einer großen Produktionsdatenbank wären das Millionen oder Milliarden.
+Ohne Index durchsucht PostgreSQL jede einzelne Zeile in title_ratings – das sind über 178.000 Einträge! Bei einer großen Produktionsdatenbank wären das Millionen oder Milliarden.
 
       {{2}}
 > **Szenario ohne Index:**
 >
-> - Table Scan über 178.000+ Zeilen
+> - Sequential Scan über 178.000+ Zeilen
 > - Jede Zeile wird gelesen und gefiltert
 > - Typische Ausführungszeit: 50–200ms (abhängig vom System)
 >
@@ -203,6 +191,10 @@ Das ist der Grund, warum Indexe so mächtig sind. Aber Vorsicht: Jeder Index kos
     --{{4}}--
 Die Kunst des Datenbankdesigns ist es, die richtigen Indexe zu wählen: Genug für Performance, aber nicht zu viele, um Writes nicht zu bremsen.
 
+### Demo
+
+??[BTree Visualization](https://btree.app)<!-- style="width: 100%; height: 70vh" -->
+
 ## Hands-on: Indexe in Aktion
 
     --{{0}}--
@@ -211,16 +203,45 @@ Jetzt wird es praktisch! Wir nutzen die IMDB-Datenbank aus Session 11 und führe
 ### Setup: IMDB-Datenbank verbinden
 
     --{{0}}--
-Falls Sie die Datenbank aus Session 11 noch haben: Perfekt! Falls nicht, laden Sie sie hier herunter:
+Führen Sie das folgenden Script aus um die IMDB-Datenbank für diese Session in PGlite zu laden.
+
+``` js
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const response = await fetch("../assets/dat/imdb.sql");
+if (!response.ok) {
+  console.error("Failed to fetch SQL dump");
+  return;
+}
+
+let sql = await response.text();
+sql = sql
+	.split(/;\s*\n/)   // split on statement-ending semicolon
+  .map(s => s.trim())
+  .filter(Boolean)
+  .map(s => s + ";"); // re-add semicolon
+
+
+let size = Math.round(sql.length / 100);
+for (let i = 0; i < sql.length; i += size) {
+    console.log((i * 100) / sql.length, "%");
+    await db.exec(sql.slice(i, i+size).join("\n"));
+    await wait(50); // small delay to keep UI responsive
+}
+
+// Load into PGlite
+console.log("done")
+```
+@PGlite.js(imdb)
 
       {{0}}
-> **Download IMDB-Datenbank:**
+> **PGlite-Setup:**
 >
-> - [6 MB Version](../assets/dat/imdb/6-mb.sqlite) (kompakt)
-> - [10 MB Version](../assets/dat/imdb/10-mb.sqlite) (mittel)
-> - [40 MB Version](../assets/dat/imdb/40-mb.sqlite) (vollständig, 178k+ Titel)
->
-> Öffnen Sie die Datenbank in Ihrem SQLite-Client oder nutzen Sie MCP wie in Session 11.
+> - Datenbank läuft im Browser (kein Server nötig!)
+> - Alle Queries führen Sie direkt in dieser Session aus
+> - Die Daten bleiben im Browser-Speicher
 
     --{{1}}--
 Prüfen wir zunächst, welche Indexe bereits existieren. Neue Tabellen haben meist nur einen Index auf dem Primärschlüssel.
@@ -230,72 +251,165 @@ Prüfen wir zunächst, welche Indexe bereits existieren. Neue Tabellen haben mei
 
       {{1}}
 ```sql
--- SQLite-Syntax: Alle Indexe anzeigen
-SELECT name, tbl_name, sql 
-FROM sqlite_master 
-WHERE type = 'index';
+-- PostgreSQL-Syntax: Alle Indexe in der aktuellen Datenbank
+SELECT 
+    schemaname,
+    tablename,
+    indexname,
+    indexdef
+FROM pg_indexes
+WHERE schemaname = 'public'
+ORDER BY tablename, indexname;
 ```
+@PGlite.eval(imdb)
 
     --{{2}}--
-Sie sehen vermutlich nur automatische Indexe auf Primärschlüsseln wie `tconst` oder `nconst`. Gut – das ist unser Ausgangspunkt.
+Sie sehen vermutlich nur automatische Indexe auf Primärschlüsseln wie `tconst_pkey` oder `nconst_pkey`. Gut – das ist unser Ausgangspunkt.
 
----
+### Experiment 0: (Index-) Scan Typen
+
+    --{{0}}--
+Bevor wir zu komplexen Beispielen kommen, lernen wir die verschiedenen Scan-Strategien kennen. PostgreSQL wählt unterschiedliche Ansätze, je nachdem welche Spalten abgefragt werden. Wir erstellen erst einen Index und testen dann drei Szenarien.
+
+__Index auf primaryTitle erstellen__
+
+``` sql
+-- Index für unsere Experimente
+CREATE INDEX IF NOT EXISTS
+  idx_title
+  ON title_basics(primaryTitle);
+
+-- Bitmap Scan (vorläufig ausschalten)
+SET enable_bitmapscan = off;
+```
+@PGlite.eval(imdb)
+
+      --{{1}}--
+Jetzt haben wir einen B-Baum-Index auf den Filmtiteln. Schauen wir uns an, wie PostgreSQL diesen Index nutzt.
+
+      {{1}}
+``` sql
+-- Suche nach Titel-Muster (Index kann nicht helfen!)
+EXPLAIN
+SELECT primaryTitle, startYear
+FROM title_basics
+WHERE primaryTitle LIKE '%Matrix%';
+```
+@PGlite.eval(imdb)
+
+      --{{2}}--
+Sie sehen „Seq Scan“ – warum? Weil `LIKE '%Matrix%'` in der Mitte sucht. Der Index ist alphabetisch sortiert, kann aber nur Präfix-Suchen optimieren. Hier muss jede Zeile gelesen werden.
+
+{{2}} __Szenario 2: Index Scan (Index + Table)__
+
+      {{2}}
+``` sql
+EXPLAIN
+SELECT primaryTitle, startYear, titleType, genres
+FROM title_basics
+WHERE primaryTitle LIKE 'Matrix%';
+```
+@PGlite.eval(imdb)
+
+      --{{3}}--
+Jetzt sehen Sie „Index Scan using idx_title“ – PostgreSQL nutzt den Index, um die Zeile zu finden, muss aber zusätzlich die Tabelle lesen, um `startYear`, `titleType` und `genres` zu holen (die sind NICHT im Index gespeichert).
+
+{{3}}
+__Index Scan bedeutet:__ 1. Index durchsuchen -> Zeilen-Position finden 2. Zur Tabelle (Heap) springen -> Alle Spalten lesen
+
+ {{3}} __Szenario 3:__ Index Only Scan (nur Index!)
+
+``` sql
+-- Query NUR auf die indexierte Spalte
+EXPLAIN
+SELECT primaryTitle
+FROM title_basics
+WHERE primaryTitle::Text = 'Interstellar';
+```
+@PGlite.eval(imdb)
+
+    {{4}}
+<section>
+
+      --{{4}}--
+Jetzt könnte PGlite/PostgreSQL einen „Index Only Scan“ verwenden – alle Daten (nur primaryTitle) sind bereits im Index! Kein Table-Read nötig. Das ist die schnellste Variante.
+
+__Index Only Scan bedeutet:__
+
+1. Index durchsuchen → Wert direkt aus Index lesen
+2. Kein Heap-Zugriff nötig!
+
+__Hinweis:__ In PGlite/PostgreSQL funktioniert Index Only Scan nur, wenn: - Alle SELECT-Spalten im Index sind - Die Tabelle „visibility map“ hat (VACUUM wurde ausgeführt)
+
+ __Bonus: COUNT mit Index__
+
+``` sql
+-- Zählen mit Index-Unterstützung
+
+EXPLAIN ANALYZE
+SELECT COUNT(*)
+FROM title_basics
+WHERE primaryTitle LIKE 'Matrix%';
+```
+@PGlite.eval(imdb)
+
+    --{{5}}--
+Diese Query findet 4 Filme mit „Matrix“ am Anfang. PGlite kann den Index nutzen, weil es eine Präfix-Suche ist (sortierter Index hilft!). Je nach Optimierung sehen Sie einen Bitmap Index Scan.
 
 ### Experiment 1: Index auf `averageRating`
 
     --{{0}}--
-Unser erstes Experiment: Wir suchen alle Titel mit einem Rating über 8.0. Erst ohne Index, dann mit Index – und vergleichen die Performance.
+Unser erstes Experiment: Wir suchen alle Titel mit einem Rating über 9.5. Erst ohne Index, dann mit Index – und vergleichen die Performance.
 
       {{0}}
 **Schritt 2: Baseline messen (ohne Index)**
 
       {{0}}
 ```sql
--- Query ohne Index ausführen
-EXPLAIN QUERY PLAN
+-- Bitmap Scan (wieder einschalten)
+SET enable_bitmapscan = on;
+
+-- Query ohne Index analysieren
+EXPLAIN ANALYZE
 SELECT * FROM title_ratings 
-WHERE averageRating > 8.0;
+WHERE averagerating > 9.5;
 ```
+@PGlite.eval(imdb)
 
     --{{1}}--
-Das `EXPLAIN QUERY PLAN` zeigt uns, wie SQLite die Query ausführt. Sie sehen vermutlich "SCAN title_ratings" – das bedeutet: Sequential Scan, jede Zeile wird gelesen.
+Das `EXPLAIN ANALYZE` zeigt uns, wie PostgreSQL die Query ausführt UND misst die tatsächliche Zeit. Sie sehen vermutlich "Seq Scan on title_ratings" – das bedeutet: Sequential Scan, jede Zeile wird gelesen.
 
       {{1}}
 **Erwartete Ausgabe:**
 
       {{1}}
 ```
-QUERY PLAN
-`--SCAN title_ratings
+Seq Scan on title_ratings  (cost=10000000000.00..10000002837.50 rows=45400 width=40)
 ```
 
     --{{2}}--
-Jetzt messen wir die tatsächliche Ausführungszeit. Nutzen Sie `.timer on` in SQLite oder schauen Sie in Ihrem Client nach der Execution Time.
+Jetzt führen wir die Query tatsächlich aus und zählen die Ergebnisse:
 
       {{2}}
 ```sql
--- In SQLite CLI:
-.timer on
-
+-- Query ausführen und Anzahl zählen
 SELECT COUNT(*) FROM title_ratings 
-WHERE averageRating > 8.0;
-
--- Notieren Sie die Zeit!
+WHERE averagerating > 9.5;
 ```
+@PGlite.eval(imdb)
 
     --{{3}}--
-Typisches Ergebnis: 20–100ms (abhängig von System und Datenbankgröße). Das ist nicht katastrophal, aber auch nicht schnell.
+PGlite ist im Browser sehr schnell, aber bei größeren Datenmengen sehen Sie trotzdem den Unterschied. Merken Sie sich die Ausführungszeit!
 
       {{3}}
 **Schritt 3: Index erstellen**
 
       {{3}}
 ```sql
--- Index auf averageRating erstellen
-CREATE INDEX idx_rating ON title_ratings(averageRating);
-
--- SQLite bestätigt: Index erfolgreich erstellt
+-- Index auf averagerating erstellen
+CREATE INDEX idx_rating ON title_ratings(averagerating);
 ```
+@PGlite.eval(imdb)
 
     --{{4}}--
 Das Erstellen dauert ein paar Sekunden – die Datenbank sortiert jetzt alle 178.000+ Einträge nach Rating und baut den B-Baum auf.
@@ -305,34 +419,34 @@ Das Erstellen dauert ein paar Sekunden – die Datenbank sortiert jetzt alle 178
 
       {{4}}
 ```sql
--- Query erneut ausführen (mit Index)
-EXPLAIN QUERY PLAN
+-- Query erneut analysieren (mit Index)
+EXPLAIN ANALYZE
 SELECT * FROM title_ratings 
-WHERE averageRating > 8.0;
+WHERE averagerating > 9.5;
 ```
+@PGlite.eval(imdb)
 
     --{{5}}--
-Jetzt sollten Sie "SEARCH title_ratings USING INDEX idx_rating" sehen. SQLite nutzt den Index!
+Jetzt sollten Sie "Index Scan using idx_rating" oder "Bitmap Index Scan" sehen. PostgreSQL nutzt den Index!
 
       {{5}}
 **Erwartete Ausgabe:**
 
       {{5}}
 ```
-QUERY PLAN
-`--SEARCH title_ratings USING INDEX idx_rating (averageRating>?)
+Index Scan using idx_rating on title_ratings  (cost=0.29..XXX.XX rows=XXXX width=XX)
+  Index Cond: (averagerating > '8.0'::numeric)
 ```
 
     --{{6}}--
-Messen wir erneut die Zeit:
+Messen wir erneut durch direktes Ausführen:
 
       {{6}}
 ```sql
 SELECT COUNT(*) FROM title_ratings 
-WHERE averageRating > 8.0;
-
--- Wie viel schneller ist es?
+WHERE averagerating > 9.5;
 ```
+@PGlite.eval(imdb)
 
     --{{7}}--
 Typisches Ergebnis: 2–10ms – das ist 5×–10× schneller! Je größer die Datenbank, desto dramatischer der Unterschied.
@@ -357,10 +471,11 @@ Manchmal filtern Queries nach mehreren Spalten. Ein **Composite Index** (Multi-C
       {{0}}
 ```sql
 -- Query ohne Composite Index
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT * FROM title_basics 
-WHERE startYear >= '2020' AND titleType = 'movie';
+WHERE startyear >= '2020' AND titletype = 'movie';
 ```
+@PGlite.eval(imdb)
 
     --{{1}}--
 Ohne Index: Sequential Scan. Bei 178.000+ Titeln dauert das.
@@ -372,8 +487,9 @@ Ohne Index: Sequential Scan. Bei 178.000+ Titeln dauert das.
 ```sql
 -- Wichtig: Reihenfolge beachten!
 -- Meist gefilterte Spalte zuerst
-CREATE INDEX idx_year_type ON title_basics(startYear, titleType);
+CREATE INDEX idx_year_type ON title_basics(startyear, titletype);
 ```
+@PGlite.eval(imdb)
 
     --{{2}}--
 Warum diese Reihenfolge? Weil `startYear` eine Range ist (>=), `titleType` eine Gleichheit (=). B-Bäume arbeiten am besten, wenn Ranges zuerst kommen.
@@ -383,10 +499,11 @@ Warum diese Reihenfolge? Weil `startYear` eine Range ist (>=), `titleType` eine 
 
       {{2}}
 ```sql
-EXPLAIN QUERY PLAN
+EXPLAIN ANALYZE
 SELECT * FROM title_basics 
-WHERE startYear >= '2020' AND titleType = 'movie';
+WHERE startyear >= '2020' AND titletype = 'movie';
 ```
+@PGlite.eval(imdb)
 
     --{{3}}--
 Jetzt nutzt SQLite den Composite Index – aber nur, wenn beide Spalten im WHERE vorkommen!
@@ -411,87 +528,175 @@ Testen Sie das selbst: Erstellen Sie einen Index `(titleType, startYear)` und ve
 ### Experiment 3: JOIN-Performance mit Foreign Keys
 
     --{{0}}--
-Joins sind häufige Performance-Killer. Foreign Keys sollten **immer** einen Index haben – prüfen wir das.
+Jetzt wird es dramatisch! Joins ohne Index sind der Performance-Albtraum schlechthin. Ohne Index auf der JOIN-Spalte muss die Datenbank einen Nested Loop durchführen – bei 178.000 Zeilen bedeutet das theoretisch 31 MILLIARDEN Vergleiche!
 
       {{0}}
-**Szenario:** Alle Filme mit ihren Ratings
+**Szenario:** Top-bewertete Filme mit allen Details
+
+      {{0}}
+**Schritt 7: Baseline ohne Index (LANGSAM!)**
 
       {{0}}
 ```sql
-SELECT tb.primaryTitle, tr.averageRating
+-- Query OHNE Index auf tconst analysieren
+EXPLAIN ANALYZE
+SELECT tb.primaryTitle, tr.averageRating, tb.startYear
 FROM title_basics tb
 JOIN title_ratings tr ON tb.tconst = tr.tconst
-WHERE tb.titleType = 'movie';
+WHERE tr.averageRating >= '9.0'
+ORDER BY tr.averageRating DESC
+LIMIT 20;
 ```
+@PGlite.eval(imdb)
 
     --{{1}}--
-Der JOIN läuft über `tconst` – haben beide Tabellen einen Index darauf?
+Sie sehen vermutlich "Seq Scan" auf beiden Tabellen und einen "Hash Join" oder "Nested Loop". Bei großen Datenmengen ist das extrem langsam – jede Zeile aus title_ratings muss mit ALLEN Zeilen aus title_basics verglichen werden.
 
       {{1}}
-**Schritt 7: Indexe auf JOIN-Spalten prüfen**
+**Erwartete Ausgabe (ohne Index):**
 
       {{1}}
-```sql
--- Prüfen: Gibt es Indexe auf tconst?
-SELECT name, tbl_name 
-FROM sqlite_master 
-WHERE type = 'index' AND (tbl_name = 'title_basics' OR tbl_name = 'title_ratings');
+```
+Hash Join  (cost=5000..15000 rows=10000)
+  ->  Seq Scan on title_basics tb
+  ->  Hash
+        ->  Seq Scan on title_ratings tr
+              Filter: (averageRating >= '9.0')
 ```
 
     --{{2}}--
-Falls `tconst` ein Primärschlüssel ist, existiert automatisch ein Index. Falls nicht: Erstellen Sie einen!
+Messen wir die tatsächliche Zeit durch direktes Ausführen:
 
       {{2}}
 ```sql
--- Falls nötig: Index auf JOIN-Spalte
-CREATE INDEX idx_tconst_basics ON title_basics(tconst);
-CREATE INDEX idx_tconst_ratings ON title_ratings(tconst);
+-- Query ausführen und Ergebnisse zählen
+SELECT COUNT(*) as result_count
+FROM title_basics tb
+JOIN title_ratings tr ON tb.tconst = tr.tconst
+WHERE tr.averageRating >= '9.0';
 ```
+@PGlite.eval(imdb)
 
     --{{3}}--
-Ohne diese Indexe würde SQLite einen Nested Loop Join machen – O(n²) Komplexität! Mit Index: Hash Join oder Index Nested Loop – O(n log n).
+Bei mir im Browser dauert das ohne Index spürbar länger – merken Sie sich die Zeit!
 
       {{3}}
+**Schritt 8: Indexe auf JOIN-Spalten erstellen**
+
+      {{3}}
+```sql
+-- Index auf tconst in BEIDEN Tabellen erstellen
+CREATE INDEX IF NOT EXISTS idx_tconst_basics ON title_basics(tconst);
+CREATE INDEX IF NOT EXISTS idx_tconst_ratings ON title_ratings(tconst);
+
+-- Bonus: Index auf averageRating für den WHERE-Filter
+CREATE INDEX IF NOT EXISTS idx_rating ON title_ratings(averageRating);
+```
+@PGlite.eval(imdb)
+
+    --{{4}}--
+Das Erstellen dauert ein paar Sekunden – die Datenbank baut jetzt B-Bäume für schnelle Lookups auf. In Production würden diese Indexe normalerweise bereits existieren (besonders auf Primär- und Fremdschlüsseln).
+
+      {{4}}
+**Schritt 9: Gleiche Query mit Index**
+
+      {{4}}
+```sql
+-- Query erneut analysieren (MIT Index)
+EXPLAIN ANALYZE
+SELECT tb.primaryTitle, tr.averageRating, tb.startYear
+FROM title_basics tb
+JOIN title_ratings tr ON tb.tconst = tr.tconst
+WHERE tr.averageRating >= '9.0'
+ORDER BY tr.averageRating DESC
+LIMIT 20;
+```
+@PGlite.eval(imdb)
+
+    --{{5}}--
+Jetzt sollten Sie "Index Scan" oder "Index Only Scan" sehen – die Datenbank nutzt die Indexe! Der JOIN wird dramatisch schneller.
+
+      {{5}}
+**Erwartete Ausgabe (mit Index):**
+
+      {{5}}
+```
+Nested Loop  (cost=0.29..500 rows=10000)
+  ->  Index Scan using idx_rating on title_ratings tr
+        Index Cond: (averageRating >= '9.0')
+  ->  Index Scan using idx_tconst_basics on title_basics tb
+        Index Cond: (tconst = tr.tconst)
+```
+
+    --{{6}}--
+Die Komplexität ist von O(n²) auf O(n log n) gesunken – das ist bei großen Datenmengen der Unterschied zwischen Minuten und Millisekunden!
+
+      {{6}}
+**Performance-Vergleich:**
+
+      {{6}}
+```sql
+-- Erneut ausführen und Zeit vergleichen
+SELECT COUNT(*) as result_count
+FROM title_basics tb
+JOIN title_ratings tr ON tb.tconst = tr.tconst
+WHERE tr.averageRating >= '9.0';
+```
+@PGlite.eval(imdb)
+
+    --{{7}}--
+Typisches Ergebnis: 5–20× schneller! Bei Millionen von Zeilen wäre der Unterschied noch dramatischer – aus mehreren Minuten werden Sekunden.
+
+      {{7}}
 **Best Practice:**
 
-      {{3}}
+      {{7}}
 > **Jede Foreign Key-Spalte sollte einen Index haben.**
 >
 > Das gilt besonders für:
-> - Primärschlüssel (automatisch)
-> - Foreign Keys (manuell erstellen!)
+> - Primärschlüssel (meist automatisch)
+> - Foreign Keys (oft manuell erstellen!)
 > - Häufig gejoinete Spalten
+>
+> **Unsere IMDB-Demo-DB hat bewusst KEINE Indexe**, um den Performance-Unterschied zu zeigen. In Production wäre das ein kritischer Fehler!
+
+    --{{8}}--
+Reflexion: Überlegen Sie sich – welche anderen Spalten in der IMDB-Datenbank würden von Indexen profitieren? Welche nicht?
 
 ---
 
 ## EXPLAIN ANALYZE: Query Plans verstehen
 
     --{{0}}--
-Bisher haben wir mit `EXPLAIN QUERY PLAN` gearbeitet – das zeigt uns den Plan, aber nicht die tatsächliche Ausführung. `EXPLAIN ANALYZE` (in PostgreSQL) oder `.eqp on` (SQLite) liefern mehr Details.
+Bisher haben wir mit `EXPLAIN ANALYZE` gearbeitet – das zeigt uns sowohl den Plan ALS AUCH die tatsächliche Ausführung mit echten Timings. Das ist besonders wertvoll in PostgreSQL!
 
     --{{1}}--
 Lassen Sie uns einen Query Plan Schritt für Schritt lesen. Das ist wie eine Landkarte für die Datenbank.
 
-      {{1}}
 ### Anatomie eines Query Plans
 
       {{1}}
 ```sql
-EXPLAIN QUERY PLAN
-SELECT tb.primaryTitle, tr.averageRating
+EXPLAIN ANALYZE
+SELECT tb.primarytitle, tr.averagerating
 FROM title_basics tb
 JOIN title_ratings tr ON tb.tconst = tr.tconst
-WHERE tr.averageRating > 9.0 AND tb.startYear > '2010';
+WHERE tr.averagerating > 9.0 AND tb.startyear > '2010';
 ```
+@PGlite.eval(imdb)
 
     --{{2}}--
-Ein typischer Plan sieht so aus:
+Ein typischer PostgreSQL-Plan sieht so aus:
 
       {{2}}
 ```
-QUERY PLAN
-|--SEARCH tr USING INDEX idx_rating (averageRating>?)
-`--SEARCH tb USING INTEGER PRIMARY KEY (rowid=?)
+Hash Join  (cost=X..Y rows=Z width=W) (actual time=...)
+  Hash Cond: (tb.tconst = tr.tconst)
+  ->  Seq Scan on title_basics tb  (cost=...)
+        Filter: ((startyear)::text > '2010'::text)
+  ->  Hash  (cost=...)
+        ->  Index Scan using idx_rating on title_ratings tr  (cost=...)
+              Index Cond: (averagerating > '9.0'::numeric)
 ```
 
     --{{3}}--
@@ -501,16 +706,19 @@ Was bedeutet das? Die Datenbank arbeitet von innen nach außen:
 <div>
 
 1. **SEARCH tr USING INDEX idx_rating**
+
    - Start: Durchsuche `title_ratings` mit Index `idx_rating`
    - Filter: `averageRating > 9.0`
    - Ergebnis: Liste von `tconst`-Werten
 
 2. **SEARCH tb USING INTEGER PRIMARY KEY**
+
    - Für jeden `tconst` aus Schritt 1:
    - Suche passende Zeile in `title_basics`
    - Nutze Primary Key (schneller Lookup)
 
 3. **Impliziter Filter:**
+
    - Prüfe `startYear > '2010'`
    - Nur Zeilen, die beide Bedingungen erfüllen
 
@@ -523,12 +731,13 @@ Das ist ein effizienter Plan: Zwei Index-Lookups, kein Sequential Scan. Gut!
 ### Scan-Typen verstehen
 
       {{4}}
-| Scan-Typ | Bedeutung | Performance |
+| Scan-Typ (PostgreSQL) | Bedeutung | Performance |
 |----------|-----------|-------------|
-| **SCAN** | Sequential Scan (jede Zeile) | 🐌 Langsam |
-| **SEARCH ... USING INDEX** | Index Scan (B-Baum) | 🚀 Schnell |
-| **SEARCH ... USING PRIMARY KEY** | Primärschlüssel-Lookup | 🚀 Sehr schnell |
-| **SEARCH ... USING COVERING INDEX** | Alle Spalten im Index | 🚀🚀 Ultraschnell |
+| **Seq Scan** | Sequential Scan (jede Zeile) | 🐌 Langsam |
+| **Index Scan** | Index Scan (B-Baum) | 🚀 Schnell |
+| **Index Only Scan** | Alle Daten aus Index | 🚀🚀 Ultraschnell |
+| **Bitmap Index Scan** | Index + Bitmap für viele Zeilen | 🚀 Mittelschnell |
+| **Hash Join / Merge Join** | Effiziente JOIN-Strategien | 🚀 Schnell |
 
     --{{5}}--
 Ihr Ziel beim Optimieren: SCAN vermeiden, SEARCH maximieren!
@@ -541,11 +750,12 @@ Ihr Ziel beim Optimieren: SCAN vermeiden, SEARCH maximieren!
 
 Wenn Sie einen Query Plan sehen, fragen Sie sich:
 
-- [ ] **Gibt es Sequential Scans?** → Fehlende Indexe?
-- [ ] **Werden die richtigen Indexe genutzt?** → Vergleich mit `sqlite_master`
+- [ ] **Gibt es Seq Scans?** → Fehlende Indexe?
+- [ ] **Werden die richtigen Indexe genutzt?** → Vergleich mit `pg_indexes`
 - [ ] **Ist die Reihenfolge der JOINs sinnvoll?** → Kleinste Tabelle zuerst
 - [ ] **Gibt es Subqueries, die vermeidbar wären?** → CTEs oder Joins nutzen
 - [ ] **Sind Filter früh angewendet?** → WHERE vor JOIN
+- [ ] **Sind die Kosten (cost) realistisch?** → ANALYZE regelmäßig ausführen
 
 </div>
 
@@ -636,18 +846,20 @@ SELECT * FROM users WHERE gender = 'F';
 Angenommen, 50% der Nutzer sind weiblich. Ein Index hilft hier nicht – die Datenbank müsste trotzdem die Hälfte aller Zeilen lesen!
 
       {{1}}
-**Selectivity berechnen:**
+**Selectivity berechnen (Konzept):**
 
       {{1}}
 ```sql
--- Wie viele verschiedene Werte?
-SELECT COUNT(DISTINCT gender) FROM users;  -- Antwort: 2
+-- Beispiel mit IMDB: Wie viele verschiedene titletype-Werte?
+SELECT COUNT(DISTINCT titletype) FROM title_basics;
 
 -- Wie viele Zeilen insgesamt?
-SELECT COUNT(*) FROM users;  -- Antwort: 100.000
+SELECT COUNT(*) FROM title_basics;
 
--- Selectivity: 2 / 100.000 = 0.002% (sehr niedrig!)
+-- Selectivity = DISTINCT values / Total rows
+-- Wenn das Ergebnis < 5%, ist ein Index oft nicht sinnvoll
 ```
+@PGlite.eval(imdb)
 
     --{{2}}--
 Faustregel: Index nur, wenn Selectivity > 5%. Bei Gender (0.002%) ist ein Index verschwendet.
@@ -679,12 +891,13 @@ Wenn Sie in WHERE eine Funktion auf die Spalte anwenden, kann SQLite den Index o
 ```sql
 -- Index wird NICHT genutzt:
 SELECT * FROM title_basics 
-WHERE LOWER(primaryTitle) = 'inception';
+WHERE LOWER(primarytitle) = 'inception';
 
 -- Index WIRD genutzt:
 SELECT * FROM title_basics 
-WHERE primaryTitle = 'Inception';
+WHERE primarytitle = 'Inception';
 ```
+@PGlite.eval(imdb)
 
     --{{1}}--
 Warum? Der Index ist auf `primaryTitle` gebaut – aber `LOWER(primaryTitle)` ist ein anderer Wert. Die Datenbank müsste jeden Eintrag transformieren.
@@ -696,24 +909,35 @@ Warum? Der Index ist auf `primaryTitle` gebaut – aber `LOWER(primaryTitle)` is
 <div>
 
 1. **Funktion vermeiden:** Exakte Suche statt Case-Insensitive
-2. **Computed Column:** Spalte mit `LOWER(primaryTitle)` speichern + Index darauf
-3. **Function-Based Index:** In PostgreSQL möglich (nicht in SQLite)
+2. **Computed Column:** Spalte mit `LOWER(primarytitle)` speichern + Index darauf
+3. **Function-Based Index:** In PostgreSQL möglich! (Beispiel unten)
 
 </div>
+
+      {{2}}
+```sql
+-- PostgreSQL: Expression Index (Function-Based Index)
+CREATE INDEX idx_title_lower ON title_basics(LOWER(primarytitle));
+
+-- Jetzt funktioniert die Query mit Index:
+SELECT * FROM title_basics WHERE LOWER(primarytitle) = 'inception';
+```
+@PGlite.eval(imdb)
 
     --{{2}}--
 Weitere Funktionen, die Indexe "brechen": `SUBSTRING()`, `CONCAT()`, `DATE()`, arithmetische Operationen (`salary * 1.1`).
 
-      {{2}}
+      {{3}}
 **Best Practice:**
 
-      {{2}}
-> **Indexe funktionieren nur auf rohen Spaltenwerten.**
+      {{3}}
+> **Indexe funktionieren am besten auf rohen Spaltenwerten.**
 >
-> - ✅ `WHERE startYear = '2020'`
-> - ❌ `WHERE CAST(startYear AS INTEGER) = 2020`
+> - ✅ `WHERE startyear = '2020'`
+> - ❌ `WHERE CAST(startyear AS INTEGER) = 2020`
 > - ✅ `WHERE created_at > '2024-01-01'`
-> - ❌ `WHERE YEAR(created_at) = 2024`
+> - ❌ `WHERE EXTRACT(YEAR FROM created_at) = 2024`
+> - ✅ (PostgreSQL) `CREATE INDEX ON table(EXTRACT(YEAR FROM created_at))`
 
 ---
 
@@ -748,12 +972,12 @@ Viele Datenbanken bieten Tools, um ungenutzte Indexe zu finden. In PostgreSQL: `
       {{1}}
 ```sql
 -- PostgreSQL: Unused Indexes finden
+-- (Hinweis: pg_stat_user_indexes ist in PGlite möglicherweise nicht verfügbar,
+--  funktioniert aber in vollständigen PostgreSQL-Installationen)
 SELECT schemaname, tablename, indexname, idx_scan
 FROM pg_stat_user_indexes
 WHERE idx_scan = 0 AND indexname NOT LIKE 'pg_toast%';
 ```
-
----
 
 ### 2. Index auf häufig gefilterte Spalten
 
@@ -786,32 +1010,96 @@ Die Reihenfolge der Spalten in einem Composite Index ist kritisch. Hier ist die 
 **Reihenfolge-Regel:**
 
       {{0}}
-> 1. **Equality-Filter zuerst:** `WHERE status = 'active'`
-> 2. **Range-Filter danach:** `WHERE created_at > '2024-01-01'`
-> 3. **ORDER BY zuletzt:** `ORDER BY created_at DESC`
+> 1. **Equality-Filter zuerst:** `WHERE titleType = 'movie'`
+> 2. **Range-Filter danach:** `WHERE startYear >= '2020'`
+> 3. **ORDER BY zuletzt:** `ORDER BY startYear DESC`
 
     --{{1}}--
-Beispiel: Query mit mehreren Filtern
+Beispiel: Realistische IMDB-Query mit mehreren Filtern
 
       {{1}}
 ```sql
-SELECT * FROM orders
-WHERE status = 'shipped' 
-  AND created_at > '2024-01-01'
-ORDER BY created_at DESC;
+-- Alle Filme seit zwischen 2015 und 2017
+EXPLAIN ANALYZE
+SELECT primaryTitle, startYear
+FROM title_basics tb
+WHERE titleType = 'movie' 
+  AND startYear >= '2015'
+  AND startYEAR <= 2017
+ORDER BY startYear DESC
+LIMIT 50;
 ```
+@PGlite.eval(imdb)
 
     --{{2}}--
-Optimaler Index: `(status, created_at)` – Equality zuerst, Range danach.
+Diese Query findet 1.638 Top-Filme seit 2015. Ohne Index: Sequential Scan über 178.124 Zeilen. Welcher Index wäre optimal?
+
+      {{2}}
+**Optimaler Composite Index:**
 
       {{2}}
 ```sql
-CREATE INDEX idx_orders_status_date 
-ON orders(status, created_at);
+-- Equality (titleType) zuerst, Range (startYear) danach
+CREATE INDEX idx_type_year 
+ON title_basics(titleType, startYear);
 ```
+@PGlite.eval(imdb)
 
     --{{3}}--
-Falscher Index: `(created_at, status)` – Range zuerst → Index nur teilweise genutzt!
+Warum diese Reihenfolge? `titleType = 'movie'` ist eine Equality (=), `startYear >= '2015'` ist eine Range (>=). B-Bäume filtern erst exakt, dann im Bereich.
+
+      {{3}}
+**Test: Query mit optimalem Index**
+
+      {{3}}
+```sql
+EXPLAIN ANALYZE
+SELECT COUNT(*) 
+FROM title_basics
+WHERE titleType = 'movie' AND startYear >= '2015';
+```
+@PGlite.eval(imdb)
+
+    --{{4}}--
+Sie sehen vermutlich "Index Scan using idx\_type\_year" oder "Bitmap Index Scan" – der Index wird effizient genutzt!
+
+      {{4}}
+**Falscher Index: Range zuerst**
+
+      {{4}}
+```sql
+DROP INDEX IF EXISTS idx_type_year;
+-- FALSCH: Range (startYear) vor Equality (titleType)
+CREATE INDEX idx_year_type_wrong 
+ON title_basics(startYear, titleType);
+```
+@PGlite.eval(imdb)
+
+    --{{5}}--
+Mit diesem Index kann PostgreSQL nur `startYear` nutzen – `titleType` wird ignoriert, weil es nach der Range kommt. Bei 136 verschiedenen Jahren weniger effizient!
+
+      {{5}}
+**Vergleich: Welche Queries profitieren?**
+
+      {{5}}
+```sql
+-- Index: (titleType, startYear)
+
+-- ✅ NUTZT Index effizient:
+WHERE titleType = 'movie' AND startYear >= '2015';
+
+-- ✅ NUTZT Index teilweise (nur titleType):
+WHERE titleType = 'movie';
+
+-- ⚠️ NUTZT Index schlecht (nur startYear):
+WHERE startYear >= '2015';
+
+-- ❌ NUTZT Index NICHT:
+WHERE startYear >= '2015' AND titleType = 'movie';  -- Reihenfolge egal!
+```
+
+    --{{6}}--
+Merke: Die WHERE-Reihenfolge im SQL ist egal – aber die Index-Spalten-Reihenfolge ist kritisch!
 
 ---
 
@@ -825,16 +1113,16 @@ Ein Index auf `(A, B)` deckt auch Queries auf `A` allein ab. Aber nicht auf `B` 
 
       {{0}}
 ```sql
--- Gegeben: Index auf (startYear, titleType)
+-- Gegeben: Index auf (startyear, titletype)
 
 -- ✅ Index wird genutzt:
-WHERE startYear = '2020';
+WHERE startyear = '2020';
 
 -- ✅ Index wird genutzt:
-WHERE startYear = '2020' AND titleType = 'movie';
+WHERE startyear = '2020' AND titletype = 'movie';
 
--- ❌ Index wird NICHT genutzt:
-WHERE titleType = 'movie';
+-- ❌ Index wird NICHT effizient genutzt:
+WHERE titletype = 'movie';
 ```
 
     --{{1}}--
@@ -860,19 +1148,23 @@ Das bedeutet: Sie brauchen keinen separaten Index auf `startYear`, wenn Sie bere
 Indexe fragmentieren über Zeit – besonders bei vielen UPDATE/DELETE-Operationen. Regelmäßige Wartung ist nötig.
 
       {{0}}
-**SQLite:**
+**PostgreSQL/PGlite:**
 
       {{0}}
 ```sql
--- Datenbank kompaktieren
-VACUUM;
+-- Statistiken aktualisieren (wichtig für Query Planer!)
+ANALYZE;
 
--- Index neu aufbauen
-REINDEX idx_rating;
+-- Spezifische Tabelle analysieren
+ANALYZE title_ratings;
+
+-- Index neu aufbauen (selten nötig)
+REINDEX INDEX idx_rating;
 ```
+@PGlite.eval(imdb)
 
     --{{1}}--
-In PostgreSQL gibt es zusätzlich `ANALYZE`, um Query-Planer-Statistiken zu aktualisieren.
+In PostgreSQL ist `ANALYZE` besonders wichtig – der Query Planer braucht aktuelle Statistiken, um die besten Indexe zu wählen!
 
       {{1}}
 **Monitoring-Metriken:**
@@ -892,344 +1184,33 @@ Empfohlene Frequenz: VACUUM wöchentlich, REINDEX monatlich (oder bei Performanc
 
 ---
 
-## Praktische Übungen
-
-    --{{0}}--
-Jetzt sind Sie dran! Diese Übungen helfen Ihnen, das Gelernte zu vertiefen. Arbeiten Sie mit der IMDB-Datenbank aus Session 11.
-
-### Übung 1: Performance-Experiment (15 Min)
-
-    --{{0}}--
-Wählen Sie eine Query aus Session 11, die Sie mit MCP gestellt haben – oder erstellen Sie eine neue.
-
-      {{0}}
-**Aufgabe:**
-
-      {{0}}
-<div>
-
-1. Führen Sie die Query **ohne Index** aus
-   - Nutzen Sie `.timer on` (SQLite) oder messen Sie die Zeit
-   - Notieren Sie: Ausführungszeit in ms
-
-2. Analysieren Sie mit `EXPLAIN QUERY PLAN`
-   - Gibt es Sequential Scans?
-   - Welche Spalten werden gefiltert?
-
-3. Erstellen Sie einen **passenden Index**
-   - Single-Column oder Composite?
-   - Welche Spalten in welcher Reihenfolge?
-
-4. Führen Sie die Query **mit Index** erneut aus
-   - Wie viel schneller ist sie? (Faktor: X×)
-   - Zeigt EXPLAIN jetzt "SEARCH ... USING INDEX"?
-
-5. **Reflexion:**
-   - Würden Sie diesen Index in Production einsetzen?
-   - Welche Trade-offs gibt es? (Speicher, Write-Performance)
-
-</div>
-
-    --{{1}}--
-Beispiel-Queries, falls Sie Inspiration brauchen:
-
-      {{1}}
-```sql
--- Alle Filme aus den 2010ern mit Rating > 7
-SELECT * FROM title_basics tb
-JOIN title_ratings tr ON tb.tconst = tr.tconst
-WHERE tb.startYear BETWEEN '2010' AND '2019'
-  AND tr.averageRating > 7.0;
-
--- Top 100 Personen nach Anzahl der Filme
-SELECT nb.primaryName, COUNT(*) AS film_count
-FROM name_basics nb
-JOIN title_principals tp ON nb.nconst = tp.nconst
-GROUP BY nb.nconst
-ORDER BY film_count DESC
-LIMIT 100;
-```
-
----
-
-### Übung 2: Query Plan Detektiv (10 Min)
-
-    --{{0}}--
-Sie bekommen einen Query Plan – Ihre Aufgabe: Bottlenecks finden und Lösungen vorschlagen.
-
-      {{0}}
-**Gegeben:** Query Plan (simuliert)
-
-      {{0}}
-```
-QUERY PLAN
-|--SCAN tb
-`--SEARCH tr USING INDEX idx_rating (averageRating>?)
-```
-
-    --{{1}}--
-Fragen:
-
-      {{1}}
-<div>
-
-1. **Welche Tabelle wird sequentiell gescannt?**  
-   → `title_basics` (tb)
-
-2. **Ist das ein Problem?**  
-   → Ja! Bei 178.000+ Zeilen teuer
-
-3. **Welcher Index fehlt vermutlich?**  
-   → Index auf der JOIN-Spalte (`tconst`) in `title_basics`
-
-4. **Wie würden Sie optimieren?**  
-   → `CREATE INDEX idx_tconst_basics ON title_basics(tconst);`
-
-5. **Was würde sich ändern?**  
-   → SCAN → SEARCH USING INDEX
-
-</div>
-
-    --{{2}}--
-Testen Sie Ihre Hypothese: Erstellen Sie den Index und prüfen Sie den neuen Plan!
-
----
-
-### Übung 3: Trade-off Diskussion (5 Min)
-
-    --{{0}}--
-Szenario: Sie designen die Datenbank für einen E-Commerce-Shop.
-
-      {{0}}
-**Tabellen:**
-
-      {{0}}
-<div>
-
-- `products` (100.000 Einträge)
-  - `id`, `name`, `category`, `price`, `stock`, `created_at`
-- `orders` (1.000.000 Einträge)
-  - `id`, `user_id`, `product_id`, `quantity`, `status`, `created_at`
-- `users` (50.000 Einträge)
-  - `id`, `email`, `name`, `country`, `created_at`
-
-</div>
-
-    --{{1}}--
-Fragen:
-
-      {{1}}
-<div>
-
-1. **Auf welche Spalten würden Sie Indexe legen?**  
-   → Ihre Antwort: ...
-
-2. **Wo würden Sie bewusst KEINE Indexe erstellen?**  
-   → Ihre Antwort: ...
-
-3. **Welche Queries sind am kritischsten?**  
-   → Produktsuche? Bestellhistorie? User-Login?
-
-4. **Composite Indexe: Welche Kombinationen sinnvoll?**  
-   → Z.B. `(user_id, created_at)` für "Meine letzten Bestellungen"?
-
-</div>
-
-    --{{2}}--
-Diskutieren Sie mit Kommilitonen oder notieren Sie Ihre Überlegungen. Es gibt keine perfekte Lösung – nur Trade-offs!
-
-      {{2}}
-**Mögliche Lösung (Beispiel):**
-
-      {{2}}
-<div>
-
-**Indexe:**
-- `products`: `(category, price)` (Produktsuche), `(name)` (Textsuche)
-- `orders`: `(user_id, created_at)` (Bestellhistorie), `(product_id)` (Verkaufszahlen), `(status)` (offene Bestellungen)
-- `users`: `(email)` (Login), `(country)` (Statistiken)
-
-**Keine Indexe:**
-- `users.name` (zu viele Variationen, wenig Selectivity)
-- `products.stock` (ändert sich ständig → Write-Overhead)
-- `orders.quantity` (nie allein gefiltert)
-
-</div>
-
----
-
-## Zusammenfassung & Ausblick
-
-    --{{0}}--
-Glückwunsch! Sie haben jetzt ein fundiertes Verständnis von Indexen und Performance-Optimierung. Lassen Sie uns die wichtigsten Punkte zusammenfassen.
-
-      {{0}}
-**Was Sie gelernt haben:**
-
-      {{0}}
-<div>
-
-✅ **Konzept:** Indexe sind sortierte B-Bäume für schnellen Zugriff  
-✅ **Praxis:** Indexe erstellen, Performance messen, Query Plans lesen  
-✅ **Trade-offs:** Schnelleres Lesen vs. langsameres Schreiben  
-✅ **Best Practices:** Wann Indexe sinnvoll sind (und wann nicht)  
-✅ **Tooling:** EXPLAIN QUERY PLAN, .timer, VACUUM, REINDEX
-
-</div>
-
-    --{{1}}--
-Das Wichtigste: Indexe sind kein Autopilot. Sie müssen verstehen, wie Queries ausgeführt werden, und gezielt optimieren.
-
-      {{1}}
-### Checkliste für Production-Datenbanken
-
-      {{1}}
-<div>
-
-- [ ] **Foreign Keys haben Indexe?**
-- [ ] **Häufige WHERE-Spalten indexiert?**
-- [ ] **Query Plans für kritische Queries gecheckt?**
-- [ ] **Redundante Indexe entfernt?**
-- [ ] **Index-Nutzung im Monitoring sichtbar?**
-- [ ] **VACUUM/REINDEX regelmäßig durchgeführt?**
-
-</div>
-
-    --{{2}}--
-Wenn Sie diese Checkliste befolgen, sind Sie auf einem guten Weg zu performanten Datenbanken.
-
-      {{2}}
-### Verbindung zu Session 11 (MCP)
-
-      {{2}}
-> **Erinnerung an L11:**
->
-> GitHub Copilot generiert SQL-Queries – aber sie sind nicht immer optimal. Jetzt können Sie:
->
-> - Query Plans analysieren
-> - Fehlende Indexe identifizieren
-> - Performance selbst optimieren
->
-> **Die KI ist Ihr Werkzeug – aber Sie sind der Architekt!**
-
-    --{{3}}--
-In der nächsten Session (L13) lernen Sie Advanced SQL: Views, SET Operations und Window Functions. Diese Features profitieren alle von guten Indexen!
-
-      {{3}}
-### Ausblick: Weitere Performance-Themen
-
-      {{3}}
-<div>
-
-**Themen, die wir NICHT behandelt haben (aber relevant sind):**
-
-- **Query Optimization:** Subquery vs. JOIN, CTE Materialization
-- **Partitioning:** Große Tabellen in kleinere Chunks aufteilen
-- **Caching:** Redis, Memcached vor der Datenbank
-- **Sharding:** Daten auf mehrere Server verteilen
-- **Read Replicas:** Lesezugriffe skalieren
-- **Connection Pooling:** Datenbankverbindungen wiederverwenden
-
-</div>
-
-    --{{4}}--
-Diese Themen gehören zum Bereich "Database Scaling" – wenn eine einzelne Datenbank nicht mehr ausreicht.
-
----
-
-## Hausaufgabe (Optional)
-
-    --{{0}}--
-Möchten Sie Ihr Wissen vertiefen? Hier sind drei optionale Aufgaben:
-
-      {{0}}
-**Aufgabe 1: Index-Portfolio für IMDB**
-
-      {{0}}
-<div>
-
-Erstellen Sie **3 Indexe** für die IMDB-Datenbank, die verschiedene Use Cases abdecken:
-
-1. **Produktsuche:** Filme nach Genre + Rating filtern
-2. **Zeitreise:** Filme pro Jahrzehnt analysieren
-3. **Personen-Lookup:** Schauspieler/Regisseure schnell finden
-
-Dokumentieren Sie:
-- Welche Spalten? (Single vs. Composite)
-- Warum diese Reihenfolge?
-- Welcher Speedup? (Vorher/Nachher-Messung)
-
-</div>
-
-    --{{1}}--
-Aufgabe 2: Index-Killer finden
-
-      {{1}}
-<div>
-
-Finden Sie eine Query aus Session 11, bei der ein Index **nicht hilft**.
-
-Mögliche Kandidaten:
-- Low Selectivity (z.B. `titleType` mit nur 10 Werten)
-- Funktionen in WHERE (`LOWER(primaryTitle)`)
-- Kleine Ergebnismenge (< 100 Zeilen)
-
-Erklären Sie: Warum hilft der Index nicht? Was wäre die Alternative?
-
-</div>
-
-    --{{2}}--
-Aufgabe 3: Real-World Szenario
-
-      {{2}}
-<div>
-
-Stellen Sie sich vor, Sie bauen eine Film-Empfehlungs-App mit der IMDB-Datenbank.
-
-**Anforderungen:**
-- Nutzer suchen Filme nach Genre, Jahr, Rating
-- Top 10 Filme pro Genre
-- Personensuche (Schauspieler, Regisseure)
-- Tägliche Updates (neue Filme hinzufügen)
-
-**Fragen:**
-1. Welche Indexe würden Sie erstellen?
-2. Welche Queries sind am kritischsten?
-3. Wie würden Sie die Write-Performance (Updates) optimieren?
-
-Schreiben Sie ein kurzes Design-Dokument (1 Seite).
-
-</div>
-
----
-
 ## Referenzen & Ressourcen
+
+
+      {{0}}
+<div>
+
+### Pflichtlektüre
 
     --{{0}}--
 Hier sind weiterführende Ressourcen zum Thema Indexe und Performance:
 
-      {{0}}
-### Pflichtlektüre
-
-      {{0}}
-<div>
-
 - **Use The Index, Luke!** – [https://use-the-index-luke.com](https://use-the-index-luke.com)  
   → Bestes kostenloses Buch zu SQL-Indexen (auch als Print)
 
-- **SQLite Index Documentation** – [https://www.sqlite.org/lang_createindex.html](https://www.sqlite.org/lang_createindex.html)  
-  → Offizielle Dokumentation mit Beispielen
-
 - **PostgreSQL: Using EXPLAIN** – [https://www.postgresql.org/docs/current/using-explain.html](https://www.postgresql.org/docs/current/using-explain.html)  
-  → Query Plans verstehen (gilt auch für SQLite)
+  → Query Plans verstehen (direkt für PGlite relevant!)
+
+- **PostgreSQL Indexes** – [https://www.postgresql.org/docs/current/indexes.html](https://www.postgresql.org/docs/current/indexes.html)  
+  → Offizielle Dokumentation mit fortgeschrittenen Techniken
 
 </div>
 
-    --{{1}}--
-Weiterführende Ressourcen
-
       {{1}}
 <div>
+
+    --{{1}}--
+Weiterführende Ressourcen
 
 - **B-Tree Visualisierung** – [https://www.cs.usfca.edu/~galles/visualization/BTree.html](https://www.cs.usfca.edu/~galles/visualization/BTree.html)  
   → Interaktive Animation der Datenstruktur
@@ -1245,28 +1226,30 @@ Weiterführende Ressourcen
 
 </div>
 
-    --{{2}}--
-Tools für die Praxis
-
       {{2}}
 <div>
 
-- **SQLite Browser** – [https://sqlitebrowser.org](https://sqlitebrowser.org)  
-  → GUI für Index-Management
+    --{{2}}--
+Tools für die Praxis
+
+- **PGlite** – [https://pglite.dev](https://pglite.dev)  
+  → PostgreSQL im Browser (was wir in dieser Session nutzen!)
 
 - **DBeaver** – [https://dbeaver.io](https://dbeaver.io)  
   → Universeller Datenbank-Client (mit EXPLAIN-Visualisierung)
 
 - **pgAdmin** – [https://www.pgadmin.org](https://www.pgadmin.org)  
-  → PostgreSQL-spezifisch, aber gute Query-Analyse
+  → PostgreSQL-spezifisch, gute Query-Analyse
+
+- **EXPLAIN Visualizer** – [https://explain.dalibo.com](https://explain.dalibo.com)  
+  → PostgreSQL EXPLAIN Plans visualisieren
 
 </div>
 
----
 
     --{{3}}--
-Das war Session 12! Sie haben jetzt die Werkzeuge, um jede Datenbank zu analysieren und zu optimieren. In der nächsten Session erweitern wir Ihr SQL-Arsenal mit Views, SET Operations und Window Functions – alles aufbauend auf dem, was Sie heute gelernt haben.
+Das war Session 12! Sie haben jetzt die Werkzeuge, um jede PostgreSQL-Datenbank zu analysieren und zu optimieren – direkt im Browser mit PGlite. In der nächsten Session erweitern wir Ihr SQL-Arsenal mit Advanced Techniques – alles aufbauend auf dem, was Sie heute gelernt haben.
 
       {{3}}
 {{|>}}
-**Happy Optimizing! 🚀📊**
+**Happy Optimizing mit PGlite! 🚀📊**
