@@ -320,6 +320,7 @@ __Index Scan bedeutet:__ 1. Index durchsuchen -> Zeilen-Position finden 2. Zur T
 
  {{3}} __Szenario 3:__ Index Only Scan (nur Index!)
 
+    {{3}}
 ``` sql
 -- Query NUR auf die indexierte Spalte
 EXPLAIN
@@ -353,6 +354,8 @@ FROM title_basics
 WHERE primaryTitle LIKE 'Matrix%';
 ```
 @PGlite.eval(imdb)
+
+</section>
 
     --{{5}}--
 Diese Query findet 4 Filme mit „Matrix“ am Anfang. PGlite kann den Index nutzen, weil es eine Präfix-Suche ist (sortierter Index hilft!). Je nach Optimierung sehen Sie einen Bitmap Index Scan.
@@ -459,6 +462,16 @@ Typisches Ergebnis: 2–10ms – das ist 5×–10× schneller! Je größer die D
 > - Würden Sie diesen Index in Production einsetzen?
 > - Welche Queries würden davon profitieren?
 
+      {{8}}
+**Cleanup: Index für nächstes Experiment entfernen**
+
+      {{8}}
+```sql
+-- Index wieder löschen für saubere Ausgangslage
+DROP INDEX IF EXISTS idx_rating;
+```
+@PGlite.eval(imdb)
+
 ---
 
 ### Experiment 2: Composite Index auf `startYear` + `titleType`
@@ -523,6 +536,16 @@ Jetzt nutzt SQLite den Composite Index – aber nur, wenn beide Spalten im WHERE
 
     --{{4}}--
 Testen Sie das selbst: Erstellen Sie einen Index `(titleType, startYear)` und vergleichen Sie die Performance. Sie werden sehen: Oft langsamer!
+
+      {{5}}
+**Cleanup: Index für nächstes Experiment entfernen**
+
+      {{5}}
+```sql
+-- Index wieder löschen für saubere Ausgangslage
+DROP INDEX IF EXISTS idx_year_type;
+```
+@PGlite.eval(imdb)
 
 ---
 
@@ -664,6 +687,20 @@ Typisches Ergebnis: 5–20× schneller! Bei Millionen von Zeilen wäre der Unter
     --{{8}}--
 Reflexion: Überlegen Sie sich – welche anderen Spalten in der IMDB-Datenbank würden von Indexen profitieren? Welche nicht?
 
+      {{9}}
+**Cleanup: Indexe für nächstes Experiment entfernen**
+
+      {{9}}
+```sql
+-- Alle Indexe wieder löschen für saubere Ausgangslage
+DROP INDEX IF EXISTS idx_tconst_basics;
+DROP INDEX IF EXISTS idx_tconst_ratings;
+DROP INDEX IF EXISTS idx_rating;
+```
+@PGlite.eval(imdb)
+
+---
+
 ### Experiment 4: Partielle Indexe (Filtered Indexes)
 
     --{{0}}--
@@ -796,6 +833,16 @@ WHERE startYear >= '2020';
 -- Speedup bei Queries auf 2020+: Gleich schnell wie normaler Index
 -- Memory: 76% weniger RAM-Verbrauch
 ```
+      {{9}}
+**Cleanup: Index für saubere Ausgangslage entfernen**
+
+      {{9}}
+```sql
+-- Index wieder löschen
+DROP INDEX IF EXISTS idx_modern_films;
+```
+@PGlite.eval(imdb)
+
 
       {{7}}
 > **Best Practice für IMDB-App:**

@@ -555,8 +555,6 @@ Business-Szenario: Finden Sie alle Kunden, die KEINE Mitarbeiter sind, für eine
 ```sql
 -- Kunden, die KEINE Mitarbeiter sind
 SELECT 
-  first_name, (basierend auf Namen)
-SELECT 
   first_name,
   last_name
 FROM customers
@@ -1343,10 +1341,11 @@ Fassen wir zusammen, was Sie heute gelernt haben.
     {{4}}
 > **Pro-Tipp für Ihre Projekte:** Beginnen Sie früh mit Views für häufige Analysen. Das spart später enorm Zeit und reduziert Bugs durch Code-Duplikation!
 
----
 
+    {{5}}
 **Referenzen & Weiterführendes:**
 
+    {{5}}
 - SQL Standards: ISO/IEC 9075 (SET Operations seit SQL-92)
 - PostgreSQL Views Dokumentation
 - SQL Performance Explained (Markus Winand)
