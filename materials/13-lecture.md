@@ -5,7 +5,7 @@ version:  2.0.0
 language: de
 narrator: Deutsch Female
 
-icon:     assets/img/logo/logo.png
+logo:     ../assets/img/logo/13-lecture.jpg
 
 comment:  Advanced SQL: SET Operations & Views – Mengenlehre und Abstraktion für wiederverwendbare Queries im E-Commerce-Kontext
 
@@ -1269,16 +1269,16 @@ Wenn Sie später die products-Tabelle umbenennen oder umstrukturieren, müssen S
 Fassen wir zusammen: Wann nutzen Sie SET Operations, wann Views?
 
     {{1}}
-| Anforderung | Empfehlung | Begründung |
-|-------------|-----------|------------|
-| Zwei Listen kombinieren | **UNION / UNION ALL** | Mengenvereinigung |
-| Überschneidungen finden | **INTERSECT** | Schnittmenge |
-| Exklusive Elemente finden | **EXCEPT** oder **LEFT JOIN + NULL** | Differenz |
-| Query wiederverwenden | **VIEW** | Code-Reuse |
-| Komplexe Query kapseln | **VIEW** | Abstraktion |
-| Zugriffskontrolle | **VIEW** | Spalten/Zeilen beschränken |
-| SET Ops wiederverwenden | **VIEW mit SET Ops** | Beste aus beiden Welten |
-| Performance bei teuren Queries | **Materialized View** (andere DBs) | Caching |
+| Anforderung                    | Empfehlung                           | Begründung                 |
+| ------------------------------ | ------------------------------------ | -------------------------- |
+| Zwei Listen kombinieren        | **UNION / UNION ALL**                | Mengenvereinigung          |
+| Überschneidungen finden        | **INTERSECT**                        | Schnittmenge               |
+| Exklusive Elemente finden      | **EXCEPT** oder **LEFT JOIN + NULL** | Differenz                  |
+| Query wiederverwenden          | **VIEW**                             | Code-Reuse                 |
+| Komplexe Query kapseln         | **VIEW**                             | Abstraktion                |
+| Zugriffskontrolle              | **VIEW**                             | Spalten/Zeilen beschränken |
+| SET Ops wiederverwenden        | **VIEW mit SET Ops**                 | Beste aus beiden Welten    |
+| Performance bei teuren Queries | **Materialized View** (andere DBs)   | Caching                    |
 
 ### Best Practices Cheat Sheet
 
