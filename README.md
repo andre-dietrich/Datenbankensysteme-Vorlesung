@@ -42,21 +42,31 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 - [L3: Document Stores](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md)
 - [L5: Relationale Datenbanken (SQL) – Von der Idee zum Model](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md)
 
+
 ### Block 2: Relationale Grundlagen
 
 - [L7: SQL Introduction & Query Data (SELECT)](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture.md)
 - [L7: SQL Introduction & Query Data (SELECT) – Vollversion](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md)
 - [L8: SQL Data Definition (DDL) & Manipulation (DML)](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md)
+- [L8-Complete: SQL Data Definition (DDL) & Manipulation (DML)](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture-full.md)
 - [L9: Normalisierung & ER-Diagramme](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md)
+- [L9-Complete: Normalisierung & ER-Diagramme](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture-full.md)
 - [L10: Mehr FROM Subqueries, CTEs, Joins](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md)
+- [L10-Complete: Mehr FROM Subqueries, CTEs, Joins](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture-full.md)
+- [L12: Indexe & Performance](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/12-lecture.md)
+- [L13: Advanced SQL – Views, SET Operations (UNION/INTERSECT/EXCEPT) & Window Functions](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/13-lecture.md)
+- [L14: Transaktionen & ACID](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/14-lecture.md)
+
 
 ### Block 3: Technologien & Performance
 
-- [L11: MCP Tutorial – KI-gestützte Datenbankabfragen](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md)
-- [L12: Indexe & Performance](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/12-lecture.md)
-- [L13: Advanced SQL – Views, SET Operations (UNION/INTERSECT/EXCEPT) & Window Functions](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/13-lecture.md)
+- [MCP Tutorial: KI-gestützte Datenbankabfragen](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md)
+
 
 ### Zusätzliche Materialien
+
+- [SQL Cheat Sheet](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/sql-cheat-sheet.md)
+- [JavaScript Primer](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md)
 
 - [JavaScript Primer](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md)
 - [SQL Cheat Sheet](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/sql-cheat-sheet.md)
