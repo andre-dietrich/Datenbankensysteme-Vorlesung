@@ -428,7 +428,7 @@ Um diese Probleme zu adressieren, definiert der SQL-Standard vier Isolation Leve
 | Isolation Level    | Dirty Read    | Non-Repeatable Read | Phantom Read  | Lost Update   | Performance         |
 | ------------------ | ------------- | ------------------- | ------------- | ------------- | ------------------- |
 | `READ UNCOMMITTED` | ⚠️ Möglich    | ⚠️ Möglich          | ⚠️ Möglich    | ⚠️ Möglich    | ⚡⚡⚡ Sehr schnell    |
-| `READ COMMITTED`   | ✅ Verhindert | ⚠️ Möglich          | ⚠️ Möglich    | ⚠️ Möglich    | ⚡⚡ Schnell          |
+| `READ COMMITTED`   | ✅ Verhindert | ✅ Verhindert       | ⚠️ Möglich    | ⚠️ Möglich    | ⚡⚡ Schnell          |
 | `REPEATABLE READ`  | ✅ Verhindert | ✅ Verhindert       | ⚠️ Möglich    | ✅ Verhindert | ⚡ Langsamer         |
 | `SERIALIZABLE`     | ✅ Verhindert | ✅ Verhindert       | ✅ Verhindert | ✅ Verhindert | 🐌 Am langsamsten   |
 
