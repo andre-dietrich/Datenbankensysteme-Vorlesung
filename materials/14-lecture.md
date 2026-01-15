@@ -11,6 +11,9 @@ logo:
 
 edit:    true
 
+
+import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
+
 -->
 
 import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
