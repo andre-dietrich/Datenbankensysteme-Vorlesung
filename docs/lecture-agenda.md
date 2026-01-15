@@ -65,11 +65,14 @@ Diese Vorlesung führt systematisch in Datenbanksysteme ein – von kompakten Pa
 |-----|-----------|-----------------------------------------------------------|-------|-----------|------|----------------------------------------------------------------------------------------------|-------------------------|
 | L14 | lecture   | Transaktionen & ACID                                      | 90m   | 2,4       |      | BEGIN/COMMIT/ROLLBACK, ACID-Eigenschaften, Isolation Levels, Savepoints, Szenariobasiert    | materials/14-lecture.md |
 | E7  | exercise  | Transaktionen & Concurrency Scenarios                     | 90m   | 2,3       |      | Praktische Übungen: Lost Updates, Dirty Reads, Deadlock-Szenarien                           | materials/7-exercise.md |
-| L15 | lecture   | Performance Optimization                                  | 90m   | 2         |      | Indexes, Partitions, Query Plans, Best Practices                                             | materials/15-lecture.md |
-| L16 | lecture   | Graph Stores (kompakt)                                    | 90m   | 1         |      | Nodes, Edges, Cypher, Neo4j, Use Cases                                                       | materials/16-lecture.md |
-| L17 | lecture   | Time Series Stores (kompakt)                              | 90m   | 1         |      | InfluxDB, Tags/Fields, Retention Policies                                                    | materials/17-lecture.md |
-| L18 | lecture   | Polyglot Persistence Pattern                              | 90m   | 5         |      | Use Cases, Technologie-Mix, Trade-offs                                                       | materials/18-lecture.md |
-| -   | milestone | MS4 nach L18                                              | -     | 5         | MS4  | Polyglot-Architektur skizziert                                                               | project/ms4.md          |
+| L15 | lecture   | Functions & Trigger                                       | 90m   | 2         |      | Stored Functions, PL/pgSQL Basics (IF/CASE/RAISE), Trigger-Functions, Automatisierung (Timestamps, Audit, Validierung, Soft Delete) | materials/15-lecture.md |
+| E8  | exercise  | Functions & Trigger Hands-on                              | 90m   | 2,3       |      | Eigene Functions schreiben, Trigger implementieren, Debugging-Szenarien, Best Practices      | materials/8-exercise.md |
+| L16 | lecture   | Performance Optimization                                  | 90m   | 2         |      | Indexes, Partitions, Query Plans, Best Practices                                             | materials/16-lecture.md |
+| L16 | lecture   | Performance Optimization                                  | 90m   | 2         |      | Indexes, Partitions, Query Plans, Best Practices                                             | materials/16-lecture.md |
+| L17 | lecture   | Graph Stores (kompakt)                                    | 90m   | 1         |      | Nodes, Edges, Cypher, Neo4j, Use Cases                                                       | materials/17-lecture.md |
+| L18 | lecture   | Time Series Stores (kompakt)                              | 90m   | 1         |      | InfluxDB, Tags/Fields, Retention Policies                                                    | materials/18-lecture.md |
+| L19 | lecture   | Polyglot Persistence Pattern                              | 90m   | 5         |      | Use Cases, Technologie-Mix, Trade-offs                                                       | materials/19-lecture.md |
+| -   | milestone | MS4 nach L19                                              | -     | 5         | MS4  | Polyglot-Architektur skizziert                                                               | project/ms4.md          |
 
 ---
 
@@ -77,10 +80,10 @@ Diese Vorlesung führt systematisch in Datenbanksysteme ein – von kompakten Pa
 
 | Nr  | Type      | Titel                                                     | Dauer | Lernziele | Tags  | Summary                                                                                      | Material                |
 |-----|-----------|-----------------------------------------------------------|-------|-----------|-------|----------------------------------------------------------------------------------------------|-------------------------|
-| L19 | lecture   | Projektpräsentation & Best Practices                      | 90m   | 5         |       | Architektur-Review, Lessons Learned                                                          | materials/19-lecture.md |
-| L20 | lecture   | DSGVO, Datensicherheit & Compliance                       | 90m   | 5         |       | Regulatorische Anforderungen (GDPR, Finance)                                                 | materials/20-lecture.md |
-| L21 | lecture   | Abschluss & Ausblick                                      | 90m   | 5         |       | Zusammenfassung, moderne Trends (Lakehouse, Cloud-DBs)                                       | materials/21-lecture.md |
-| -   | milestone | Final nach L21                                            | -     | 1-5       | FINAL | Gesamtprojekt + Doku + Präsentation                                                          | project/final.md        |
+| L20 | lecture   | Projektpräsentation & Best Practices                      | 90m   | 5         |       | Architektur-Review, Lessons Learned                                                          | materials/20-lecture.md |
+| L21 | lecture   | DSGVO, Datensicherheit & Compliance                       | 90m   | 5         |       | Regulatorische Anforderungen (GDPR, Finance)                                                 | materials/21-lecture.md |
+| L22 | lecture   | Abschluss & Ausblick                                      | 90m   | 5         |       | Zusammenfassung, moderne Trends (Lakehouse, Cloud-DBs)                                       | materials/22-lecture.md |
+| -   | milestone | Final nach L22                                            | -     | 1-5       | FINAL | Gesamtprojekt + Doku + Präsentation                                                          | project/final.md        |
 
 ---
 
