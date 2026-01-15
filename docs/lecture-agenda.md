@@ -63,8 +63,8 @@ Diese Vorlesung führt systematisch in Datenbanksysteme ein – von kompakten Pa
 
 | Nr  | Type      | Titel                                                     | Dauer | Lernziele | Tags | Summary                                                                                      | Material                |
 |-----|-----------|-----------------------------------------------------------|-------|-----------|------|----------------------------------------------------------------------------------------------|-------------------------|
-| L14 | lecture   | Relationale Algebra (Theorie)                             | 90m   | 2         |      | σ, π, ⨝, ∪, −, Äquivalenz, formale Notation                                                  | materials/14-lecture.md |
-| E7  | exercise  | Relationale Algebra & SQL Translation                     | 90m   | 2,3       |      | Formale Notation, Äquivalenzen, Übersetzung in SQL                                           | materials/7-exercise.md |
+| L14 | lecture   | Transaktionen & ACID                                      | 90m   | 2,4       |      | BEGIN/COMMIT/ROLLBACK, ACID-Eigenschaften, Isolation Levels, Savepoints, Szenariobasiert    | materials/14-lecture.md |
+| E7  | exercise  | Transaktionen & Concurrency Scenarios                     | 90m   | 2,3       |      | Praktische Übungen: Lost Updates, Dirty Reads, Deadlock-Szenarien                           | materials/7-exercise.md |
 | L15 | lecture   | Performance Optimization                                  | 90m   | 2         |      | Indexes, Partitions, Query Plans, Best Practices                                             | materials/15-lecture.md |
 | L16 | lecture   | Graph Stores (kompakt)                                    | 90m   | 1         |      | Nodes, Edges, Cypher, Neo4j, Use Cases                                                       | materials/16-lecture.md |
 | L17 | lecture   | Time Series Stores (kompakt)                              | 90m   | 1         |      | InfluxDB, Tags/Fields, Retention Policies                                                    | materials/17-lecture.md |
