@@ -11,7 +11,7 @@ edit:     true
 
 comment:  In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten.
 
-logo:     ../assets/img/logo/8-lecture.jpg
+logo:     ../assets/img/logo/8-lecture-full.jpg
 
 import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/README.md
 -->

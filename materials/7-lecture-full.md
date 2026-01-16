@@ -9,7 +9,7 @@ email:    LiaScript@web.de
 
 comment:  Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen.
 
-logo:    ../assets/img/logo/7-lecture.jpg
+logo:    ../assets/img/logo/7-lecture-full.jpg
 
 import: https://raw.githubusercontent.com/LiaTemplates/DuckDB/refs/heads/main/README.md
 -->
