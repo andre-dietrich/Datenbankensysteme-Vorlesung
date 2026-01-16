@@ -251,6 +251,17 @@ collection:
       - Konsistenz
     arguments:
       - pdf-timeout: 120000
+        
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/15-lecture.md
+    title: "L15: Funktionen & Trigger"
+    tags:
+      - SQL
+      - Funktionen
+      - Trigger
+      - Automatisierung
+      - Konsistenz
+    arguments:
+      - pdf-timeout: 120000
 
   # Block 3: Technologien – APIs & KI-Integration
   - html: >
