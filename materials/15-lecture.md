@@ -24,8 +24,6 @@ import: https://raw.githubusercontent.com/LiaTemplates/PGlite/refs/heads/main/RE
     --{{0}}--
 Willkommen zu Session 15! Heute schauen wir uns an, wie wir Logik nicht nur in unserer Anwendung, sondern direkt in der Datenbank ausführen können. Warum ist das sinnvoll? Stellen Sie sich vor, Sie möchten, dass bei jeder Änderung an einem Produkt automatisch ein Timestamp aktualisiert wird – oder dass jede Preisänderung protokolliert wird. Das manuell in jeder Anwendung zu implementieren ist fehleranfällig. Besser: Die Datenbank macht es automatisch! Heute lernen Sie Functions und Trigger kennen – und probieren alles direkt im Browser aus.
 
----
-
 ## Motivation: Warum Logik in der Datenbank?
 
     --{{0}}--
@@ -78,10 +76,10 @@ EXECUTE FUNCTION update_timestamp();
 
 ### Problem 2: Audit-Logging
 
-    --{{2}}--
+    --{{0}}--
 Zweites Szenario: Sie wollen nachvollziehen, wer wann welche Preise geändert hat. Compliance-Anforderung!
 
-      {{2-3}}
+      {{0}}
 <div>
 
 **Ohne Trigger:**
@@ -101,10 +99,10 @@ await db.query(
 
 </div>
 
-    --{{3}}--
+    --{{1}}--
 Mit einem Trigger passiert das Logging automatisch – transparent, konsistent, fehlerfrei.
 
-      {{3-4}}
+      {{1}}
 <div>
 
 **Mit Trigger:**
@@ -124,20 +122,20 @@ EXECUTE FUNCTION log_change();
 
 ### Use Cases für Functions & Trigger
 
-    --{{4}}--
+    --{{0}}--
 Wann machen Functions und Trigger Sinn? Hier ist eine Übersicht:
 
-      {{4}}
+      {{0}}
 <div>
 
-| Use Case | Functions | Trigger |
-|----------|-----------|---------|
-| Berechnungen (z.B. Steuer, Rabatt) | ✅ Wiederverwendbar | ⚠️ Automatisch bei jedem Event |
-| Validierung (z.B. negative Preise verhindern) | ✅ Kann manuell aufgerufen werden | ✅✅ Automatisch, kann nicht umgangen werden |
-| Automatische Timestamps | ⚠️ Muss aufgerufen werden | ✅✅ Automatisch bei INSERT/UPDATE |
-| Audit-Logging | ⚠️ Muss explizit aufgerufen werden | ✅✅ Automatisch, konsistent |
-| Soft Delete (Löschen = Markieren) | ⚠️ Muss implementiert werden | ✅✅ Überschreibt DELETE automatisch |
-| Komplexe Geschäftslogik | ✅ Gut testbar, wiederverwendbar | ⚠️ Schwer zu debuggen |
+| Use Case                                      | Functions                            | Trigger                                      |
+| --------------------------------------------- | ------------------------------------ | -------------------------------------------- |
+| Berechnungen (z.B. Steuer, Rabatt)            | ✅ Wiederverwendbar                  | ⚠️ Automatisch bei jedem Event             |
+| Validierung (z.B. negative Preise verhindern) | ✅ Kann manuell aufgerufen werden    | ✅✅ Automatisch, kann nicht umgangen werden |
+| Automatische Timestamps                       | ⚠️ Muss aufgerufen werden          | ✅✅ Automatisch bei INSERT/UPDATE           |
+| Audit-Logging                                 | ⚠️ Muss explizit aufgerufen werden | ✅✅ Automatisch, konsistent                 |
+| Soft Delete (Löschen = Markieren)             | ⚠️ Muss implementiert werden       | ✅✅ Überschreibt DELETE automatisch         |
+| Komplexe Geschäftslogik                       | ✅ Gut testbar, wiederverwendbar     | ⚠️ Schwer zu debuggen                      |
 
 **Faustregel:**
 
@@ -146,10 +144,8 @@ Wann machen Functions und Trigger Sinn? Hier ist eine Übersicht:
 
 </div>
 
-    --{{5}}--
+    --{{2}}--
 Heute lernen Sie beide Konzepte kennen – und zwar nicht nur theoretisch, sondern mit vielen praktischen Demos, die Sie direkt im Browser ausprobieren können!
-
----
 
 ## Teil 1: Stored Functions
 
@@ -161,7 +157,7 @@ Beginnen wir mit Stored Functions. Das sind quasi JavaScript-Funktionen, aber in
     --{{0}}--
 Eine Stored Function ist ein Stück SQL-Code, das in der Datenbank gespeichert wird und wiederverwendet werden kann.
 
-      {{0-1}}
+      {{0}}
 <div>
 
 **Vorteile:**
@@ -181,10 +177,10 @@ Eine Stored Function ist ein Stück SQL-Code, das in der Datenbank gespeichert w
 
 ### Grundlegende Syntax
 
-    --{{1}}--
+    --{{0}}--
 Die Syntax für `CREATE FUNCTION` sieht in PostgreSQL so aus:
 
-      {{1-2}}
+      {{0}}
 <div>
 
 ```sql
@@ -209,10 +205,10 @@ $$ LANGUAGE plpgsql;
 
 ### Demo 1: Einfache Addition
 
-    --{{2}}--
+    --{{0}}--
 Schauen wir uns ein ganz einfaches Beispiel an: Eine Funktion, die zwei Zahlen addiert.
 
-      {{2}}
+      {{0}}
 ``` sql
 CREATE FUNCTION add_numbers(a INT, b INT)
 RETURNS INT AS $$
@@ -226,15 +222,15 @@ SELECT add_numbers(5, 3) as result;
 ```
 @PGlite.terminal
 
-    --{{3}}--
+    --{{1}}--
 Das war's! Sie sehen: Parameter in Klammern, Rückgabetyp mit RETURNS, und im Body ein einfaches RETURN. Probieren Sie es aus – ändern Sie die Zahlen!
 
 ### Demo 2: String-Verarbeitung
 
-    --{{3}}--
+    --{{0}}--
 Functions können auch mit Strings arbeiten. Hier eine Grußfunktion:
 
-      {{3}}
+      {{0}}
 ``` sql
 CREATE FUNCTION greet(name TEXT)
 RETURNS TEXT AS $$
@@ -254,10 +250,8 @@ SELECT greet(NULL) as greeting;
 ```
 @PGlite.terminal
 
-    --{{4}}--
+    --{{1}}--
 Hier sehen Sie das erste Mal IF...THEN...ELSE. Schauen wir uns Kontrollstrukturen genauer an.
-
----
 
 ## Kontrollstrukturen: IF & CASE
 
@@ -266,7 +260,7 @@ Hier sehen Sie das erste Mal IF...THEN...ELSE. Schauen wir uns Kontrollstrukture
     --{{0}}--
 Mit IF können Sie Bedingungen prüfen – wie in jeder Programmiersprache.
 
-      {{0-1}}
+      {{0}}
 <div>
 
 **Syntax:**
@@ -288,10 +282,10 @@ END IF;
 
 ### Demo 3: Alterscheck
 
-    --{{1}}--
+    --{{0}}--
 Ein praktisches Beispiel: Prüfen, ob jemand volljährig ist.
 
-      {{1}}
+      {{0}}
 ``` sql
 CREATE FUNCTION check_age(age INT)
 RETURNS TEXT AS $$
@@ -312,15 +306,15 @@ SELECT check_age(NULL) as status; -- Was passiert hier?
 ```
 @PGlite.eval
 
-    --{{2}}--
+    --{{1}}--
 Beachten Sie: Bei NULL gibt die Funktion auch NULL zurück – denn NULL >= 18 ist NULL, also falsch. Das ist SQL-Logik!
 
 ### CASE: Alternative zu IF
 
-    --{{2}}--
+    --{{0}}--
 Für Mehrfachauswahl ist CASE oft eleganter als verschachtelte IFs.
 
-      {{2-3}}
+      {{0}}
 <div>
 
 **Syntax:**
@@ -337,10 +331,10 @@ END;
 
 ### Demo 4: Notensystem
 
-    --{{3}}--
+    --{{0}}--
 Ein Notensystem – perfekt für CASE:
 
-      {{3}}
+      {{0}}
 ``` sql
 CREATE FUNCTION get_grade(score INT)
 RETURNS TEXT AS $$
@@ -363,19 +357,17 @@ SELECT get_grade(50) as note;
 ```
 @PGlite.eval
 
-    --{{4}}--
+    --{{1}}--
 CASE ist hier viel lesbarer als verschachtelte IFs. Wann nutzen Sie was? IF für komplexe Bedingungen mit mehreren Anweisungen, CASE für einfache Wertauswahl.
-
----
 
 ## Fehlerbehandlung: RAISE
 
     --{{0}}--
 Was, wenn etwas schiefgeht? Mit RAISE können Sie Fehler werfen – ähnlich wie "throw" in JavaScript.
 
-### RAISE EXCEPTION
+RAISE EXCEPTION
+---------------
 
-      {{0-1}}
 <div>
 
 **Syntax:**
@@ -392,10 +384,10 @@ RAISE EXCEPTION 'Fehlermeldung: %', variable;
 
 ### Demo 5: Division mit Fehlerbehandlung
 
-    --{{1}}--
+    --{{0}}--
 Ein Klassiker: Division durch Null verhindern.
 
-      {{1}}
+      {{0}}
 ``` sql
 CREATE FUNCTION divide(a INT, b INT)
 RETURNS DECIMAL AS $$
@@ -416,17 +408,16 @@ SELECT divide(10, 0) as result;  -- ❌ Wirft Exception
 ```
 @PGlite.eval
 
-    --{{2}}--
+    --{{1}}--
 Probieren Sie die letzte Zeile aus – Sie sehen eine klare Fehlermeldung! Das ist besser als ein kryptischer Datenbankfehler.
-
----
 
 ## Praxisbeispiel: Preisberechnung
 
-    --{{0}}--
-Kombinieren wir alles Gelernte in einem realistischen Beispiel: Gesamtpreis mit Steuer berechnen.
 
 ### Demo 6: Preisberechnung mit MwSt.
+
+   --{{0}}--
+Kombinieren wir alles Gelernte in einem realistischen Beispiel: Gesamtpreis mit Steuer berechnen.
 
       {{0}}
 ``` sql
@@ -459,14 +450,14 @@ SELECT calculate_total(200, 0) as brutto;       -- Steuerfrei
     --{{1}}--
 Perfekt! Jetzt können Sie solide Functions schreiben. Aber was, wenn Sie wollen, dass Code automatisch ausgeführt wird – ohne dass jemand die Funktion aufruft? Genau dafür gibt es Trigger!
 
----
 
 ## Teil 2: Trigger
 
     --{{0}}--
 Trigger sind das Automatisierungs-Werkzeug der Datenbank. Sie "triggern" – werden ausgelöst – bei bestimmten Events: INSERT, UPDATE oder DELETE. Denken Sie an Event-Listener in JavaScript, aber auf Datenbankebene.
 
-### Was sind Trigger?
+Was sind Trigger?
+----------------
 
       {{0-1}}
 <div>
@@ -503,18 +494,18 @@ EXECUTE FUNCTION trigger_function();
 
 ### Besonderheiten von Trigger-Functions
 
-    --{{1}}--
+    --{{0}}--
 Trigger-Functions sind anders als normale Functions:
 
-      {{1-2}}
+      {{0}}
 <div>
 
 **Spezielle Variablen:**
 
-| Variable | Typ | Beschreibung | Verfügbar bei |
-|----------|-----|--------------|---------------|
-| `NEW` | RECORD | Die neue Zeile | INSERT, UPDATE |
-| `OLD` | RECORD | Die alte Zeile | UPDATE, DELETE |
+| Variable | Typ    | Beschreibung   | Verfügbar bei  |
+| -------- | ------ | -------------- | -------------- |
+| `NEW`    | RECORD | Die neue Zeile | INSERT, UPDATE |
+| `OLD`    | RECORD | Die alte Zeile | UPDATE, DELETE |
 
 **Beispiel:**
 
@@ -537,16 +528,16 @@ $$ LANGUAGE plpgsql;
 
 ### RETURN-Werte bei BEFORE-Triggern
 
-    --{{2}}--
+    --{{0}}--
 Bei BEFORE-Triggern ist der RETURN-Wert wichtig:
 
-      {{2-3}}
+      {{0}}
 <div>
 
-| RETURN | Bedeutung |
-|--------|-----------|
-| `RETURN NEW;` | Änderungen übernehmen (bei INSERT/UPDATE) |
-| `RETURN OLD;` | Ursprüngliche Werte behalten (bei UPDATE) |
+| RETURN         | Bedeutung                                                    |
+| -------------- | ------------------------------------------------------------ |
+| `RETURN NEW;`  | Änderungen übernehmen (bei INSERT/UPDATE)                    |
+| `RETURN OLD;`  | Ursprüngliche Werte behalten (bei UPDATE)                    |
 | `RETURN NULL;` | Operation abbrechen! (bei DELETE: Zeile wird NICHT gelöscht) |
 
 **Bei AFTER-Triggern:** RETURN-Wert wird ignoriert, `RETURN NULL;` ist üblich.
@@ -555,10 +546,10 @@ Bei BEFORE-Triggern ist der RETURN-Wert wichtig:
 
 ### CREATE TRIGGER Syntax
 
-    --{{3}}--
+    --{{0}}--
 So erstellen Sie einen Trigger:
 
-      {{3-4}}
+      {{0}}
 <div>
 
 ```sql
@@ -578,10 +569,8 @@ EXECUTE FUNCTION function_name();
 
 </div>
 
-    --{{4}}--
+    --{{1}}--
 Genug Theorie – schauen wir uns vier praktische Beispiele an, die Sie sofort nutzen können!
-
----
 
 ## Demo 7: Automatische Timestamps
 
@@ -615,10 +604,10 @@ SELECT id, name, price, created_at, updated_at FROM products;
 
 ### Schritt 2: Trigger-Function & Trigger erstellen
 
-    --{{1}}--
+    --{{0}}--
 Jetzt die Magie: Eine Function, die updated_at automatisch setzt.
 
-      {{1}}
+      {{0}}
 ``` sql
 -- Function: Setzt updated_at auf NOW()
 CREATE OR REPLACE FUNCTION update_timestamp()
@@ -642,10 +631,10 @@ SELECT 'Trigger erfolgreich erstellt!' as status;
 
 ### Schritt 3: Testen
 
-    --{{2}}--
+    --{{0}}--
 Jetzt ändern wir Daten und schauen, ob updated_at automatisch aktualisiert wird.
 
-      {{2}}
+      {{0}}
 ``` sql
 -- Kurze Pause simulieren (damit Zeitunterschied sichtbar ist)
 SELECT pg_sleep(1);
@@ -666,10 +655,8 @@ FROM products;
 ```
 @PGlite.eval(timestamps-demo)
 
-    --{{3}}--
+    --{{1}}--
 Perfekt! Das updated_at-Feld wurde automatisch aktualisiert – ohne dass wir es in der UPDATE-Query angeben mussten. Das funktioniert jetzt für jedes Update, egal aus welcher Anwendung!
-
----
 
 ## Demo 8: Audit-Logging
 
@@ -710,10 +697,10 @@ SELECT * FROM products_audit_log;  -- Noch leer
 
 ### Schritt 2: Audit-Trigger erstellen
 
-    --{{1}}--
+    --{{0}}--
 Function, die Preisänderungen protokolliert:
 
-      {{1}}
+      {{0}}
 ``` sql
 -- Function: Protokolliert Preisänderungen
 CREATE OR REPLACE FUNCTION log_price_change()
@@ -741,10 +728,10 @@ SELECT 'Audit-Trigger erstellt!' as status;
 
 ### Schritt 3: Testen
 
-    --{{2}}--
+    --{{0}}--
 Jetzt ändern wir den Preis mehrmals und schauen ins Audit-Log.
 
-      {{2}}
+      {{0}}
 ``` sql
 -- Mehrere Preisänderungen
 UPDATE products_audit_demo SET price = 899.99 WHERE name = 'Laptop';
@@ -767,10 +754,8 @@ ORDER BY changed_at;
 ```
 @PGlite.eval(audit-demo)
 
-    --{{3}}--
+    --{{1}}--
 Exzellent! Jede Preisänderung wurde automatisch protokolliert. Das ist perfekt für Compliance-Anforderungen – die Anwendung kann das Logging nicht "vergessen".
-
----
 
 ## Demo 9: Validierung
 
@@ -815,10 +800,10 @@ SELECT 'Validierungs-Trigger erstellt!' as status;
 
 ### Schritt 2: Erfolgreiche Einfügungen
 
-    --{{1}}--
+    --{{0}}--
 Zuerst testen wir mit gültigen Daten:
 
-      {{1}}
+      {{0}}
 ``` sql
 -- Gültige Inserts
 INSERT INTO products_validation (name, price) VALUES ('Laptop', 999.99);
@@ -832,10 +817,10 @@ SELECT * FROM products_validation;
 
 ### Schritt 3: Ungültige Daten provozieren
 
-    --{{2}}--
+    --{{0}}--
 Jetzt versuchen wir, einen negativen Preis einzufügen:
 
-      {{2}}
+      {{0}}
 ``` sql
 -- Dieser Versuch schlägt fehl!
 INSERT INTO products_validation (name, price) VALUES ('Fehlerhaft', -10.00);
@@ -844,10 +829,8 @@ INSERT INTO products_validation (name, price) VALUES ('Fehlerhaft', -10.00);
 ```
 @PGlite.eval(validation-demo)
 
-    --{{3}}--
+    --{{1}}--
 Perfekt! Der Trigger hat die ungültige Operation verhindert. Die Anwendung kann diese Regel nicht umgehen – sie ist in der Datenbank verankert.
-
----
 
 ## Demo 10: Soft Delete mit Views & INSTEAD OF Trigger
 
@@ -883,10 +866,10 @@ SELECT * FROM products_base;
 
 ### Schritt 2: View für aktive Produkte
 
-    --{{1}}--
+    --{{0}}--
 Die Anwendung arbeitet nur mit dieser View – sie zeigt nur aktive Produkte:
 
-      {{1}}
+      {{0}}
 ``` sql
 -- View: Die "öffentliche" Schnittstelle zur Datenbank
 CREATE VIEW products AS
@@ -899,15 +882,15 @@ SELECT * FROM products;
 ```
 @PGlite.eval(softdelete-demo)
 
-    --{{2}}--
+    --{12}}--
 Beachten Sie: Die View zeigt das deleted_at Feld gar nicht – die Anwendung weiß nichts von Soft Delete!
 
 ### Schritt 3: INSTEAD OF Trigger auf der View
 
-    --{{2}}--
+    --{{0}}--
 Jetzt kommt die Magie: Ein Trigger auf der View, der DELETE-Operationen abfängt:
 
-      {{2}}
+      {{0}}
 ``` sql
 -- Function: Führt Soft Delete auf der Basis-Tabelle aus
 CREATE OR REPLACE FUNCTION soft_delete_via_view()
@@ -933,15 +916,15 @@ SELECT 'Soft-Delete-Trigger auf View erstellt!' as status;
 ```
 @PGlite.eval(softdelete-demo)
 
-    --{{3}}--
+    --{{1}}--
 INSTEAD OF Trigger funktionieren nur auf Views und ersetzen die Operation komplett. Perfekt für unseren Use Case!
 
 ### Schritt 4: "Löschen" über die View
 
-    --{{3}}--
+    --{{0}}--
 Die Anwendung "löscht" ein Produkt – aber es wird nur markiert:
 
-      {{3}}
+      {{0}}
 ``` sql
 -- Anwendung löscht über die View (weiß nichts von Soft Delete!)
 DELETE FROM products WHERE name = 'Maus';
@@ -966,15 +949,15 @@ ORDER BY id;
 ```
 @PGlite.eval(softdelete-demo)
 
-    --{{4}}--
+    --{{1}}--
 Brilliant! Die Maus ist aus der View verschwunden – aber in der Basis-Tabelle noch vorhanden mit gesetztem deleted_at Timestamp. Die Anwendung merkt nichts von der Implementierung!
 
 ### Schritt 5: Wiederherstellung
 
-    --{{4}}--
+    --{{ß}}--
 Gelöschte Produkte können einfach wiederhergestellt werden:
 
-      {{4}}
+      {{0}}
 ``` sql
 -- Admin-Funktion: Produkt wiederherstellen
 UPDATE products_base 
@@ -986,27 +969,27 @@ SELECT * FROM products;
 ```
 @PGlite.eval(softdelete-demo)
 
-    --{{5}}--
+    --{{1}}--
 Perfekt! Durch die View-Abstraktion haben Sie eine saubere Trennung: Die Anwendung arbeitet mit der View, Admins können auf die Basis-Tabelle zugreifen.
 
 ### Warum ist das elegant?
 
-    --{{5}}--
+    --{{0}}--
 Schauen wir uns die Vorteile an:
 
-      {{5}}
+      {{0}}
 <div>
 
 **Vorteile dieser Architektur:**
 
-| Aspekt | Ohne View | Mit View + INSTEAD OF Trigger |
-|--------|-----------|-------------------------------|
-| Anwendungscode | Muss Soft Delete implementieren | Arbeitet normal mit DELETE |
-| Komplexität | Verteilt über viele Stellen | Zentralisiert in der DB |
-| Konsistenz | Entwickler können es vergessen | Automatisch garantiert |
+| Aspekt            | Ohne View                          | Mit View + INSTEAD OF Trigger      |
+| ----------------- | ---------------------------------- | ---------------------------------- |
+| Anwendungscode    | Muss Soft Delete implementieren    | Arbeitet normal mit DELETE         |
+| Komplexität       | Verteilt über viele Stellen        | Zentralisiert in der DB            |
+| Konsistenz        | Entwickler können es vergessen     | Automatisch garantiert             |
 | Wiederherstellung | Muss explizit implementiert werden | Einfaches UPDATE auf Basis-Tabelle |
-| Migration | Anwendung muss angepasst werden | Transparent – keine Code-Änderung |
-| Testen | Schwierig (überall prüfen) | Einfach (nur View testen) |
+| Migration         | Anwendung muss angepasst werden    | Transparent – keine Code-Änderung  |
+| Testen            | Schwierig (überall prüfen)         | Einfach (nur View testen)          |
 
 **Anwendungscode-Vergleich:**
 
@@ -1028,8 +1011,6 @@ await db.query(
 **Best Practice:** Diese Architektur nennt sich **Database Abstraction Layer**. Die View ist die öffentliche API, die Implementierung dahinter kann sich ändern, ohne die Anwendung anzufassen.
 
 </div>
-
----
 
 ## Gefahren & Best Practices
 
@@ -1084,10 +1065,10 @@ $$ LANGUAGE plpgsql;
 
 ### Gefahr 2: Performance-Impact
 
-    --{{1}}--
+    --{{0}}--
 Trigger laufen bei JEDER Operation – auch bei BULK Inserts!
 
-      {{1-2}}
+      {{0}}
 <div>
 
 **Problem:**
@@ -1120,10 +1101,10 @@ ALTER TABLE products ENABLE TRIGGER set_updated_at;
 
 ### Gefahr 3: Debugging-Schwierigkeiten
 
-    --{{2}}--
+    --{{0}}--
 Trigger sind unsichtbar für die Anwendung – Fehler sind schwer zu finden.
 
-      {{2-3}}
+      {{0}}
 <div>
 
 **Problem:**
@@ -1157,20 +1138,20 @@ EXECUTE FUNCTION log_price_change();
 
 ### Best Practice 1: Trigger nur wenn nötig
 
-    --{{3}}--
+    --{{0}}--
 Viele Anforderungen können einfacher gelöst werden!
 
-      {{3-4}}
+      {{0-1}}
 <div>
 
-| Anforderung | ❌ Trigger | ✅ Bessere Lösung |
-|-------------|-----------|------------------|
-| Validierung | `CREATE TRIGGER check_price...` | `CHECK (price >= 0)` |
-| Default-Werte | `CREATE TRIGGER set_default...` | `DEFAULT NOW()` |
-| Ref. Integrität | `CREATE TRIGGER check_fk...` | `FOREIGN KEY` |
-| Timestamps | ✅ Trigger ist OK | Oder: `DEFAULT NOW()` + Trigger für UPDATE |
-| Audit-Logging | ✅ Trigger ist ideal | Keine Alternative |
-| Soft Delete | ✅ Trigger ist gut | Oder: App-seitig |
+| Anforderung     | ❌ Trigger                      | ✅ Bessere Lösung                          |
+| --------------- | ------------------------------- | ------------------------------------------ |
+| Validierung     | `CREATE TRIGGER check_price...` | `CHECK (price >= 0)`                       |
+| Default-Werte   | `CREATE TRIGGER set_default...` | `DEFAULT NOW()`                            |
+| Ref. Integrität | `CREATE TRIGGER check_fk...`    | `FOREIGN KEY`                              |
+| Timestamps      | ✅ Trigger ist OK               | Oder: `DEFAULT NOW()` + Trigger für UPDATE |
+| Audit-Logging   | ✅ Trigger ist ideal            | Keine Alternative                          |
+| Soft Delete     | ✅ Trigger ist gut              | Oder: App-seitig                           |
 
 **Faustregel:** Nutze deklarative Constraints wo möglich, Trigger nur wenn nötig!
 
@@ -1178,21 +1159,22 @@ Viele Anforderungen können einfacher gelöst werden!
 
 ### Best Practice 2: BEFORE vs. AFTER
 
-    --{{4}}--
+    --{{0}}--
 Wann welchen Trigger-Typ nutzen?
 
-      {{4-5}}
+      {{0-1}}
 <div>
 
-| Use Case | BEFORE | AFTER |
-|----------|--------|-------|
-| Daten ändern (z.B. Timestamps) | ✅ Ja | ❌ Zu spät |
-| Validierung (z.B. negative Preise) | ✅ Ja | ❌ Zu spät |
-| Operation abbrechen | ✅ RETURN NULL | ❌ Nicht möglich |
-| Audit-Logging | ⚠️ Möglich | ✅ Besser (Änderung ist garantiert committed) |
-| Andere Tabellen ändern | ⚠️ Möglich | ✅ Besser (Hauptoperation ist fertig) |
+| Use Case                           | BEFORE         | AFTER                                         |
+| ---------------------------------- | -------------- | --------------------------------------------- |
+| Daten ändern (z.B. Timestamps)     | ✅ Ja          | ❌ Zu spät                                    |
+| Validierung (z.B. negative Preise) | ✅ Ja          | ❌ Zu spät                                    |
+| Operation abbrechen                | ✅ RETURN NULL | ❌ Nicht möglich                              |
+| Audit-Logging                      | ⚠️ Möglich   | ✅ Besser (Änderung ist garantiert committed) |
+| Andere Tabellen ändern             | ⚠️ Möglich   | ✅ Besser (Hauptoperation ist fertig)         |
 
-**Faustregel:** 
+**Faustregel:**
+
 - **BEFORE** für Änderungen an der aktuellen Zeile
 - **AFTER** für Änderungen an anderen Tabellen oder Logging
 
@@ -1200,43 +1182,214 @@ Wann welchen Trigger-Typ nutzen?
 
 ### Best Practice 3: Testen, testen, testen!
 
-    --{{5}}--
+    --{{0}}--
 Trigger sind Code – und Code muss getestet werden!
 
-      {{5}}
-<div>
+### Setup: Testumgebung vorbereiten
 
-**Test-Strategie:**
+    --{{0}}--
+Zuerst erstellen wir eine Testumgebung mit Produkten-Tabelle und allen Triggern:
 
+      {{0-1}}
+```sql
+-- Tabelle mit Timestamp-Feldern und Validierung
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Function 1: Timestamp automatisch aktualisieren
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger 1: Setzt updated_at bei jedem UPDATE
+CREATE TRIGGER set_updated_at
+BEFORE UPDATE ON products
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
+
+-- Function 2: Negative Preise verhindern
+CREATE OR REPLACE FUNCTION prevent_negative_price()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.price < 0 THEN
+        RAISE EXCEPTION 'Preis % ist ungültig (negativ)!', NEW.price;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger 2: Validierung bei INSERT und UPDATE
+CREATE TRIGGER check_price
+BEFORE INSERT OR UPDATE ON products
+FOR EACH ROW
+EXECUTE FUNCTION prevent_negative_price();
+
+-- Testdaten
+INSERT INTO products (name, price) VALUES 
+    ('Laptop', 999.99),
+    ('Maus', 29.99);
+
+-- Status
+SELECT 'Test-Umgebung erfolgreich erstellt!' as status;
+SELECT * FROM products;
+```
+@PGlite.eval(trigger-test)
+
+### Test 1: Erfolgreicher Fall (Timestamp-Update)
+
+    --{{0}}--
+Testen wir, ob der Timestamp-Trigger korrekt funktioniert. Wir nutzen eine Transaktion mit ROLLBACK, um die Testdaten nicht dauerhaft zu ändern:
+
+      {{0-1}}
 ```sql
 -- Test 1: Erfolgreicher Fall
-BEGIN;
-INSERT INTO products (name, price) VALUES ('Test', 99.99);
-SELECT * FROM products WHERE name = 'Test';
--- Erwartung: updated_at ist gesetzt
-ROLLBACK;
+-- Erwartung: updated_at wird automatisch aktualisiert
 
--- Test 2: Fehlerfall
-BEGIN;
-INSERT INTO products (name, price) VALUES ('Test', -10);
--- Erwartung: Fehler wird geworfen
-ROLLBACK;
+BEGIN;  -- Transaktion starten
 
--- Test 3: Edge Cases
-BEGIN;
-UPDATE products SET price = NULL WHERE id = 1;
--- Erwartung: ???
-ROLLBACK;
+-- Vor dem Update
+SELECT 
+    name, 
+    price,
+    created_at,
+    updated_at,
+    'BEFORE UPDATE' as moment
+FROM products WHERE name = 'Laptop';
+
+-- Kurze Pause für sichtbaren Zeitunterschied
+SELECT pg_sleep(0.5);
+
+-- Update durchführen
+UPDATE products SET price = 899.99 WHERE name = 'Laptop';
+
+-- Nach dem Update: updated_at sollte NACH created_at liegen
+SELECT 
+    name, 
+    price,
+    created_at,
+    updated_at,
+    'AFTER UPDATE' as moment,
+    (updated_at > created_at) as timestamp_wurde_aktualisiert
+FROM products WHERE name = 'Laptop';
+
+-- ✅ Test erfolgreich wenn: timestamp_wurde_aktualisiert = true
+
+ROLLBACK;  -- Änderungen verwerfen, Daten bleiben unverändert
+
+-- Prüfen: Daten sind wieder im Originalzustand
+SELECT 'Nach ROLLBACK:' as info, * FROM products WHERE name = 'Laptop';
 ```
+@PGlite.eval(trigger-test)
 
-**Best Practice:** 
-- Schreibe Test-Scripts für jeden Trigger
-- Teste Edge Cases (NULL, 0, negative Werte)
-- Teste Performance mit vielen Zeilen
+### Test 2: Fehlerfall (Negative Preise)
+
+    --{{0}}--
+Jetzt testen wir die Validierung – negative Preise müssen verhindert werden. Die Transaktion wird automatisch zurückgerollt, wenn ein Fehler auftritt:
+
+      {{0-1}}
+```sql
+-- Test 2: Fehlerfall
+-- Erwartung: INSERT mit negativem Preis wird abgelehnt
+
+BEGIN;  -- Transaktion starten
+
+-- Anzahl Produkte vor dem Test
+SELECT 'Vor dem Test:' as info, COUNT(*) as anzahl_produkte FROM products;
+
+-- Dieser Versuch MUSS fehlschlagen:
+INSERT INTO products (name, price) VALUES ('Fehlerprodukt', -10.00);
+
+-- ❌ Erwartete Fehlermeldung: "Preis -10.00 ist ungültig (negativ)!"
+-- ❌ Diese Zeile wird NICHT erreicht, da vorher eine Exception geworfen wird
+
+ROLLBACK;  -- Wird nur bei manuellem Aufruf erreicht
+
+-- Nach dem Fehler: Prüfen, dass keine Daten eingefügt wurden
+SELECT 'Nach dem fehlgeschlagenen INSERT:' as info, COUNT(*) as anzahl_produkte FROM products;
+
+-- ✅ Test erfolgreich wenn: Exception wird geworfen UND anzahl_produkte bleibt gleich
+```
+@PGlite.eval(trigger-test)
+
+### Test 3: Edge Cases (NULL-Werte)
+
+    --{{0}}--
+Edge Cases sind wichtig – was passiert mit NULL? Auch hier nutzen wir eine Transaktion:
+
+      {{0-1}}
+```sql
+-- Test 3: Edge Cases
+-- Erwartung: NULL-Preis wird durch NOT NULL Constraint abgelehnt
+
+BEGIN;  -- Transaktion starten
+
+-- Aktueller Zustand vor dem Test
+SELECT 'Vor dem Test:' as info, id, name, price FROM products WHERE id = 1;
+
+-- Versuch, Preis auf NULL zu setzen
+UPDATE products SET price = NULL WHERE id = 1;
+
+-- ❌ Erwartete Fehlermeldung: NOT NULL Constraint Violation
+-- ❌ Diese Zeilen werden NICHT erreicht, da vorher eine Exception geworfen wird
+
+ROLLBACK;  -- Wird nur bei manuellem Aufruf erreicht
+
+-- Prüfen, dass Daten unverändert sind
+SELECT 'Nach dem fehlgeschlagenen Update:' as info, id, name, price 
+FROM products WHERE id = 1;
+
+-- ✅ Test erfolgreich wenn: Update wird verhindert UND Preis bleibt unverändert
+```
+@PGlite.eval(trigger-test)
+
+### Test-Zusammenfassung
+
+    --{{0}}--
+Was haben wir getestet?
+
+      {{0}}
+<div>
+
+**Test-Ergebnisse:**
+
+| Test   | Ziel             | Erwartetes Ergebnis         | Status         |
+| ------ | ---------------- | --------------------------- | -------------- |
+| Test 1 | Timestamp-Update | `updated_at` > `created_at` | ✅ Erfolgreich |
+| Test 2 | Negative Preise  | Exception wird geworfen     | ✅ Erfolgreich |
+| Test 3 | NULL-Werte       | NOT NULL Constraint greift  | ✅ Erfolgreich |
+
+**Best Practice:**
+
+- ✅ Schreibe Test-Scripts für jeden Trigger
+- ✅ Teste Edge Cases (NULL, 0, negative Werte)
+- ✅ Teste sowohl Erfolgs- als auch Fehlfälle
+- ✅ **Nutze Transaktionen (BEGIN/ROLLBACK) für isolierte Tests** – so bleiben Testdaten sauber!
+- ✅ Teste Performance mit vielen Zeilen (hier nicht gezeigt)
+
+**Vorteile von Transaktionen beim Testen:**
+
+- 🔄 Tests sind **wiederholbar** – keine Datenverunreinigung
+- 🔒 Tests sind **isoliert** – beeinflussen sich nicht gegenseitig
+- ⚡ Tests sind **schnell** – ROLLBACK ist schneller als DELETE
+- ✅ Originalzustand bleibt **erhalten** – Setup muss nicht wiederholt werden
+
+**Erweiterte Tests (Optional):**
+
+- Test mit 0 als Preis (sollte erlaubt sein)
+- Test mit sehr großen Zahlen
+- Test mit vielen gleichzeitigen Updates
+- Performance-Test mit BULK Inserts
 
 </div>
-
----
 
 ## Zusammenfassung
 
@@ -1264,54 +1417,46 @@ Was haben wir heute gelernt? Functions und Trigger sind mächtige Werkzeuge für
 
 ### Wann was nutzen?
 
-| Szenario | Lösung |
-|----------|--------|
-| Einfache Validierung | ✅ CHECK Constraint |
-| Default-Werte | ✅ DEFAULT Clause |
-| Automatische Timestamps | ✅ Trigger (UPDATE) + DEFAULT (INSERT) |
-| Audit-Logging | ✅ Trigger |
-| Soft Delete | ✅ Trigger oder App-Logik |
-| Komplexe Berechnungen | ✅ Function |
-| Referentielle Integrität | ✅ FOREIGN KEY |
+| Szenario                 | Lösung                                 |
+| ------------------------ | -------------------------------------- |
+| Einfache Validierung     | ✅ CHECK Constraint                    |
+| Default-Werte            | ✅ DEFAULT Clause                      |
+| Automatische Timestamps  | ✅ Trigger (UPDATE) + DEFAULT (INSERT) |
+| Audit-Logging            | ✅ Trigger                             |
+| Soft Delete              | ✅ Trigger oder App-Logik              |
+| Komplexe Berechnungen    | ✅ Function                            |
+| Referentielle Integrität | ✅ FOREIGN KEY                         |
 
 </div>
 
     --{{1}}--
 Sie haben heute 10 interaktive Demos durchgearbeitet – von einfachen Functions bis zu komplexen Triggern. Experimentieren Sie weiter! Ändern Sie die Beispiele, brechen Sie sie, fixen Sie sie wieder. So lernt man am besten!
 
----
 
 ## Referenzen & Quellen
 
-      {{0}}
-<div>
 
-### Offizielle Dokumentation
+**Offizielle Dokumentation**
 
 - [PostgreSQL: PL/pgSQL Functions](https://www.postgresql.org/docs/current/plpgsql.html)
 - [PostgreSQL: Trigger Functions](https://www.postgresql.org/docs/current/plpgsql-trigger.html)
 - [PostgreSQL: CREATE TRIGGER](https://www.postgresql.org/docs/current/sql-createtrigger.html)
 - [PGlite: Browser PostgreSQL](https://github.com/electric-sql/pglite)
 
-### Bücher & Tutorials
+**Bücher & Tutorials**
 
 - "PostgreSQL: Up and Running" – Regina Obe & Leo Hsu (Kapitel zu Functions & Trigger)
 - "Mastering PostgreSQL" – Hans-Jürgen Schönig
 - [PostGIS Tutorial: Custom Functions](https://postgis.net/workshops/postgis-intro/functions.html)
 
-### Best Practices
+**Best Practices**
 
 - [Use the Index, Luke: Triggers & Performance](https://use-the-index-luke.com/)
 - [PostgreSQL Wiki: Trigger Best Practices](https://wiki.postgresql.org/wiki/Triggers)
 
-### Tools
+**Tools**
 
 - [pgAdmin](https://www.pgadmin.org/) – Trigger-Debugging
 - [DBeaver](https://dbeaver.io/) – Cross-Platform Database Tool
 - [PGlite](https://pglite.dev/) – PostgreSQL im Browser
 
-</div>
-
----
-
-**Nächste Session:** Performance Optimization – Indexes, Query Plans & Best Practices
