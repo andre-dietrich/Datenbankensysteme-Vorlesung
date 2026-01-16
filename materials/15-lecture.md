@@ -223,10 +223,8 @@ $$ LANGUAGE plpgsql;
 
 -- Aufruf
 SELECT add_numbers(5, 3) as result;
-SELECT add_numbers(10, 20) as result;
-SELECT add_numbers(-5, 5) as result;
 ```
-@PGlite.eval
+@PGlite.terminal
 
     --{{3}}--
 Das war's! Sie sehen: Parameter in Klammern, Rückgabetyp mit RETURNS, und im Body ein einfaches RETURN. Probieren Sie es aus – ändern Sie die Zahlen!
@@ -254,7 +252,7 @@ SELECT greet('Alice') as greeting;
 SELECT greet('Bob') as greeting;
 SELECT greet(NULL) as greeting;
 ```
-@PGlite.eval
+@PGlite.terminal
 
     --{{4}}--
 Hier sehen Sie das erste Mal IF...THEN...ELSE. Schauen wir uns Kontrollstrukturen genauer an.
@@ -281,7 +279,8 @@ ELSE
 END IF;
 ```
 
-**Wichtig:** 
+**Wichtig:**
+
 - `THEN` nach der Bedingung
 - `END IF;` zum Abschließen (nicht nur `END`)
 
@@ -850,78 +849,109 @@ Perfekt! Der Trigger hat die ungültige Operation verhindert. Die Anwendung kann
 
 ---
 
-## Demo 10: Soft Delete
+## Demo 10: Soft Delete mit Views & INSTEAD OF Trigger
 
     --{{0}}--
-Viertens: Löschen, ohne wirklich zu löschen – für Wiederherstellung und Audit-Zwecke.
+Viertens: Löschen, ohne wirklich zu löschen – für Wiederherstellung und Audit-Zwecke. Diesmal mit einem eleganten Twist: Die Anwendung arbeitet nur mit einer View und weiß gar nicht, dass Soft Delete passiert!
 
-### Schritt 1: Tabelle mit Soft-Delete-Flag
+### Schritt 1: Basis-Tabelle mit Soft-Delete-Flag
 
     --{{0}}--
-Wir fügen ein "deleted_at" Feld hinzu und überschreiben DELETE-Operationen.
+Wir erstellen die eigentliche Produkte-Tabelle mit einem deleted_at Feld:
 
       {{0}}
 ``` sql
--- Tabelle mit deleted_at Feld
-CREATE TABLE products_softdelete (
+-- Basis-Tabelle (kennt die Anwendung nicht!)
+CREATE TABLE products_base (
     id SERIAL PRIMARY KEY,
-    name TEXT,
-    price DECIMAL(10, 2),
+    name TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
     deleted_at TIMESTAMP  -- NULL = aktiv, Timestamp = gelöscht
 );
 
 -- Testdaten
-INSERT INTO products_softdelete (name, price) VALUES 
+INSERT INTO products_base (name, price) VALUES 
     ('Laptop', 999.99),
-    ('Maus', 29.99);
+    ('Maus', 29.99),
+    ('Tastatur', 79.99);
 
--- Ausgangszustand
-SELECT * FROM products_softdelete;
+-- Alle Daten (inkl. deleted_at)
+SELECT * FROM products_base;
 ```
 @PGlite.eval(softdelete-demo)
 
-### Schritt 2: Soft-Delete Trigger
+### Schritt 2: View für aktive Produkte
 
     --{{1}}--
-Function, die DELETE in UPDATE umwandelt:
+Die Anwendung arbeitet nur mit dieser View – sie zeigt nur aktive Produkte:
 
       {{1}}
 ``` sql
--- Function: Markiert Zeile als gelöscht statt sie zu löschen
-CREATE OR REPLACE FUNCTION soft_delete()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Update statt Delete
-    UPDATE products_softdelete 
-    SET deleted_at = NOW() 
-    WHERE id = OLD.id;
-    
-    -- RETURN NULL verhindert das echte DELETE!
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
+-- View: Die "öffentliche" Schnittstelle zur Datenbank
+CREATE VIEW products AS
+SELECT id, name, price, created_at
+FROM products_base
+WHERE deleted_at IS NULL;  -- Filter: nur aktive Produkte
 
--- Trigger: Fängt DELETE-Operationen ab
-CREATE TRIGGER soft_delete_products
-BEFORE DELETE ON products_softdelete
-FOR EACH ROW
-EXECUTE FUNCTION soft_delete();
-
-SELECT 'Soft-Delete-Trigger erstellt!' as status;
+-- Anwendung sieht nur diese View
+SELECT * FROM products;
 ```
 @PGlite.eval(softdelete-demo)
 
-### Schritt 3: "Löschen" testen
+    --{{2}}--
+Beachten Sie: Die View zeigt das deleted_at Feld gar nicht – die Anwendung weiß nichts von Soft Delete!
+
+### Schritt 3: INSTEAD OF Trigger auf der View
 
     --{{2}}--
-Jetzt versuchen wir, eine Zeile zu löschen:
+Jetzt kommt die Magie: Ein Trigger auf der View, der DELETE-Operationen abfängt:
 
       {{2}}
 ``` sql
--- "Löschen" eines Produkts
-DELETE FROM products_softdelete WHERE name = 'Maus';
+-- Function: Führt Soft Delete auf der Basis-Tabelle aus
+CREATE OR REPLACE FUNCTION soft_delete_via_view()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Setzt deleted_at auf der echten Tabelle
+    UPDATE products_base 
+    SET deleted_at = NOW() 
+    WHERE id = OLD.id;
+    
+    -- RETURN OLD bei INSTEAD OF Triggern
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
 
--- Die Zeile existiert noch, aber mit deleted_at Timestamp!
+-- INSTEAD OF Trigger: Ersetzt DELETE auf der View
+CREATE TRIGGER soft_delete_products
+INSTEAD OF DELETE ON products
+FOR EACH ROW
+EXECUTE FUNCTION soft_delete_via_view();
+
+SELECT 'Soft-Delete-Trigger auf View erstellt!' as status;
+```
+@PGlite.eval(softdelete-demo)
+
+    --{{3}}--
+INSTEAD OF Trigger funktionieren nur auf Views und ersetzen die Operation komplett. Perfekt für unseren Use Case!
+
+### Schritt 4: "Löschen" über die View
+
+    --{{3}}--
+Die Anwendung "löscht" ein Produkt – aber es wird nur markiert:
+
+      {{3}}
+``` sql
+-- Anwendung löscht über die View (weiß nichts von Soft Delete!)
+DELETE FROM products WHERE name = 'Maus';
+
+-- View zeigt nur noch aktive Produkte
+SELECT 'Aktive Produkte (View):' as info;
+SELECT * FROM products;
+
+-- Basis-Tabelle zeigt ALLE Produkte (inkl. deleted_at)
+SELECT 'Alle Produkte (Basis-Tabelle):' as info;
 SELECT 
     id,
     name,
@@ -931,30 +961,73 @@ SELECT
         WHEN deleted_at IS NULL THEN '✅ Aktiv'
         ELSE '❌ Gelöscht'
     END as status
-FROM products_softdelete;
+FROM products_base
+ORDER BY id;
 ```
 @PGlite.eval(softdelete-demo)
 
-    --{{3}}--
-Brilliant! Die Zeile wurde nicht wirklich gelöscht – sie wurde nur als gelöscht markiert. So können Sie gelöschte Daten wiederherstellen oder für Audits aufbewahren.
+    --{{4}}--
+Brilliant! Die Maus ist aus der View verschwunden – aber in der Basis-Tabelle noch vorhanden mit gesetztem deleted_at Timestamp. Die Anwendung merkt nichts von der Implementierung!
 
-### Bonus: View für aktive Produkte
+### Schritt 5: Wiederherstellung
 
-    --{{3}}--
-Sie können eine View erstellen, die nur aktive Produkte zeigt:
+    --{{4}}--
+Gelöschte Produkte können einfach wiederhergestellt werden:
 
-      {{3}}
+      {{4}}
 ``` sql
--- View: Zeigt nur aktive Produkte
-CREATE VIEW active_products AS
-SELECT id, name, price
-FROM products_softdelete
-WHERE deleted_at IS NULL;
+-- Admin-Funktion: Produkt wiederherstellen
+UPDATE products_base 
+SET deleted_at = NULL 
+WHERE name = 'Maus';
 
--- Anwendung nutzt nur diese View
-SELECT * FROM active_products;
+-- View zeigt das Produkt wieder!
+SELECT * FROM products;
 ```
 @PGlite.eval(softdelete-demo)
+
+    --{{5}}--
+Perfekt! Durch die View-Abstraktion haben Sie eine saubere Trennung: Die Anwendung arbeitet mit der View, Admins können auf die Basis-Tabelle zugreifen.
+
+### Warum ist das elegant?
+
+    --{{5}}--
+Schauen wir uns die Vorteile an:
+
+      {{5}}
+<div>
+
+**Vorteile dieser Architektur:**
+
+| Aspekt | Ohne View | Mit View + INSTEAD OF Trigger |
+|--------|-----------|-------------------------------|
+| Anwendungscode | Muss Soft Delete implementieren | Arbeitet normal mit DELETE |
+| Komplexität | Verteilt über viele Stellen | Zentralisiert in der DB |
+| Konsistenz | Entwickler können es vergessen | Automatisch garantiert |
+| Wiederherstellung | Muss explizit implementiert werden | Einfaches UPDATE auf Basis-Tabelle |
+| Migration | Anwendung muss angepasst werden | Transparent – keine Code-Änderung |
+| Testen | Schwierig (überall prüfen) | Einfach (nur View testen) |
+
+**Anwendungscode-Vergleich:**
+
+```javascript
+// Ohne View: Anwendung muss Soft Delete kennen
+await db.query(
+  'UPDATE products SET deleted_at = NOW() WHERE id = $1',
+  [productId]
+);
+
+// Mit View: Anwendung nutzt normales DELETE
+await db.query(
+  'DELETE FROM products WHERE id = $1',  
+  [productId]
+);
+// ✅ Trigger macht den Rest – transparent!
+```
+
+**Best Practice:** Diese Architektur nennt sich **Database Abstraction Layer**. Die View ist die öffentliche API, die Implementierung dahinter kann sich ändern, ohne die Anwendung anzufassen.
+
+</div>
 
 ---
 
