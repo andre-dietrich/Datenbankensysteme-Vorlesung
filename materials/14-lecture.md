@@ -7,7 +7,7 @@ narrator: Deutsch Female
 
 comment:  Transaktionen & ACID – Szenariobasierte Einführung in Transaktionssteuerung, ACID-Eigenschaften und Isolation Levels. Von Geldüberweisungen bis Ticketbuchungen: Warum Transaktionen unverzichtbar sind für konsistente Datenbanksysteme. Mit Live-Demos zu BEGIN/COMMIT/ROLLBACK und praktischen Beispielen zu Dirty Reads, Lost Updates und Deadlocks.
 
-logo:     
+logo:     ../assets/img/logo/14-lecture.jpg
 
 edit:    true
 

@@ -7,7 +7,7 @@ narrator: Deutsch Female
 
 comment:  Functions & Trigger – Server-seitige Logik in der Datenbank. Von einfachen Stored Functions mit IF/CASE bis zu automatischen Triggern für Timestamps, Audit-Logging und Validierung. Alle Konzepte mit interaktiven PGlite-Demos: Schreiben Sie wiederverwendbare Funktionen und lassen Sie die Datenbank auf Änderungen reagieren!
 
-logo:     
+logo:     ../assets/img/logo/15-lecture.jpg
 
 edit:     true
 
