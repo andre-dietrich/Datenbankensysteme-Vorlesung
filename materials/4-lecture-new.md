@@ -8,6 +8,8 @@ comment:  Column Stores – Analytics-Power durch spaltenorientierte Speicherung
 
 import:   https://raw.githubusercontent.com/LiaTemplates/DuckDB/refs/heads/main/README.md
 
+logo:     ../assets/img/logo/4-lecture.jpg
+
 @OLTP:    <abbr title="Online Transaction Processing">OLTP</abbr>
 @OLAP:    <abbr title="Online Analytical Processing">OLAP</abbr>
 
@@ -648,14 +650,20 @@ COPY sensors TO 'sensors_compressed.parquet' (FORMAT PARQUET, COMPRESSION ZSTD);
 CREATE TABLE sensors_compressed AS 
 SELECT * FROM 'sensors_compressed.parquet';
 
--- Zeige Statistiken
+-- Zeige Statistiken (geschätzte Größen basierend auf Daten)
 SELECT 
-    'Original CSV' as quelle,
-    '324 KB' as groesse
+    'sensors (original)' as tabelle,
+    COUNT(*) as zeilen,
+    (SELECT COUNT(*) FROM pragma_table_info('sensors')) as spalten,
+    ROUND(COUNT(*) * (SELECT COUNT(*) FROM pragma_table_info('sensors')) * 15.0 / 1024, 0) as kb_geschaetzt
+FROM sensors
 UNION ALL
 SELECT 
-    'Parquet (komprimiert)' as quelle,
-    '~50-80 KB' as groesse;
+    'sensors_compressed' as tabelle,
+    COUNT(*) as zeilen,
+    (SELECT COUNT(*) FROM pragma_table_info('sensors_compressed')) as spalten,
+    ROUND(COUNT(*) * (SELECT COUNT(*) FROM pragma_table_info('sensors_compressed')) * 3.0 / 1024, 0) as kb_geschaetzt
+FROM sensors_compressed;
 ```
 @DuckDB.eval
 
@@ -702,30 +710,27 @@ PRAGMA storage_info('sensors_compressed');
 @DuckDB.eval
 
     --{{2}}--
-Diese Ausgabe ist sehr detailliert! Schauen Sie auf die "compression"-Spalte: Sie sehen Dictionary Encoding für room_id, Uncompressed oder BitPacking für numerische Werte. Die "distinct"-Spalte zeigt, wie viele eindeutige Werte es gibt – das ist der Schlüssel für Dictionary Encoding.
+Diese Ausgabe ist sehr detailliert! Schauen Sie auf die "compression"-Spalte: Sie zeigt "Uncompressed" für alle Spalten, weil wir eine in-memory Tabelle analysieren – diese ist decomprimiert für schnelle Queries. Die "stats"-Spalte zeigt Min/Max-Werte für jedes Segment: Bei room_id sehen Sie Min=bathroom, Max=living, bei Timestamps sehen Sie die Zeitspanne. Diese Statistiken nutzt DuckDB für Chunk-Pruning. Beachten Sie auch "segment_type" und die Chunk-Struktur: Timestamp hat 2 Segmente (2048 + 113 Zeilen), `room_id` ist als ein Segment mit 2161 Zeilen gespeichert.
 
 </div>
 
     --{{3}}--
-Vergleichen wir die Kompressions-Effizienz verschiedener Spalten. Das zeigt schön, warum manche Spalten besser komprimieren als andere.
+Wichtig zu verstehen: Die Kompression sehen Sie nur in der Parquet-Datei auf der Festplatte, nicht in der in-memory Tabelle! Wenn DuckDB die Parquet-Datei schreibt, wendet es für jede Spalte die optimale Kompression an: Dictionary Encoding für `room_id` mit nur 4 Werten, Bit-Packing für motion_* mit nur 0 und 1, Float-Kompression für Temperaturen mit geringer Varianz. Deshalb ist die Parquet-Datei 75-85% kleiner als die CSV.
 
       {{3}}
 <div>
 
-#### Kompressions-Effizienz nach Spalte
+#### Kompressions-Effizienz nach Spalten-Typ
 
-```sql
-SELECT 
-    'room_id' as spalte,
-    4 as distinct_values,
-    'Dictionary' as kompression,
-    '96%' as ersparnis
-UNION ALL SELECT 'motion_living', 2, 'Bit-Packing (1 bit)', '97%'
-UNION ALL SELECT 'temp_living', 450, 'Float Compression', '70%'
-UNION ALL SELECT 'timestamp', 2161, 'Delta Encoding', '50%'
-UNION ALL SELECT 'light_living', 800, 'Integer Compression', '60%';
-```
-@DuckDB.eval
+| Spalte | Eindeutige Werte | Kompression in Parquet | Ersparnis |
+|--------|------------------|------------------------|----------|
+| room_id | 4 | Dictionary Encoding | ~96% |
+| motion_living | 2 (0/1) | Bit-Packing (1 bit) | ~97% |
+| temp_living | ~450 | Float Compression | ~70% |
+| timestamp | 2161 | Delta Encoding | ~50% |
+| light_living | ~800 | Integer Compression | ~60% |
+
+**Merksatz:** Je weniger eindeutige Werte, desto stärker die Kompression!
 
 </div>
 
@@ -746,23 +751,25 @@ DuckDB organisiert Daten in sogenannten Chunks – Blöcken von typischerweise 2
 
 #### Chunk-Architektur visualisiert
 
-```ascii
 Tabelle sensors (2.161 Zeilen):
 
+```ascii
   ┌─────────────────┐
   │  Chunk 1        │  Zeilen 1-2048      → CPU Kern 1
   ├─────────────────┤
   │  Chunk 2        │  Zeilen 2049-2161   → CPU Kern 2
   └─────────────────┘
-
-Pro Chunk:
-  - Jede Spalte ist komprimiert
-  - Min/Max-Statistiken gespeichert
-  - Unabhängig verarbeitbar
 ```
 
+Pro Chunk:
+
+- Jede Spalte ist komprimiert
+- Min/Max-Statistiken gespeichert
+- Unabhängig verarbeitbar
+
 **Vorteile:**
-- **Parallele Verarbeitung:** 4 CPU-Kerne → 4 Chunks gleichzeitig
+
+- **Parallele Verarbeitung:** 4 CPU-Kerne --> 4 Chunks gleichzeitig
 - **Cache-Effizienz:** Chunks passen in L2/L3 Cache
 - **Chunk-Pruning:** Min/Max-Filter überspringen unnötige Chunks
 
@@ -795,8 +802,6 @@ SELECT 'Zeilen pro Chunk (Standard)', 2048;
     --{{2}}--
 Unsere Tabelle hat 2.161 Zeilen – das sind 2 Chunks: Chunk 1 mit 2.048 Zeilen und Chunk 2 mit 113 Zeilen. Bei einer Query werden beide Chunks parallel verarbeitet, wenn Ihr CPU mindestens 2 Kerne hat.
 
----
-
 ### Wie Parallelisierung funktioniert
 
     --{{0}}--
@@ -818,25 +823,28 @@ GROUP BY tag;
 
 **Was passiert intern (vereinfacht):**
 
-```ascii
-Schritt 1: Chunk-Scan (parallel)
-  CPU Kern 1: Scanne Chunk 1 (Zeilen 1-2048)
-    → Lese timestamp + temp_living
-    → Gruppiere nach Tag
-    → Berechne Summe + Count pro Tag
-  
-  CPU Kern 2: Scanne Chunk 2 (Zeilen 2049-2161)
-    → Lese timestamp + temp_living
-    → Gruppiere nach Tag
-    → Berechne Summe + Count pro Tag
+1. Schritt: Chunk-Scan (parallel)
 
-Schritt 2: Merge (single-threaded)
-  → Kombiniere Ergebnisse von Kern 1 + Kern 2
-  → Finalisiere AVG (Summe / Count)
-  → Sortiere nach Tag
+   1. CPU Kern: Scanne Chunk 1 (Zeilen 1-2048)
+  
+      - Lese timestamp + temp_living
+      - Gruppiere nach Tag
+      - Berechne Summe + Count pro Tag
+  
+   2. CPU Kern: Scanne Chunk 2 (Zeilen 2049-2161)
+
+      - Lese timestamp + temp_living
+      - Gruppiere nach Tag
+      - Berechne Summe + Count pro Tag
+
+2. Schritt: Merge (single-threaded)
+
+   1. Kombiniere Ergebnisse von Kern 1 + Kern 2
+   2. Finalisiere AVG (Summe / Count)
+   3. Sortiere nach Tag
 
 Ergebnis: 2× schneller durch Parallelisierung!
-```
+
 
 </div>
 
@@ -850,23 +858,26 @@ Das ist der Kern von DuckDBs Performance: Scan und Aggregation laufen parallel a
 
 Stellen Sie sich vor, Sie haben 10 Millionen Zeilen:
 
-```ascii
 10.000.000 Zeilen = ~4.883 Chunks
 
 CPU mit 8 Kernen:
-  Kern 1: Bearbeitet Chunks 1, 9, 17, 25, ...
-  Kern 2: Bearbeitet Chunks 2, 10, 18, 26, ...
-  Kern 3: Bearbeitet Chunks 3, 11, 19, 27, ...
-  ...
-  Kern 8: Bearbeitet Chunks 8, 16, 24, 32, ...
+
+1. Kern: Bearbeitet Chunks 1, 9, 17, 25, ...
+2. Kern: Bearbeitet Chunks 2, 10, 18, 26, ...
+3. Kern: Bearbeitet Chunks 3, 11, 19, 27, ...
+
+...
+
+8. Kern: Bearbeitet Chunks 8, 16, 24, 32, ...
 
 Speed-up: ~8× schneller (bei CPU-bound Queries)
-```
+
 
 **Warum Column Stores hier brillieren:**
-- Jede Spalte ist separat → keine Lock-Konflikte
-- Chunks sind unabhängig → keine Koordination nötig
-- Komprimierte Daten → weniger Memory-Bandwidth
+
+- Jede Spalte ist separat --> keine Lock-Konflikte
+- Chunks sind unabhängig --> keine Koordination nötig
+- Komprimierte Daten --> weniger Memory-Bandwidth
 
 </div>
 
@@ -891,17 +902,16 @@ WHERE timestamp > '2025-12-01';
 
 **Was passiert:**
 
-```ascii
-Chunk-Metadaten:
-  Chunk 1: Min(timestamp) = 2025-10-22, Max(timestamp) = 2025-11-25
-  Chunk 2: Min(timestamp) = 2025-11-25, Max(timestamp) = 2026-01-20
+- Chunk-Metadaten:
+  
+  1. Chunk: Min(timestamp) = 2025-10-22, Max(timestamp) = 2025-11-25
+  2. Chunk: Min(timestamp) = 2025-11-25, Max(timestamp) = 2026-01-20
 
-Pruning-Entscheidung:
-  Chunk 1: Max < 2025-12-01 → ÜBERSPRINGEN (kein Scan!)
-  Chunk 2: Max >= 2025-12-01 → SCANNEN
+- Pruning-Entscheidung:
+  1. Chunk: Max < 2025-12-01 --> ÜBERSPRINGEN (kein Scan!)
+  2. Chunk: Max >= 2025-12-01 --> SCANNEN
 
 Resultat: 50% der Daten übersprungen, ohne sie zu lesen!
-```
 
 </div>
 
@@ -931,7 +941,7 @@ WHERE timestamp >= '2025-12-01' AND timestamp < '2026-01-01';
 @DuckDB.eval
 
     --{{1}}--
-Sie sehen: Die zweite Query ist schneller, weil DuckDB Chunk 1 komplett überspringen kann. Bei größeren Datenmengen ist dieser Effekt dramatisch!
+Bei mehr als 2 Chunks würden Sie einen deutlichen Unterschied sehen: Die zweite Query wäre schneller, weil DuckDB die ersten Chunks komplett überspringen kann. Bei größeren Datenmengen ist dieser Effekt dramatisch!
 
 </div>
 
@@ -1039,7 +1049,7 @@ Aber Column Stores sind nicht für alles perfekt. Es gibt Szenarien, wo zeilenor
    -- Muss 29 Spalten-Arrays durchsuchen und updaten
    ```
 
-2. **Einzelne Zeilen lesen (SELECT *)** 
+2. **Einzelne Zeilen lesen (`SELECT *`)** 
    ```sql
    SELECT * FROM sensors WHERE id = 123;
    -- Muss alle 29 Spalten-Arrays durchsuchen und rekonstruieren
@@ -1110,7 +1120,7 @@ UPDATE products SET price = 19.99 WHERE sku = 'ABC123';
 </div>
 
     --{{1}}--
-@OLTP - Systeme sind das Rückgrat von Anwendungen: Ihr Online-Shop, Ihre Banking-App, Ihr CRM-System. Alle nutzen Row-Stores, weil sie transaktionale Konsistenz und schnelle Zeilen-Lookups brauchen.
+@OLTP - Systeme sind das Rückgrat von Anwendungen: Ihr Online-Shop, Ihre Banking-App, Ihr <abbr title="Customer Relationship Management">CRM</abbr>-System. Alle nutzen Row-Stores, weil sie transaktionale Konsistenz und schnelle Zeilen-Lookups brauchen.
 
 ---
 
@@ -1191,7 +1201,7 @@ In der Praxis nutzen moderne Systeme oft beide Paradigmen: Row-Stores für Trans
 
 **Beispiel: E-Commerce**
 - **@OLTP :** PostgreSQL speichert Orders, Users, Products
-- **ETL :** Jede Nacht werden Daten nach DuckDB kopiert
+- **<abbr title="Extract, Transform, Load">ETL</abbr> :** Jede Nacht werden Daten nach DuckDB kopiert
 - **@OLAP :** DuckDB berechnet Dashboards (Umsatz, Trends, Top-Produkte)
 
 **Vorteil:** Jede Datenbank macht, was sie am besten kann!
@@ -1224,31 +1234,28 @@ SELECT * FROM sensors WHERE timestamp = '2025-11-15 14:00:00';
 ```
 
 **Column-Store (DuckDB):**
-```ascii
+
 1. Durchsuche timestamp-Array nach Index (z.B. Zeile 1337)
 2. Gehe zu allen 29 Spalten-Arrays
 3. Lese Wert an Position 1337 aus jedem Array
 4. Rekonstruiere Zeile aus 29 Werten
 
-→ 29 Array-Zugriffe erforderlich!
-```
+--> 29 Array-Zugriffe erforderlich!
+
 
 **Row-Store (PostgreSQL):**
-```ascii
+
 1. Durchsuche Zeilen-Index nach timestamp
 2. Lese Zeile an Position X
 
-→ 1 Zugriff erforderlich!
-```
+--> 1 Zugriff erforderlich!
 
 **Ergebnis:** Row-Stores sind hier ~10-20× schneller
 
 </div>
 
     --{{1}}--
-Sie sehen: Wenn Sie komplette Zeilen lesen wollen (SELECT *), sind Row-Stores deutlich effizienter. Column-Stores müssen alle Spalten-Arrays durchsuchen und die Zeile rekonstruieren – das ist aufwendig.
-
----
+Sie sehen: Wenn Sie komplette Zeilen lesen wollen (`SELECT *`), sind Row-Stores deutlich effizienter. Column-Stores müssen alle Spalten-Arrays durchsuchen und die Zeile rekonstruieren – das ist aufwendig.
 
 #### Trade-off 2: Updates
 
@@ -1264,23 +1271,22 @@ UPDATE sensors SET temp_living = 20.5 WHERE timestamp = '2025-11-15 14:00:00';
 ```
 
 **Column-Store (DuckDB):**
-```ascii
+
 1. Finde Zeile (wie oben: 29 Array-Zugriffe)
 2. Gehe zum temp_living-Array
 3. Ändere Wert an Position 1337
 4. Chunk ist komprimiert → dekomprimieren, ändern, neu komprimieren
 5. Chunk zurückschreiben
 
-→ Teuer, besonders bei Kompression!
-```
+--> Teuer, besonders bei Kompression!
+
 
 **Row-Store (PostgreSQL):**
-```ascii
+
 1. Finde Zeile im Index
 2. Update Zeile (eine Schreiboperation)
 
-→ Schnell!
-```
+--> Schnell!
 
 **Ergebnis:** Row-Stores sind hier ~50-100× schneller
 
@@ -1288,8 +1294,6 @@ UPDATE sensors SET temp_living = 20.5 WHERE timestamp = '2025-11-15 14:00:00';
 
     --{{1}}--
 Deshalb sind Column-Stores typischerweise Append-Only: Sie fügen neue Daten hinzu, aber ändern selten existierende Werte. Das ist perfekt für historische Daten (Orders, Logs, Sensor-Daten), aber schlecht für transaktionale Systeme.
-
----
 
 #### Trade-off 3: Inserts
 
@@ -1305,21 +1309,19 @@ INSERT INTO sensors VALUES (...);  -- 29 Werte
 ```
 
 **Column-Store (DuckDB):**
-```ascii
+
 1. Gehe zu allen 29 Spalten-Arrays
 2. Füge neuen Wert an jedes Array an
 3. Prüfe, ob Chunk voll ist (z.B. 2048 Zeilen)
 4. Wenn ja: Chunk finalisieren, komprimieren, neuen Chunk starten
 
-→ 29 Array-Updates pro Insert
-```
+--> 29 Array-Updates pro Insert
 
 **Row-Store (PostgreSQL):**
-```ascii
+
 1. Hänge neue Zeile an Tabelle an
 
-→ 1 Schreiboperation
-```
+--> 1 Schreiboperation
 
 **Aber:** Bei Bulk-Inserts (10.000 Zeilen auf einmal) sind Column-Stores oft schneller, weil sie pro Spalte arbeiten können!
 
