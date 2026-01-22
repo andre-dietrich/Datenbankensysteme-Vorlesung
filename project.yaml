@@ -96,6 +96,15 @@ collection:
       - Abfragen
       - NoSQL
       - Synchronisation
+
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/4-lecture.md
+    title: "L4: Column Stores"
+    tags:
+      - Column Store
+      - DuckDB
+      - Analytics
+      - OLAP
+      - Spaltenorientiert
   
   - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md
     title: "L5: Relationale Datenbanken (SQL) – Von der Idee zum Model"
