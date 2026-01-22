@@ -5,11 +5,11 @@ email:    LiaScript@web.de
 language: de
 narrator: German Male
 
-version:  1.0.0
+version:  2.0.0
 
 edit:     true
 
-comment:  Kompaktes SQL-Cheat-Sheet als interaktive LiaScript-Referenz: Von SELECT-Grundlagen über DDL/DML bis zu Joins und Normalisierung. Basiert auf Sessions 7-10 der Datenbankensysteme-Vorlesung.
+comment:  Erweiterte SQL-Referenz: Von SELECT-Grundlagen über DDL/DML, Joins und Normalisierung bis zu SET Operations, Views, Transaktionen (ACID), Stored Functions und Triggern. Basiert auf Sessions 7-10, 13-15 der Datenbankensysteme-Vorlesung.
 
 logo:     ../assets/img/logo/sql-cheat-sheet.jpg
 
@@ -43,19 +43,27 @@ import: https://raw.githubusercontent.com/LiaTemplates/DuckDB/refs/heads/main/RE
 
 # SQL Cheat-Sheet – Quick Reference
 
-> **Kompakte Referenz** basierend auf Lectures 7-10  
-> **Themen:** SELECT, DDL/DML, Normalisierung, Joins
+> **Erweiterte Referenz** basierend auf Lectures 7-10, 13-15  
+> **Themen:** SELECT, DDL/DML, Normalisierung, Joins, SET Operations, Views, Transaktionen, Functions, Trigger
 
 ---
 
 ## 📖 Wie nutze ich dieses Cheat-Sheet?
 
-Dieses Dokument ist eine **schnelle Referenz** für die wichtigsten SQL-Konzepte aus den Lectures 7-10:
+Dieses Dokument ist eine **erweiterte Referenz** für die wichtigsten SQL-Konzepte:
 
-- **L8:** CREATE TABLE, ALTER, DROP, INSERT, UPDATE, DELETE, Constraints
+**Grundlagen:**
+
 - **L7:** SELECT, WHERE, ORDER BY, GROUP BY, Aggregation
+- **L8:** CREATE TABLE, ALTER, DROP, INSERT, UPDATE, DELETE, Constraints
 - **L9:** Normalisierung (1NF, 2NF, 3NF), ER-Diagramme
 - **L10:** Joins (INNER, LEFT, RIGHT, FULL, CROSS), Subqueries
+
+**Fortgeschritten:**
+
+- **L13:** SET Operations (UNION, INTERSECT, EXCEPT), Views
+- **L14:** Transaktionen (BEGIN, COMMIT, ROLLBACK), ACID, Isolation Levels
+- **L15:** Stored Functions (IF, CASE, RAISE), Trigger (BEFORE/AFTER)
 
 **Navigation:**
 
@@ -795,43 +803,646 @@ INNER JOIN products p ON oi.product_id = p.product_id;
 
 ---
 
-## 6. Set-Operationen
+## 6. SET Operations (L13)
 
-### 6.1 UNION – Ergebnisse vereinigen
+SET Operations kombinieren Ergebnismengen zweier Queries – ähnlich wie Mengenoperationen in der Mathematik.
+
+**Wichtige Regeln:**
+
+- Beide SELECT-Statements müssen **gleich viele Spalten** haben
+- Spaltentypen müssen **kompatibel** sein
+- Spaltennamen werden aus der ersten Query übernommen
+
+### 6.1 UNION – Vereinigung
+
+**Regel:** Kombiniert beide Ergebnismengen und **entfernt Duplikate**.
 
 ```sql
--- Alle Kunden aus zwei Regionen
-SELECT first_name, last_name FROM customers WHERE location_id = 1
+-- Newsletter-Liste: Alle Personen (Kunden + Mitarbeiter)
+SELECT first_name, last_name, 'Customer' AS type
+FROM customers
 UNION
-SELECT first_name, last_name FROM customers WHERE location_id = 2;
+SELECT first_name, last_name, 'Employee' AS type
+FROM employees
+ORDER BY last_name;
 ```
 @PGlite.terminal(joins)
 
-**UNION** entfernt Duplikate. **UNION ALL** behält sie.
+**UNION vs UNION ALL:**
+
+| Operation     | Duplikate        | Performance |
+| ------------- | ---------------- | ----------- |
+| `UNION`       | Werden entfernt  | Langsamer   |
+| `UNION ALL`   | Bleiben erhalten | Schneller   |
+
+```sql
+-- UNION ALL: Behält alle Einträge (auch Duplikate)
+SELECT first_name, last_name FROM customers
+UNION ALL
+SELECT first_name, last_name FROM employees;
+```
+@PGlite.terminal(joins)
+
+**Tipp:** Nutze `UNION ALL`, wenn keine Duplikate existieren oder gewünscht sind!
 
 ### 6.2 INTERSECT – Schnittmenge
 
+**Regel:** Nur Zeilen, die in **BEIDEN** Ergebnismengen vorkommen.
+
 ```sql
--- Kunden, die sowohl in Berlin wohnen als auch bestellt haben
-SELECT customer_id FROM customers WHERE location_id = 1
+-- Mitarbeiter, die auch Kunden sind (basierend auf Name)
+SELECT first_name, last_name
+FROM customers
 INTERSECT
-SELECT customer_id FROM orders;
+SELECT first_name, last_name
+FROM employees
+ORDER BY last_name;
 ```
 @PGlite.terminal(joins)
+
+**Alternative mit JOIN:**
+
+```sql
+-- Gleichwertig mit INNER JOIN
+SELECT DISTINCT c.first_name, c.last_name
+FROM customers c
+INNER JOIN employees e 
+  ON c.first_name = e.first_name 
+  AND c.last_name = e.last_name;
+```
+
+**Wann INTERSECT?** Klarer Intent: "Zeig mir die Überschneidung!"
 
 ### 6.3 EXCEPT – Differenz
 
+**Regel:** Zeilen aus der **ersten** Query, die **NICHT** in der zweiten vorkommen.
+
 ```sql
--- Kunden OHNE Bestellungen
-SELECT customer_id FROM customers
+-- Kunden, die KEINE Mitarbeiter sind
+SELECT first_name, last_name
+FROM customers
 EXCEPT
-SELECT customer_id FROM orders;
+SELECT first_name, last_name
+FROM employees
+ORDER BY last_name;
 ```
 @PGlite.terminal(joins)
 
+**⚠️ Reihenfolge zählt!** `A EXCEPT B` ≠ `B EXCEPT A`
+
+```sql
+-- Umgekehrt: Mitarbeiter, die KEINE Kunden sind
+SELECT first_name, last_name FROM employees
+EXCEPT
+SELECT first_name, last_name FROM customers;
+```
+
+**Alternative mit LEFT JOIN:**
+
+```sql
+-- Gleichwertig mit Anti-Join
+SELECT c.first_name, c.last_name
+FROM customers c
+LEFT JOIN employees e 
+  ON c.first_name = e.first_name 
+  AND c.last_name = e.last_name
+WHERE e.employee_id IS NULL;
+```
+
+### 6.4 SET Operations kombinieren
+
+```sql
+-- Komplexe Abfragen mit mehreren SET Operations
+(SELECT first_name, last_name FROM customers WHERE location_id = 1
+ UNION
+ SELECT first_name, last_name FROM customers WHERE location_id = 2)
+EXCEPT
+SELECT first_name, last_name FROM employees;
+```
+
+**Tipp:** Nutze Klammern `()` für klare Gruppierung!
+
 ---
 
-## 7. Best Practices
+## 7. Views (L13)
+
+### 7.1 Was sind Views?
+
+**Views** sind gespeicherte Queries, die wie virtuelle Tabellen funktionieren. Sie speichern keine Daten, sondern nur die Query-Definition.
+
+**Vorteile:**
+
+- ✅ **Wiederverwendbarkeit:** Komplexe Queries einmal definieren
+- ✅ **Abstraktion:** Versteckt Komplexität vor Nutzern
+- ✅ **Sicherheit:** Kontrollierter Zugriff auf Daten
+- ✅ **Konsistenz:** Eine Definition, überall nutzbar
+
+### 7.2 CREATE VIEW
+
+```sql
+-- Einfache View: Aktive Kunden mit Standort
+CREATE VIEW active_customers AS
+SELECT 
+  c.customer_id,
+  c.first_name,
+  c.last_name,
+  c.email,
+  l.city,
+  l.postal_code
+FROM customers c
+INNER JOIN locations l ON c.location_id = l.location_id
+WHERE c.is_active = true;
+
+-- View nutzen wie eine Tabelle
+SELECT * FROM active_customers WHERE city = 'Berlin';
+```
+@PGlite.eval(joins)
+
+### 7.3 Views mit Aggregation
+
+```sql
+-- Customer-Summary: Bestellungen pro Kunde
+CREATE VIEW customer_summary AS
+SELECT 
+  c.customer_id,
+  c.first_name || ' ' || c.last_name AS full_name,
+  COUNT(o.order_id) AS order_count,
+  COALESCE(SUM(o.total_amount), 0) AS total_spent,
+  MAX(o.order_date) AS last_order_date
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name;
+
+-- VIP-Kunden finden
+SELECT * FROM customer_summary 
+WHERE total_spent > 1000 
+ORDER BY total_spent DESC;
+```
+@PGlite.eval(joins)
+
+### 7.4 Views aktualisieren
+
+```sql
+-- View ersetzen
+CREATE OR REPLACE VIEW active_customers AS
+SELECT 
+  c.customer_id,
+  c.first_name,
+  c.last_name,
+  c.email,
+  l.city
+FROM customers c
+LEFT JOIN locations l ON c.location_id = l.location_id
+WHERE c.is_active = true;
+```
+@PGlite.terminal(joins)
+
+### 7.5 Views löschen
+
+```sql
+-- View entfernen
+DROP VIEW IF EXISTS customer_summary;
+
+-- Mit CASCADE (löscht auch abhängige Views)
+DROP VIEW customer_summary CASCADE;
+```
+@PGlite.terminal(joins)
+
+### 7.6 Materialized Views (PostgreSQL)
+
+**Materialized Views** speichern das Ergebnis physisch → schneller, aber nicht automatisch aktualisiert.
+
+```sql
+-- Materialized View erstellen
+CREATE MATERIALIZED VIEW sales_stats AS
+SELECT 
+  DATE_TRUNC('month', order_date) AS month,
+  COUNT(*) AS orders,
+  SUM(total_amount) AS revenue
+FROM orders
+GROUP BY month;
+
+-- Daten aktualisieren (manuell)
+REFRESH MATERIALIZED VIEW sales_stats;
+
+-- Löschen
+DROP MATERIALIZED VIEW sales_stats;
+```
+
+**View vs Materialized View:**
+
+| Feature            | VIEW                    | MATERIALIZED VIEW       |
+| ------------------ | ----------------------- | ----------------------- |
+| Speicherung        | Nur Query-Definition    | Physische Daten         |
+| Aktualität         | Immer aktuell           | Manuell refreshen       |
+| Performance        | Query bei jedem Zugriff | Schnell (vorberechnet)  |
+| Speicherplatz      | Minimal                 | Benötigt Platz          |
+
+**Use Cases:**
+
+- **VIEW:** Einfache Abstraktion, Sicherheit, oft geänderte Daten
+- **MATERIALIZED VIEW:** Komplexe Aggregationen, Reports, seltene Änderungen
+
+---
+
+## 8. Transaktionen & ACID (L14)
+
+### 8.1 Was sind Transaktionen?
+
+**Transaktion** = Logische Arbeitseinheit, die garantiert, dass entweder **alle** Operationen erfolgreich sind – oder **keine**.
+
+**Metapher:** Ein Paket mit Garantiesiegel – entweder kommt alles an oder gar nichts.
+
+### 8.2 Transaktionssteuerung
+
+```sql
+-- Transaktion starten
+BEGIN TRANSACTION;  -- oder: START TRANSACTION;
+
+-- Operationen ausführen
+UPDATE accounts SET balance = balance - 100 WHERE id = 'A';
+UPDATE accounts SET balance = balance + 100 WHERE id = 'B';
+
+-- Bestätigen (Änderungen dauerhaft speichern)
+COMMIT;
+
+-- ODER: Rückgängig machen
+ROLLBACK;
+```
+@PGlite.terminal
+
+**Wichtig:** Ohne `COMMIT` werden Änderungen **nicht** dauerhaft gespeichert!
+
+### 8.3 SAVEPOINT – Partielle Rollbacks
+
+```sql
+BEGIN;
+
+UPDATE accounts SET balance = balance - 100 WHERE id = 'A';
+
+SAVEPOINT transfer_step1;
+
+UPDATE accounts SET balance = balance + 100 WHERE id = 'B';
+-- ❌ Fehler! Konto B existiert nicht
+
+ROLLBACK TO transfer_step1;  -- Nur Schritt 2 rückgängig
+COMMIT;  -- Schritt 1 bleibt bestehen
+```
+@PGlite.terminal
+
+### 8.4 ACID-Eigenschaften
+
+**ACID** = Vier Garantien, die jede Transaktion erfüllen sollte:
+
+#### A – Atomicity (Atomarität)
+
+**"Alles oder Nichts"** – Transaktion ist unteilbar.
+
+```sql
+BEGIN;
+UPDATE accounts SET balance = balance - 100 WHERE id = 'A';
+-- ❌ Server-Crash hier → Automatisches ROLLBACK!
+UPDATE accounts SET balance = balance + 100 WHERE id = 'B';
+COMMIT;
+```
+
+**Garantie:** Bei Fehler/Crash werden ALLE Änderungen rückgängig gemacht.
+
+#### C – Consistency (Konsistenz)
+
+**Gültiger Zustand → Gültiger Zustand** – Constraints werden eingehalten.
+
+```sql
+-- Constraint: Balance nie negativ
+ALTER TABLE accounts ADD CONSTRAINT balance_positive CHECK (balance >= 0);
+
+BEGIN;
+UPDATE accounts SET balance = balance - 1000 WHERE id = 'A';
+-- ❌ Constraint verletzt → Automatisches ROLLBACK
+COMMIT;
+```
+
+**Garantie:** Datenbank bleibt konsistent – Constraints gelten immer.
+
+#### I – Isolation
+
+**Parallele Transaktionen beeinflussen sich nicht** – jede läuft isoliert.
+
+```sql
+-- Transaktion A
+BEGIN;
+SELECT balance FROM accounts WHERE id = 'A';  -- 100
+-- ... (lange Berechnung)
+UPDATE accounts SET balance = balance - 50 WHERE id = 'A';
+COMMIT;
+
+-- Transaktion B (parallel!)
+BEGIN;
+SELECT balance FROM accounts WHERE id = 'A';  -- Sieht auch 100
+UPDATE accounts SET balance = balance - 30 WHERE id = 'A';
+COMMIT;
+```
+
+**Problem ohne Isolation:** Lost Update! Nur eine Änderung bleibt.  
+**Mit Isolation:** B muss warten, bis A fertig ist.
+
+#### D – Durability (Dauerhaftigkeit)
+
+**Nach COMMIT = Für immer gespeichert** – selbst bei Crash.
+
+```sql
+BEGIN;
+INSERT INTO orders VALUES (999, 1, '2024-01-01', 500);
+COMMIT;
+-- ✅ Auch bei Stromausfall DIREKT nach COMMIT: Daten sind sicher!
+```
+
+**Technisch:** Write-Ahead Log (WAL) schreibt Änderungen auf Festplatte.
+
+### 8.5 Isolation Levels
+
+**Trade-off:** Perfekte Isolation = langsam. Verschiedene Levels erlauben Kompromisse.
+
+| Level                | Dirty Read | Non-Repeatable Read | Phantom Read | Performance |
+| -------------------- | ---------- | ------------------- | ------------ | ----------- |
+| `READ UNCOMMITTED`   | ✅ Möglich | ✅ Möglich          | ✅ Möglich   | Schnellst   |
+| `READ COMMITTED`     | ❌         | ✅ Möglich          | ✅ Möglich   | Gut         |
+| `REPEATABLE READ`    | ❌         | ❌                  | ✅ Möglich   | Mittel      |
+| `SERIALIZABLE`       | ❌         | ❌                  | ❌           | Langsam     |
+
+**Setzen:**
+
+```sql
+-- Für aktuelle Transaktion
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+-- Global (Session)
+SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+```
+
+**Standard:** Meist `READ COMMITTED` (PostgreSQL, Oracle) oder `REPEATABLE READ` (MySQL).
+
+### 8.6 Transaktions-Probleme
+
+#### Problem 1: Dirty Read
+
+**Transaktion A liest uncommitted Daten von B:**
+
+```sql
+-- Session 1
+BEGIN;
+UPDATE accounts SET balance = 1000 WHERE id = 'A';
+-- NOCH NICHT COMMITTED!
+
+-- Session 2
+SELECT balance FROM accounts WHERE id = 'A';  -- 1000 (Dirty!)
+
+-- Session 1
+ROLLBACK;  -- Änderung rückgängig!
+-- Session 2 hat einen Wert gelesen, der nie existiert hat!
+```
+
+#### Problem 2: Lost Update
+
+**Zwei Transaktionen überschreiben sich gegenseitig:**
+
+```sql
+-- A: Liest balance = 100
+-- B: Liest balance = 100
+-- A: Schreibt balance = 50  (100 - 50)
+-- B: Schreibt balance = 70  (100 - 30)
+-- Ergebnis: 70 statt 20! (50 Euro verloren)
+```
+
+**Lösung:** `SELECT ... FOR UPDATE` (sperrt Zeile):
+
+```sql
+BEGIN;
+SELECT balance FROM accounts WHERE id = 'A' FOR UPDATE;
+-- Zeile ist jetzt gesperrt – andere müssen warten
+UPDATE accounts SET balance = balance - 50 WHERE id = 'A';
+COMMIT;
+```
+
+#### Problem 3: Deadlock
+
+**Zwei Transaktionen warten aufeinander:**
+
+```sql
+-- Transaction A
+BEGIN;
+UPDATE accounts SET balance = balance - 10 WHERE id = 'A';
+-- Wartet auf Konto B...
+
+-- Transaction B
+BEGIN;
+UPDATE accounts SET balance = balance - 10 WHERE id = 'B';
+-- Wartet auf Konto A...
+
+-- ❌ Deadlock! Datenbank bricht eine Transaktion ab.
+```
+
+**Lösung:** Immer in gleicher Reihenfolge sperren (z.B. aufsteigend nach ID).
+
+### 8.7 Best Practices
+
+✅ **Transaktionen kurz halten** (schnellere Sperren)
+
+✅ **Explizite Transaktionen** für Multi-Step-Operationen
+
+✅ **FOR UPDATE nutzen** bei konkurrierenden Updates
+
+✅ **Deadlocks vermeiden** durch konsistente Reihenfolge
+
+✅ **Fehlerbehandlung:** Immer `ROLLBACK` bei Fehler
+
+❌ **Keine langen User-Interaktionen** in Transaktionen
+
+---
+
+## 9. Functions & Trigger (L15)
+
+### 9.1 Stored Functions
+
+**Stored Functions** = Wiederverwendbare Code-Blöcke, gespeichert in der Datenbank.
+
+#### Grundsyntax (PostgreSQL)
+
+```sql
+CREATE FUNCTION function_name(param1 TYPE, param2 TYPE)
+RETURNS return_type AS $$
+BEGIN
+    -- Code hier
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+#### Beispiel: Preisberechnung
+
+```sql
+CREATE FUNCTION calculate_total(price DECIMAL, tax_rate DECIMAL)
+RETURNS DECIMAL AS $$
+BEGIN
+    IF price < 0 THEN
+        RAISE EXCEPTION 'Preis darf nicht negativ sein!';
+    END IF;
+    IF tax_rate < 0 OR tax_rate > 1 THEN
+        RAISE EXCEPTION 'Steuersatz muss zwischen 0 und 1 liegen!';
+    END IF;
+    RETURN price * (1 + tax_rate);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Aufrufen
+SELECT calculate_total(100, 0.19) as brutto;  -- 119.00
+```
+@PGlite.eval
+
+### 9.2 Kontrollstrukturen
+
+#### IF / THEN / ELSE
+
+```sql
+CREATE FUNCTION check_age(age INT)
+RETURNS TEXT AS $$
+BEGIN
+    IF age >= 18 THEN
+        RETURN 'Volljährig';
+    ELSE
+        RETURN 'Minderjährig';
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+#### CASE
+
+```sql
+CREATE FUNCTION get_grade(score INT)
+RETURNS TEXT AS $$
+BEGIN
+    RETURN CASE
+        WHEN score >= 90 THEN 'A'
+        WHEN score >= 80 THEN 'B'
+        WHEN score >= 70 THEN 'C'
+        WHEN score >= 60 THEN 'D'
+        ELSE 'F'
+    END;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### 9.3 Fehlerbehandlung: RAISE
+
+```sql
+CREATE FUNCTION divide(a INT, b INT)
+RETURNS DECIMAL AS $$
+BEGIN
+    IF b = 0 THEN
+        RAISE EXCEPTION 'Division durch Null nicht erlaubt!';
+    END IF;
+    RETURN a::DECIMAL / b;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Test
+SELECT divide(10, 2);   -- ✅ 5.0
+SELECT divide(10, 0);   -- ❌ Exception
+```
+
+### 9.4 Trigger
+
+**Trigger** = Automatisch ausgeführte Funktionen bei bestimmten Events (INSERT/UPDATE/DELETE).
+
+#### Trigger-Function erstellen
+
+```sql
+-- 1. Function mit RETURNS TRIGGER
+CREATE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 2. Trigger erstellen
+CREATE TRIGGER set_updated_at
+BEFORE UPDATE ON products
+FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();
+```
+
+**Besondere Variablen:**
+
+- `NEW` – Die neue Zeile (bei INSERT/UPDATE)
+- `OLD` – Die alte Zeile (bei UPDATE/DELETE)
+
+#### BEFORE vs AFTER
+
+| Timing   | Verwendung                           | Kann abbrechen? |
+| -------- | ------------------------------------ | --------------- |
+| `BEFORE` | Daten validieren/ändern              | ✅ Ja (RETURN NULL) |
+| `AFTER`  | Logging, Audit, abhängige Aktionen   | ❌ Nein         |
+
+#### Beispiel: Audit-Logging
+
+```sql
+-- Audit-Tabelle
+CREATE TABLE audit_log (
+    log_id SERIAL PRIMARY KEY,
+    table_name TEXT,
+    action TEXT,
+    old_value TEXT,
+    new_value TEXT,
+    changed_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Trigger-Function
+CREATE FUNCTION log_price_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.price IS DISTINCT FROM NEW.price THEN
+        INSERT INTO audit_log (table_name, action, old_value, new_value)
+        VALUES ('products', 'UPDATE', OLD.price::TEXT, NEW.price::TEXT);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger
+CREATE TRIGGER audit_price_changes
+AFTER UPDATE ON products
+FOR EACH ROW
+EXECUTE FUNCTION log_price_changes();
+```
+
+#### Trigger löschen
+
+```sql
+DROP TRIGGER IF EXISTS audit_price_changes ON products;
+```
+
+### 9.5 Use Cases
+
+| Use Case                  | Function | Trigger |
+| ------------------------- | -------- | ------- |
+| Wiederverwendbare Logik   | ✅✅     | ⚠️      |
+| Automatische Timestamps   | ⚠️       | ✅✅    |
+| Audit-Logging             | ⚠️       | ✅✅    |
+| Validierung (nicht umgehbar) | ⚠️    | ✅✅    |
+| Soft Delete               | ⚠️       | ✅✅    |
+| Komplexe Berechnungen     | ✅✅     | ⚠️      |
+
+**Faustregel:**
+
+- **Function** = Aktiv aufrufen, testbar, wiederverwendbar
+- **Trigger** = Automatisch, konsistent, kann nicht vergessen werden
+
+---
+
+## 10. Best Practices
 
 ### 7.1 Query-Optimierung
 
@@ -873,7 +1484,75 @@ SELECT customer_id FROM orders;
 
 ---
 
-## 8. Häufige Fehler & Lösungen
+## 10. Best Practices
+
+### 10.1 Query-Optimierung
+
+✅ **Spalten explizit benennen** statt `SELECT *`
+
+✅ **WHERE statt HAVING** (wenn möglich)
+
+✅ **Aliase nutzen** für Lesbarkeit
+
+✅ **Indexes auf Foreign Keys** (Performance)
+
+✅ **LIMIT bei Exploration** (nicht alle Millionen Zeilen laden)
+
+### 10.2 Schema-Design
+
+✅ **Immer Primary Keys** definieren
+
+✅ **Foreign Keys für Integrität** nutzen
+
+✅ **NOT NULL für Pflichtfelder**
+
+✅ **CHECK Constraints** für Validierung
+
+✅ **DEFAULT-Werte** wo sinnvoll
+
+✅ **Normalisierung bis 3NF** (außer Performance-Gründe)
+
+### 10.3 Datenmanipulation
+
+✅ **Immer WHERE bei UPDATE/DELETE** (außer wirklich alle Zeilen)
+
+✅ **Transaktionen für Multi-Step-Operationen**
+
+✅ **Bulk Insert statt einzelne INSERTs**
+
+✅ **Backup vor riskanten Änderungen**
+
+⚠️ **TRUNCATE nur wenn sicher** (meist nicht reversibel)
+
+### 10.4 Transaktionen & Concurrency
+
+✅ **Transaktionen kurz halten** (schnellere Sperren freigeben)
+
+✅ **FOR UPDATE nutzen** bei konkurrierenden Updates
+
+✅ **Deadlocks vermeiden** durch konsistente Sperr-Reihenfolge
+
+✅ **Fehlerbehandlung:** Immer `ROLLBACK` bei Fehler
+
+❌ **Keine User-Interaktionen** in Transaktionen
+
+### 10.5 Functions & Trigger
+
+✅ **Functions für wiederverwendbare Logik**
+
+✅ **Trigger für Automatisierung** (Timestamps, Audit)
+
+✅ **RAISE für aussagekräftige Fehler**
+
+✅ **Views für komplexe Queries**
+
+⚠️ **Trigger sparsam einsetzen** (schwer zu debuggen)
+
+❌ **Keine komplexe Business-Logik in Triggern**
+
+---
+
+## 11. Häufige Fehler & Lösungen
 
 ### ❌ Fehler: UPDATE ohne WHERE
 
@@ -934,27 +1613,73 @@ WHERE price * 1.19 > 100;
 
 (Oder mit CTE/Subquery – siehe L10)
 
+### ❌ Fehler: Transaktion nicht geschlossen
+
+```sql
+BEGIN;
+UPDATE accounts SET balance = 100 WHERE id = 'A';
+-- Vergessen: COMMIT oder ROLLBACK!
+-- → Sperren bleiben bestehen, andere warten ewig
+```
+
+✅ **Immer schließen:**
+
+```sql
+BEGIN;
+UPDATE accounts SET balance = 100 WHERE id = 'A';
+COMMIT;  -- oder ROLLBACK bei Fehler
+```
+
+### ❌ Fehler: UNION ohne gleiche Spaltenanzahl
+
+```sql
+-- Fehler: 2 Spalten vs 3 Spalten!
+SELECT first_name, last_name FROM customers
+UNION
+SELECT first_name, last_name, email FROM employees;
+```
+
+✅ **Gleiche Anzahl + kompatible Typen:**
+
+```sql
+SELECT first_name, last_name, email FROM customers
+UNION
+SELECT first_name, last_name, email FROM employees;
+```
+
 ---
 
-## 9. Weiterführende Themen
+## 12. Weiterführende Themen
 
-**Diese Themen kommen in späteren Sessions:**
+**Diese Themen wurden in den Lectures behandelt:**
 
-- **Subqueries & CTEs** (L10+)
-- **Window Functions** (L12)
-- **Stored Procedures & Functions** (L13)
-- **Transaktionen & ACID** (L11+)
-- **Indexierung & Performance** (L15)
-- **Views & Materialized Views** (L13)
+- ✅ **SET Operations** (L13) – UNION, INTERSECT, EXCEPT
+- ✅ **Views** (L13) – Virtuelle Tabellen, Materialized Views
+- ✅ **Transaktionen & ACID** (L14) – BEGIN, COMMIT, ROLLBACK, Isolation Levels
+- ✅ **Functions** (L15) – Stored Functions, IF/CASE, RAISE
+- ✅ **Trigger** (L15) – Automatische Reaktionen auf Events
+
+**Weitere fortgeschrittene Themen:**
+
+- **Subqueries & CTEs** (Common Table Expressions)
+- **Window Functions** (ROW_NUMBER, RANK, LAG, LEAD)
+- **Recursive Queries** (Hierarchien, Graphen)
+- **Full-Text Search** (tsvector, tsquery)
+- **JSON Operations** (JSON_AGG, JSONB)
+- **Performance Tuning** (EXPLAIN, Indexstrategien)
+- **Partitioning** (Tabellen-Partitionierung)
 
 ---
 
-## 10. Quick-Links zur Vorlesung
+## 13. Quick-Links zur Vorlesung
 
 - **L7:** [SQL Introduction & SELECT](./7-lecture.md)
 - **L8:** [DDL & DML](./8-lecture.md)
 - **L9:** [Normalisierung](./9-lecture.md)
 - **L10:** [Joins & Combining Data](./10-lecture.md)
+- **L13:** [SET Operations & Views](./13-lecture.md)
+- **L14:** [Transaktionen & ACID](./14-lecture.md)
+- **L15:** [Functions & Trigger](./15-lecture.md)
 
 ---
 
