@@ -58,6 +58,7 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 - [L13: Advanced SQL – Views, SET Operations (UNION/INTERSECT/EXCEPT) & Window Functions](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/13-lecture.md)
 - [L14: Transaktionen & ACID](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/14-lecture.md)
 - [L15: Funktionen & Trigger](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/15-lecture.md)
+- [L16: Aggregationen & Window Functions](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/16-lecture.md)
 
 
 ### Block 3: Technologien & Performance

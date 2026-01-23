@@ -4,46 +4,40 @@ email:    LiaScript@web.de
 version:  0.1.0
 language: de
 narrator: Deutsch Female
-comment:  Aggregationen & Window Functions – Column Store Performance mit Wetterdaten
+comment:  Aggregationen & Window Functions – Praktische SQL-Analytik mit Wetterdaten
+
+logo:     ../assets/img/logo/16-lecture.jpg
 
 import:   https://raw.githubusercontent.com/LiaTemplates/DuckDB/refs/heads/main/README.md
-          https://raw.githubusercontent.com/liaTemplates/SQLite/main/README.md
 -->
 
 # Aggregationen & Window Functions
 
 > **Session 16** – Lecture (90 Minuten)  
 > **Block 4:** Theorie, Optimierung & Polyglot  
-> **Lernziel:** LZ 2 – SQL-Praxis vertiefen & Performance verstehen
+> **Lernziel:** LZ 2 – SQL-Praxis vertiefen mit Aggregationen & Window Functions
 
     --{{0}}--
-Willkommen zur sechzehnten Vorlesung! Heute wird es richtig spannend: Wir verbinden alles, was Sie bisher über SQL und Column Stores gelernt haben. Wir werden sehen, warum DuckDB bei Sensor- und Zeitreihen-Daten unschlagbar ist, wie Sie mit Window Functions gleitende Mittelwerte berechnen, und was im Hintergrund passiert, wenn Ihre Datenbank Millionen von Zeilen aggregiert. Heute lernen Sie nicht nur SQL – Sie lernen, wie Performance entsteht.
+Willkommen zur sechzehnten Vorlesung! Heute lernen Sie zwei mächtige SQL-Werkzeuge kennen: Aggregationen und Window Functions. Mit echten Wetterdaten werden wir Durchschnitte berechnen, Trends entdecken und gleitende Mittelwerte erstellen. Sie werden sehen, welche analytischen Möglichkeiten SQL bietet – von einfachen Summen bis zu komplexen Zeitreihen-Analysen.
 
 ---
 
 ## Was erwartet Sie heute?
 
     --{{0}}--
-Heute kombinieren wir drei große Themen: Klassische Aggregationen, fortgeschrittene Window Functions und Performance-Optimierung mit Column Stores. Alles mit echten Wetterdaten – über 4000 Messungen aus mehreren Monaten.
+Heute lernen Sie die wichtigsten Werkzeuge für Datenanalyse in SQL: Klassische Aggregationen und fortgeschrittene Window Functions. Alles mit echten Wetterdaten – über 4000 Messungen aus mehreren Monaten.
 
-      {{0-1}}
+      {{0}}
 <div>
 
 ### Überblick
 
 - **Klassische Aggregationen:** COUNT, SUM, AVG, MIN, MAX, GROUP BY, HAVING
 - **Window Functions:** ROW_NUMBER, RANK, LAG, LEAD, gleitende Mittelwerte
-- **Zeitbasierte Analytics:** DATE_TRUNC, EXTRACT, ROWS BETWEEN
-- **Performance-Vergleich:** Column Store (DuckDB) vs. Row Store (PostgreSQL)
-- **DuckDB Internals:** Kompression, Chunks, Parallelisierung
+- **Zeitbasierte Analytics:** EXTRACT, ROWS BETWEEN
+- **Praktische Anwendungen:** Trend-Erkennung, Anomalie-Suche, Vergleiche
 
 </div>
-
-    --{{1}}--
-Erinnern Sie sich an Lecture 4? Damals haben wir gelernt, dass Column Stores Spalten physisch zusammen speichern. Heute sehen Sie, warum das bei Analytics-Queries einen Riesenunterschied macht.
-
-      {{1}}
-> 🔗 **Rückblick Lecture 4:** Column Stores speichern Spalten zusammen → weniger I/O bei Aggregationen
 
 ---
 
@@ -57,16 +51,20 @@ Lassen Sie uns mit unseren Daten starten. Wir haben echte Wettermessungen aus de
 
 ### Daten laden
 
-```sql
-CREATE TABLE weather AS 
-SELECT * FROM read_csv_auto(
-  'https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/dat/weather.csv',
-  header = true
-);
+```js
+const res = await fetch('../assets/dat/weather.csv', { cache: "no-store" });
+if (!res.ok) throw new Error(res.statusText);
+const csvText = await res.text();
 
-SELECT * FROM weather LIMIT 5;
+// als "Datei" in DuckDB registrieren
+await db.registerFileText('weather.csv', csvText);
+
+// jetzt normal aus der "lokalen" Datei lesen
+await conn.query(`CREATE TABLE weather AS SELECT * FROM read_csv('weather.csv');`);
+
+console.log("ready")
 ```
-@DuckDB.eval
+@DuckDB.js
 
 </div>
 
@@ -98,67 +96,71 @@ Starten wir mit den Basics: Aggregationsfunktionen. Diese kennen Sie bereits, ab
 ### COUNT, SUM, AVG, MIN, MAX
 
     --{{0}}--
-Die fundamentalen Aggregationsfunktionen – jede Datenbank hat sie, aber die Performance variiert dramatisch.
+Die fundamentalen Aggregationsfunktionen – das Fundament jeder Datenanalyse. Beginnen wir mit einem ganz einfachen Beispiel.
 
-      {{0-1}}
+      {{0}}
 <div>
 
-#### Einfache Aggregationen
+#### Beispiel: Wie viele Tage haben wir?
+
+```sql
+SELECT COUNT(*) as anzahl_tage
+FROM weather;
+```
+@DuckDB.eval
+
+    --{{0}}--
+**Syntax-Erklärung:** `COUNT(*)` zählt alle Zeilen in der Tabelle. Das Sternchen `*` bedeutet "alle Zeilen". Mit `as anzahl_tage` geben wir der Spalte einen lesbaren Namen.
+
+</div>
+
+    --{{1}}--
+Jetzt kombinieren wir mehrere Aggregationen in einer Query:
+
+      {{1}}
+<div>
+
+#### Mehrere Aggregationen gleichzeitig
+
+```sql
+SELECT 
+  COUNT(*) as anzahl_tage,
+  AVG(Temp_2m) as durchschnitts_temp,
+  MIN(Temp_2m) as min_temp,
+  MAX(Temp_2m) as max_temp
+FROM weather;
+```
+@DuckDB.eval
+
+    --{{1}}--
+**Syntax-Erklärung:** 
+- `AVG(Temp_2m)` berechnet den Durchschnitt aller Temperatur-Werte
+- `MIN(Temp_2m)` findet die niedrigste Temperatur
+- `MAX(Temp_2m)` findet die höchste Temperatur
+- Alle vier Werte werden in **einer** Zeile ausgegeben!
+
+</div>
+
+    --{{2}}--
+Die Zahlen haben viele Nachkommastellen. Mit ROUND machen wir sie lesbarer:
+
+      {{2}}
+<div>
+
+#### Zahlen runden mit ROUND
 
 ```sql
 SELECT 
   COUNT(*) as anzahl_tage,
   ROUND(AVG(Temp_2m), 2) as durchschnitts_temp,
   ROUND(MIN(Temp_2m), 2) as min_temp,
-  ROUND(MAX(Temp_2m), 2) as max_temp,
-  ROUND(AVG(Windgeschwindigkeit), 2) as durchschnitts_wind
+  ROUND(MAX(Temp_2m), 2) as max_temp
 FROM weather;
 ```
 @DuckDB.eval
 
-    --{{0}}--
-Über 4200 Tage werden in Millisekunden verarbeitet. Warum so schnell?
-
-</div>
-
-    --{{1}}--
-Column Stores! DuckDB liest nur die benötigten Spalten – Temperatur und Windgeschwindigkeit. Die anderen 10 Spalten bleiben unberührt.
-
-      {{1-2}}
-<div>
-
-#### Was passiert im Hintergrund?
-
-**Row-Store (PostgreSQL):**
-```ascii
-Liest alle Zeilen: [Datum|Anzahl|Messwerte|Wind|Windrichtung|Strahlung|Druck|Temp2m|Temp5cm|Bodentemp|Feuchte|Niederschlag]
-→ 4252 Zeilen × 12 Spalten = 51.024 Werte gelesen
-```
-
-**Column-Store (DuckDB):**
-```ascii
-Liest nur benötigte Spalten: [Temp2m, Windgeschwindigkeit]
-→ 4252 Zeilen × 2 Spalten = 8.504 Werte gelesen
-→ 6× weniger I/O!
-```
-
-</div>
-
     --{{2}}--
-Und jetzt kommt der Clou: DuckDB komprimiert diese Spalten auch noch. Schauen wir uns an, wie viel Speicher tatsächlich gelesen wird.
-
-      {{2}}
-<div>
-
-#### Kompression in Aktion
-
-```sql
-PRAGMA storage_info('weather');
-```
-@DuckDB.eval
-
-    --{{2}}--
-Die Ausgabe zeigt Ihnen: Spalten-Name, Typ, Kompression-Methode, komprimierte Größe. Temperaturen lassen sich extrem gut komprimieren – Werte zwischen -10 und +30 brauchen nur wenige Bits pro Wert!
+**Syntax-Erklärung:** `ROUND(wert, 2)` rundet auf 2 Nachkommastellen. Statt `7.123456` bekommen Sie `7.12`. Das ist viel lesbarer!
 
 </div>
 
@@ -167,29 +169,35 @@ Die Ausgabe zeigt Ihnen: Spalten-Name, Typ, Kompression-Methode, komprimierte Gr
 ### GROUP BY – Gruppierte Aggregationen
 
     --{{0}}--
-Jetzt wird es interessanter: Gruppierungen. Wir berechnen Monats-Durchschnitte – ein klassischer Analytics-Use-Case.
+Jetzt wird es spannender: Gruppierungen! Statt einen Durchschnitt für alle Daten zu berechnen, wollen wir Durchschnitte pro Monat. Dafür brauchen wir GROUP BY.
 
-      {{0-1}}
+      {{0}}
 <div>
 
 #### Nach Monat gruppieren
 
 ```sql
 SELECT 
-  DATE_TRUNC('month', Datum) as monat,
+  EXTRACT(MONTH FROM Datum) as monat,
   ROUND(AVG(Temp_2m), 2) as avg_temp,
-  ROUND(AVG(Luftfeuchte), 1) as avg_feuchte,
-  COUNT(*) as anzahl_messungen
+  COUNT(*) as anzahl_tage
 FROM weather
-GROUP BY monat
-ORDER BY monat DESC;
+GROUP BY EXTRACT(MONTH FROM Datum)
+ORDER BY monat;
 ```
 @DuckDB.eval
+
+    --{{0}}--
+**Syntax-Erklärung:**
+- `EXTRACT(MONTH FROM Datum)` holt die Monatszahl aus dem Datum (1 für Januar, 2 für Februar, usw.)
+- `GROUP BY` gruppiert alle Zeilen mit dem gleichen Monat zusammen
+- `AVG(Temp_2m)` berechnet dann den Durchschnitt **pro Gruppe** (also pro Monat)
+- `ORDER BY monat` sortiert von Januar (1) bis Dezember (12)
 
 </div>
 
     --{{1}}--
-Sie sehen: Jeder Monat hat einen Durchschnitt. Aber was, wenn wir nur Monate mit bestimmten Eigenschaften wollen?
+Wir sehen jetzt 12 Zeilen – eine für jeden Monat! Aber Moment: Was, wenn wir nur kalte Monate sehen wollen?
 
       {{1}}
 <div>
@@ -198,50 +206,32 @@ Sie sehen: Jeder Monat hat einen Durchschnitt. Aber was, wenn wir nur Monate mit
 
 ```sql
 SELECT 
-  DATE_TRUNC('month', Datum) as monat,
+  EXTRACT(MONTH FROM Datum) as monat,
   ROUND(AVG(Temp_2m), 2) as avg_temp,
-  COUNT(*) as anzahl_messungen
+  COUNT(*) as anzahl_tage
 FROM weather
-GROUP BY monat
-HAVING AVG(Temp_2m) < 0  -- Nur Monate mit Durchschnitt unter 0°C
+GROUP BY EXTRACT(MONTH FROM Datum)
+HAVING AVG(Temp_2m) < 5
 ORDER BY avg_temp;
 ```
 @DuckDB.eval
 
     --{{1}}--
-HAVING ist wie WHERE – aber für Aggregate. WHERE filtert vor der Gruppierung, HAVING danach.
+**Syntax-Erklärung:**
+- `HAVING AVG(Temp_2m) < 5` filtert **nach** der Aggregation
+- Nur Monate mit Durchschnittstemperatur unter 5°C werden angezeigt
+- **Wichtig:** WHERE filtert **vor** GROUP BY, HAVING filtert **nach** GROUP BY!
 
 </div>
 
----
+    --{{2}}--
+Der Unterschied zwischen WHERE und HAVING verwirrt oft. Hier ein Vergleich:
 
-### Performance-Analyse mit EXPLAIN ANALYZE
-
-    --{{0}}--
-Jetzt schauen wir unter die Haube! Mit EXPLAIN ANALYZE sehen wir, was DuckDB intern macht.
-
-      {{0-1}}
-<div>
-
-#### Query-Plan anzeigen
-
-```sql
-EXPLAIN
-SELECT 
-  DATE_TRUNC('month', Datum) as monat,
-  ROUND(AVG(Temp_2m), 2) as avg_temp
-FROM weather
-GROUP BY monat;
-```
-@DuckDB.eval
-
-</div>
-
-    --{{1}}--
-Der Query-Plan zeigt Ihnen: Welche Operationen, wie viele Zeilen verarbeitet, wie viel Zeit. Achten Sie auf "COLUMN_DATA_SCAN" – das bedeutet, DuckDB liest nur die benötigten Spalten.
-
-      {{1}}
-> 💡 **Performance-Tipp:** EXPLAIN ANALYZE ist Ihr bester Freund beim Debugging langsamer Queries!
+      {{2}}
+> **WHERE vs. HAVING:**
+>
+> - WHERE: Filtert einzelne Zeilen **vor** der Gruppierung (z.B. `WHERE Temp_2m > 0`)
+> - HAVING: Filtert Gruppen **nach** der Aggregation (z.B. `HAVING AVG(Temp_2m) < 5`)
 
 ---
 
@@ -253,46 +243,62 @@ Jetzt kommen wir zu den mächtigen Window Functions – ein Game-Changer für An
 ### Grundkonzept: OVER
 
     --{{0}}--
-Der Unterschied zu GROUP BY: Window Functions behalten alle Zeilen bei, berechnen aber trotzdem Aggregate über Fenster.
+Window Functions sind anders als GROUP BY: Sie behalten **alle** Zeilen bei, fügen aber trotzdem aggregierte Werte hinzu. Das klingt kompliziert? Schauen wir uns ein Beispiel an!
 
-      {{0-1}}
+      {{0}}
 <div>
 
-#### GROUP BY vs. Window Function
+#### Schritt 1: GROUP BY kollabiert Zeilen
 
-**Mit GROUP BY (kollabiert Zeilen):**
 ```sql
 SELECT 
-  DATE_TRUNC('month', Datum) as monat,
-  AVG(Temp_2m) as avg_temp
+  EXTRACT(MONTH FROM Datum) as monat,
+  ROUND(AVG(Temp_2m), 2) as avg_temp
 FROM weather
-GROUP BY monat;
--- Ergebnis: 12 Zeilen (eine pro Monat)
+GROUP BY EXTRACT(MONTH FROM Datum)
+ORDER BY monat;
 ```
+@DuckDB.eval
 
-**Mit Window Function (behält alle Zeilen):**
+    --{{0}}--
+**Was passiert:** Aus tausenden Zeilen werden nur 12 (eine pro Monat). Wir verlieren die einzelnen Tage!
+
+</div>
+
+    --{{1}}--
+Aber was, wenn wir die einzelnen Tage **behalten** wollen, aber trotzdem den Monats-Durchschnitt sehen?
+
+      {{1}}
+<div>
+
+#### Schritt 2: Window Function behält alle Zeilen
+
 ```sql
 SELECT 
   Datum,
   Temp_2m,
-  AVG(Temp_2m) OVER (
-    PARTITION BY DATE_TRUNC('month', Datum)
-  ) as monats_durchschnitt
+  ROUND(AVG(Temp_2m) OVER (
+    PARTITION BY EXTRACT(MONTH FROM Datum)
+  ), 2) as monats_durchschnitt
 FROM weather
 ORDER BY Datum DESC
 LIMIT 10;
 ```
 @DuckDB.eval
 
-    --{{0}}--
-Jede Zeile behält ihre Originaldaten, bekommt aber zusätzlich den Monats-Durchschnitt dazu!
+    --{{1}}--
+**Syntax-Erklärung:**
+- `AVG(Temp_2m) OVER (...)` ist eine Window Function
+- `OVER` sagt: "Berechne über ein Fenster"
+- `PARTITION BY EXTRACT(MONTH FROM Datum)` teilt die Daten in Gruppen (hier: Monate)
+- **Wichtig:** Alle Zeilen bleiben erhalten! Jede Zeile bekommt den Durchschnitt ihres Monats dazu.
 
 </div>
 
-    --{{1}}--
-Das ist besonders nützlich, wenn Sie Abweichungen vom Durchschnitt berechnen wollen.
+    --{{2}}--
+Jetzt können wir die Abweichung vom Monatsdurchschnitt berechnen:
 
-      {{1}}
+      {{2}}
 <div>
 
 #### Abweichung vom Monatsdurchschnitt
@@ -300,15 +306,14 @@ Das ist besonders nützlich, wenn Sie Abweichungen vom Durchschnitt berechnen wo
 ```sql
 SELECT 
   Datum,
-  Temp_2m as temp,
+  ROUND(Temp_2m, 2) as temp,
   ROUND(AVG(Temp_2m) OVER (
-    PARTITION BY DATE_TRUNC('month', Datum)
+    PARTITION BY EXTRACT(MONTH FROM Datum)
   ), 2) as monats_avg,
   ROUND(
     Temp_2m - AVG(Temp_2m) OVER (
-      PARTITION BY DATE_TRUNC('month', Datum)
-    ), 
-    2
+      PARTITION BY EXTRACT(MONTH FROM Datum)
+    ), 2
   ) as abweichung
 FROM weather
 ORDER BY Datum DESC
@@ -316,75 +321,127 @@ LIMIT 10;
 ```
 @DuckDB.eval
 
+    --{{2}}--
+**Was wir sehen:** Jeder Tag zeigt seine Temperatur, den Monatsdurchschnitt und die Abweichung. Positive Werte = wärmer als Durchschnitt, negative = kälter.
+
 </div>
 
 ---
 
-### ROW_NUMBER, RANK, DENSE_RANK
+### ROW\_NUMBER, RANK, DENSE\_RANK
 
     --{{0}}--
-Ranking-Funktionen – perfekt, um die Top-N-Werte zu finden.
+Manchmal wollen Sie die Top 10 finden – die kältesten Tage, die heißesten Tage, etc. Dafür gibt es Ranking-Funktionen!
 
-      {{0-1}}
+      {{0}}
 <div>
 
-#### Die kältesten Tage finden
+#### Die 5 kältesten Tage finden
 
 ```sql
 SELECT 
   Datum,
-  Temp_2m as temp,
+  ROUND(Temp_2m, 2) as temp,
+  ROW_NUMBER() OVER (ORDER BY Temp_2m) as position
+FROM weather
+ORDER BY temp
+LIMIT 5;
+```
+@DuckDB.eval
+
+    --{{0}}--
+**Syntax-Erklärung:**
+- `ROW_NUMBER() OVER (ORDER BY Temp_2m)` gibt jeder Zeile eine Nummer
+- `ORDER BY Temp_2m` sortiert vom kältesten zum wärmsten
+- Position 1 = kältester Tag, Position 2 = zweitkältester, usw.
+- **Wichtig:** Jede Position kommt genau einmal vor!
+
+</div>
+
+    --{{1}}--
+Aber was, wenn zwei Tage die exakt gleiche Temperatur haben? Sollten beide Platz 1 bekommen?
+
+      {{1}}
+<div>
+
+#### Drei Ranking-Funktionen im Vergleich
+
+```sql
+SELECT 
+  Datum,
+  ROUND(Temp_2m, 2) as temp,
   ROW_NUMBER() OVER (ORDER BY Temp_2m) as row_num,
   RANK() OVER (ORDER BY Temp_2m) as rank,
   DENSE_RANK() OVER (ORDER BY Temp_2m) as dense_rank
 FROM weather
 ORDER BY temp
-LIMIT 10;
+LIMIT 8;
 ```
 @DuckDB.eval
 
-</div>
-
     --{{1}}--
-Der Unterschied: ROW_NUMBER ist durchgängig, RANK springt bei Ties, DENSE_RANK nicht. Bei gleichen Werten macht das einen Unterschied!
-
-      {{1-2}}
-<div>
-
-#### Unterschiede bei Ties
-
-```ascii
-Temp:  -7.0   -7.0   -6.8   -5.7
-ROW_NUMBER: 1, 2, 3, 4
-RANK:       1, 1, 3, 4    (springt über 2)
-DENSE_RANK: 1, 1, 2, 3    (kein Sprung)
-```
+**Unterschiede:**
+- **ROW_NUMBER:** Durchnummeriert einfach durch (1, 2, 3, 4, ...) – auch bei gleichen Werten!
+- **RANK:** Gleiche Werte bekommen gleiche Platzierung, danach wird übersprungen (1, 1, 3, 4, ...)
+- **DENSE_RANK:** Gleiche Werte bekommen gleiche Platzierung, aber kein Sprung (1, 1, 2, 3, ...)
 
 </div>
 
     --{{2}}--
-Welche Funktion Sie nutzen, hängt von Ihrem Use Case ab. Für "Top 10" ist DENSE_RANK oft die richtige Wahl.
+Welche sollten Sie verwenden? Das hängt vom Kontext ab:
 
       {{2}}
-> 🎯 **Merkhilfe:** DENSE_RANK = keine Lücken, RANK = mit Lücken, ROW_NUMBER = immer eindeutig
+> **Wann welche Funktion?**
+>
+> - **ROW_NUMBER:** Wenn Sie eindeutige Positionen brauchen (z.B. Paginierung)
+> - **RANK:** Klassisches Ranking mit Sprüngen (wie bei Sportplatzierungen)
+> - **DENSE_RANK:** Ranking ohne Lücken (z.B. für "Top 10 unterschiedliche Temperaturen")
 
 ---
 
 ### LAG & LEAD – Zugriff auf Nachbarzeilen
 
     --{{0}}--
-Jetzt wird es richtig mächtig: LAG und LEAD erlauben Ihnen, auf vorherige oder nächste Zeilen zuzugreifen. Perfekt für Zeitreihen!
+Jetzt wird es wirklich praktisch! LAG und LEAD erlauben Ihnen, auf vorherige oder nächste Zeilen zuzugreifen. Perfekt für die Frage: "Wie viel wärmer war es heute als gestern?"
 
-      {{0-1}}
+      {{0}}
 <div>
 
-#### Temperatur-Veränderung zum Vortag
+#### Schritt 1: Die Temperatur von gestern holen
 
 ```sql
 SELECT 
   Datum,
-  Temp_2m as temp_heute,
-  LAG(Temp_2m, 1) OVER (ORDER BY Datum) as temp_gestern,
+  ROUND(Temp_2m, 2) as temp_heute,
+  ROUND(LAG(Temp_2m, 1) OVER (ORDER BY Datum), 2) as temp_gestern
+FROM weather
+ORDER BY Datum DESC
+LIMIT 10;
+```
+@DuckDB.eval
+
+    --{{0}}--
+**Syntax-Erklärung:**
+- `LAG(Temp_2m, 1)` holt den Wert aus der **vorherigen** Zeile
+- Die `1` bedeutet: "1 Zeile zurück" (also gestern)
+- `OVER (ORDER BY Datum)` sortiert nach Datum, damit "vorherige Zeile" = "vorheriger Tag" bedeutet
+- **Erste Zeile:** Hat keine vorherige Zeile → `NULL`
+
+</div>
+
+    --{{1}}--
+Jetzt können wir die Veränderung berechnen:
+
+      {{1}}
+<div>
+
+#### Schritt 2: Temperatur-Veränderung berechnen
+
+```sql
+SELECT 
+  Datum,
+  ROUND(Temp_2m, 2) as temp_heute,
+  ROUND(LAG(Temp_2m, 1) OVER (ORDER BY Datum), 2) as temp_gestern,
   ROUND(
     Temp_2m - LAG(Temp_2m, 1) OVER (ORDER BY Datum),
     2
@@ -395,52 +452,133 @@ LIMIT 10;
 ```
 @DuckDB.eval
 
-    --{{0}}--
-LAG(spalte, 1) gibt Ihnen den Wert der vorherigen Zeile. Mit LAG(spalte, 7) bekommen Sie den Wert von vor 7 Tagen!
+    --{{1}}--
+**Was wir sehen:** 
+- Positive Werte = wärmer als gestern
+- Negative Werte = kälter als gestern
+- `NULL` = erster Tag (kein Vergleich möglich)
 
 </div>
 
-    --{{1}}--
-LEAD funktioniert genauso, nur in die andere Richtung – in die Zukunft.
+    --{{2}}--
+LEAD funktioniert genau umgekehrt – es schaut in die Zukunft!
 
-      {{1}}
+      {{2}}
 <div>
 
-#### LEAD – Vorausschau
+#### LEAD – Vorausschau auf morgen
 
 ```sql
 SELECT 
   Datum,
-  Temp_2m as temp_heute,
-  LEAD(Temp_2m, 1) OVER (ORDER BY Datum) as temp_morgen,
-  ROUND(
-    LEAD(Temp_2m, 1) OVER (ORDER BY Datum) - Temp_2m,
-    2
-  ) as erwartete_veraenderung
+  ROUND(Temp_2m, 2) as temp_heute,
+  ROUND(LEAD(Temp_2m, 1) OVER (ORDER BY Datum), 2) as temp_morgen
 FROM weather
 ORDER BY Datum DESC
 LIMIT 10;
 ```
 @DuckDB.eval
 
+    --{{2}}--
+**Syntax-Erklärung:**
+- `LEAD(Temp_2m, 1)` holt den Wert aus der **nächsten** Zeile
+- Ansonsten funktioniert es genau wie LAG
+- **Letzte Zeile:** Hat keine nächste Zeile → `NULL`
+
 </div>
+
+    --{{3}}--
+Sie können auch weiter zurück oder voraus schauen:
+
+      {{3}}
+> **Tipp:** Mit `LAG(Temp_2m, 7)` bekommen Sie die Temperatur von vor 7 Tagen!  
+> Nützlich für Wochen-Vergleiche!
 
 ---
 
 ### Gleitende Mittelwerte – Der Analytics-Klassiker
 
     --{{0}}--
-Jetzt kommt das, worauf Sie gewartet haben: Gleitende Mittelwerte! Damit glätten Sie Schwankungen und erkennen Trends.
+Jetzt kommt etwas sehr Praktisches: Gleitende Mittelwerte! Stellen Sie sich vor: Temperaturen schwanken täglich wild. Mit einem gleitenden Durchschnitt sehen Sie den echten Trend!
 
-      {{0-1}}
+      {{0}}
 <div>
 
-#### 7-Tages-Gleitender Durchschnitt
+#### Schritt 1: Das Problem verstehen
 
 ```sql
 SELECT 
   Datum,
-  Temp_2m as temp,
+  ROUND(Temp_2m, 2) as temp
+FROM weather
+ORDER BY Datum DESC
+LIMIT 10;
+```
+@DuckDB.eval
+
+    --{{0}}--
+**Das Problem:** Die Temperatur springt von Tag zu Tag. Heute 8°C, morgen 3°C, übermorgen 11°C. Wo ist der Trend? Schwer zu sehen!
+
+</div>
+
+    --{{1}}--
+Lösung: Ein 3-Tages-Durchschnitt! Wir nehmen immer die letzten 3 Tage.
+
+      {{1}}
+<div>
+
+#### Schritt 2: 3-Tages-Gleitender Durchschnitt
+
+```sql
+SELECT 
+  Datum,
+  ROUND(Temp_2m, 2) as temp,
+  ROUND(
+    AVG(Temp_2m) OVER (
+      ORDER BY Datum
+      ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+    ),
+    2
+  ) as temp_3tage_avg
+FROM weather
+ORDER BY Datum DESC
+LIMIT 10;
+```
+@DuckDB.eval
+
+ **Syntax-Erklärung Schritt für Schritt:**
+1. `AVG(Temp_2m) OVER (...)` = berechne Durchschnitt in einem Fenster
+2. `ORDER BY Datum` = sortiere nach Datum
+3. `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW` = das Fenster umfasst:
+   - `2 PRECEDING` = die 2 Zeilen davor
+   - `AND CURRENT ROW` = plus die aktuelle Zeile
+   - **Insgesamt: 3 Zeilen!**
+
+</div>
+
+    --{{2}}--
+Die erste und zweite Zeile haben weniger als 3 Werte – was passiert da?
+
+      {{2}}
+> **Automatische Anpassung:**
+> - Zeile 1: Nur 1 Wert verfügbar → Durchschnitt von 1 Wert
+> - Zeile 2: Nur 2 Werte verfügbar → Durchschnitt von 2 Werten
+> - Ab Zeile 3: Volle 3 Werte verfügbar → echter 3-Tages-Durchschnitt
+>
+> SQL passt das Fenster automatisch an!
+
+    --{{3}}--
+Jetzt machen wir einen längeren Durchschnitt:
+
+      {{3}}
+<div>
+
+#### Schritt 3: 7-Tages-Gleitender Durchschnitt
+
+```sql
+SELECT 
+  Datum,
+  ROUND(Temp_2m, 2) as temp,
   ROUND(
     AVG(Temp_2m) OVER (
       ORDER BY Datum
@@ -454,573 +592,292 @@ LIMIT 15;
 ```
 @DuckDB.eval
 
+**Warum 6 PRECEDING?** Weil wir 7 Tage wollen:
+- 6 Tage davor + 1 aktueller Tag = 7 Tage insgesamt
+- Bei 3 Tagen war es `2 PRECEDING` (2 + 1 = 3)
+- Bei 30 Tagen wäre es `29 PRECEDING` (29 + 1 = 30)
+
+</div>
+
+    --{{4}}--
+Vergleichen Sie mal die beiden Spalten: temp springt wild, temp_7tage_avg ist viel glatter. Genau das wollen wir!
+
+      {{4}}
+> **Anwendung:** Gleitende Durchschnitte werden überall verwendet:
+> - Aktienkurse (50-Tage-Durchschnitt)
+> - Infektionszahlen (7-Tage-Inzidenz)
+> - Temperatur-Trends
+> - Verkaufszahlen
+
+---
+
+### FIRST\_VALUE & LAST\_VALUE
+
     --{{0}}--
-"ROWS BETWEEN 6 PRECEDING AND CURRENT ROW" bedeutet: Nimm die aktuellen Zeile plus die 6 davor – macht 7 Tage.
+Zum Abschluss der Window Functions: `FIRST_VALUE` und `LAST_VALUE`. Diese Funktionen holen den ersten oder letzten Wert aus einem sortierten Fenster. Perfekt, um kälteste und wärmste Tage zu finden!
+
+      {{0}}
+<div>
+
+#### Kältester und wärmster Tag pro Monat
+
+```sql
+SELECT DISTINCT
+  EXTRACT(MONTH FROM Datum) as monat,
+  ROUND(
+    FIRST_VALUE(Temp_2m) OVER (
+      PARTITION BY EXTRACT(MONTH FROM Datum)
+      ORDER BY Temp_2m ASC
+      ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    ), 2
+  ) as kaeltester_tag,
+  ROUND(
+    LAST_VALUE(Temp_2m) OVER (
+      PARTITION BY EXTRACT(MONTH FROM Datum)
+      ORDER BY Temp_2m ASC
+      ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+    ), 2
+  ) as waermster_tag
+FROM weather
+ORDER BY monat;
+```
+@DuckDB.eval
+
+
+**Syntax-Erklärung:**
+- `FIRST_VALUE(Temp_2m)` nimmt den **ersten** Wert aus dem sortierten Fenster
+- `LAST_VALUE(Temp_2m)` nimmt den **letzten** Wert aus dem sortierten Fenster
+- `ORDER BY Temp_2m ASC` sortiert von kalt (first) nach warm (last)
+- `PARTITION BY EXTRACT(MONTH FROM Datum)` teilt in Monate auf
+- `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING` definiert das komplette Fenster (wichtig für LAST_VALUE!)
+- `DISTINCT` entfernt Duplikate (sonst hätten wir eine Zeile pro Tag mit den gleichen Werten)
 
 </div>
 
     --{{1}}--
-Sie können auch asymmetrische Fenster bauen – zum Beispiel zentriert:
+Das ROWS BETWEEN ist bei LAST_VALUE wichtig – ohne diese Angabe würde SQL nur bis zur aktuellen Zeile schauen!
 
-      {{1-2}}
+      {{1}}
 <div>
 
-#### Zentrierter gleitender Durchschnitt
+#### Alternative mit MIN/MAX (einfacher)
 
 ```sql
-SELECT 
-  Datum,
-  Temp_2m as temp,
-  ROUND(
-    AVG(Temp_2m) OVER (
-      ORDER BY Datum
-      ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING
-    ),
-    2
-  ) as temp_7tage_zentriert
+SELECT DISTINCT
+  EXTRACT(MONTH FROM Datum) as monat,
+  ROUND(MIN(Temp_2m) OVER (
+    PARTITION BY EXTRACT(MONTH FROM Datum)
+  ), 2) as kaeltester_tag,
+  ROUND(MAX(Temp_2m) OVER (
+    PARTITION BY EXTRACT(MONTH FROM Datum)
+  ), 2) as waermster_tag
 FROM weather
-WHERE Datum BETWEEN '2025-12-15' AND '2025-12-31'
-ORDER BY Datum;
+ORDER BY monat;
 ```
 @DuckDB.eval
 
-    --{{1}}--
-Zentrierte Mittelwerte sind genauer, aber für Echtzeit-Daten nicht nutzbar – Sie brauchen ja zukünftige Werte.
+**Vergleich:**
+- `MIN`/`MAX` sind einfacher und reichen für Min/Max-Werte
+- `FIRST_VALUE`/`LAST_VALUE` sind flexibler – Sie können nach beliebigen Kriterien sortieren (z.B. Datum)
 
 </div>
 
     --{{2}}--
-Gleitende Mittelwerte können Sie auch mit LAG kombinieren – das ist etwas umständlicher, aber manchmal nötig.
+Wann ist FIRST_VALUE besser? Wenn Sie z.B. die Temperatur des ersten Tages im Monat brauchen – dann sortieren Sie nach Datum!
 
       {{2}}
+> **Praxis-Tipp:** Für simple Min/Max nutzen Sie MIN/MAX. Für "ersten/letzten nach Sortierung X" nutzen Sie FIRST_VALUE/LAST_VALUE!
+
+---
+
+## Teil 3: Praktische Anwendungen
+
+    --{{0}}--
+Jetzt kombinieren wir alles: Gleitende Mittelwerte und Anomalie-Erkennung – praktische Analytics!
+
+### Anomalie-Erkennung mit Window Functions
+
+    --{{0}}--
+Jetzt bauen wir etwas Praktisches: Wir finden Tage, an denen die Temperatur stark vom Durchschnitt abweicht – mögliche Wetterextreme!
+
+      {{0}}
 <div>
 
-#### Manueller gleitender Durchschnitt mit LAG
+#### Schritt 1: Abweichung berechnen
 
 ```sql
 SELECT 
   Datum,
-  Temp_2m as temp,
+  ROUND(Temp_2m, 2) as temp,
   ROUND(
-    (
-      Temp_2m +
-      LAG(Temp_2m, 1) OVER (ORDER BY Datum) +
-      LAG(Temp_2m, 2) OVER (ORDER BY Datum) +
-      LAG(Temp_2m, 3) OVER (ORDER BY Datum)
-    ) / 4.0,
+    AVG(Temp_2m) OVER (
+      ORDER BY Datum
+      ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+    ),
     2
-  ) as temp_4tage_avg_manuell
+  ) as temp_7tage_avg,
+  ROUND(
+    Temp_2m - AVG(Temp_2m) OVER (
+      ORDER BY Datum
+      ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+    ),
+    2
+  ) as abweichung
 FROM weather
 ORDER BY Datum DESC
 LIMIT 10;
 ```
 @DuckDB.eval
 
-    --{{2}}--
-Das ist genau das Gleiche wie ROWS BETWEEN 3 PRECEDING – aber expliziter. Nutzen Sie ROWS BETWEEN, wenn verfügbar!
-
-</div>
-
----
-
-### FIRST_VALUE & LAST_VALUE
-
     --{{0}}--
-Zwei weitere nützliche Funktionen: FIRST_VALUE und LAST_VALUE. Damit können Sie den ersten oder letzten Wert eines Fensters abrufen.
-
-      {{0-1}}
-<div>
-
-#### Temperatur-Range pro Monat
-
-```sql
-SELECT DISTINCT
-  DATE_TRUNC('month', Datum) as monat,
-  FIRST_VALUE(Temp_2m) OVER (
-    PARTITION BY DATE_TRUNC('month', Datum)
-    ORDER BY Temp_2m
-  ) as kaeltester_tag,
-  LAST_VALUE(Temp_2m) OVER (
-    PARTITION BY DATE_TRUNC('month', Datum)
-    ORDER BY Temp_2m
-    ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-  ) as waermster_tag
-FROM weather
-ORDER BY monat DESC;
-```
-@DuckDB.eval
-
-    --{{0}}--
-Wichtig: LAST_VALUE braucht oft "ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING", sonst sehen Sie nur bis zur aktuellen Zeile!
+**Was wir sehen:** Die Abweichung zeigt, wie sehr ein Tag vom 7-Tage-Durchschnitt abweicht. +5°C = viel wärmer, -5°C = viel kälter.
 
 </div>
 
     --{{1}}--
-Das ist ein häufiger Fehler – ohne UNBOUNDED FOLLOWING sehen Sie nicht das tatsächliche Ende des Fensters.
+Jetzt filtern wir nur große Abweichungen – potenzielle Anomalien:
 
       {{1}}
-> ⚠️ **Achtung:** LAST_VALUE ohne UNBOUNDED FOLLOWING gibt Ihnen nicht das erwartete Ergebnis!
-
----
-
-## Teil 3: Performance-Showdown – Column vs. Row
-
-    --{{0}}--
-Jetzt kommt der Moment der Wahrheit: Warum ist DuckDB bei diesen Queries so schnell? Lassen Sie uns die Performance analysieren.
-
-### Was macht Column Stores schnell?
-
-    --{{0}}--
-Drei Faktoren zusammen ergeben den Performance-Boost: Spalten-Layout, Kompression, Parallelisierung.
-
-      {{0-1}}
 <div>
 
-#### Faktor 1: Spalten-Layout
-
-**Row-Store liest:**
-```ascii
-Query: SELECT AVG(temp), AVG(wind) FROM weather;
-
-Disk: [Datum|Anz|Messw|Wind|Windr|Strahl|Druck|Temp2m|Temp5cm|Boden|Feuchte|Nied]
-      [Datum|Anz|Messw|Wind|Windr|Strahl|Druck|Temp2m|Temp5cm|Boden|Feuchte|Nied]
-      ...
-→ 4252 Zeilen × 12 Spalten = 51.024 Werte gelesen
-→ Nur 2 Spalten benötigt = 83% verschwendet!
-```
-
-**Column-Store liest:**
-```ascii
-Query: SELECT AVG(temp), AVG(wind) FROM weather;
-
-Disk: [Windgeschwindigkeit: 4.1, 5.4, 5.2, 4.6, ...]
-      [Temp. in 2m Höhe: 6.4, 5.8, 4.6, -2.3, ...]
-→ 4252 Zeilen × 2 Spalten = 8.504 Werte gelesen
-→ 100% relevant!
-```
-
-**Ergebnis: 6× weniger I/O**
-
-</div>
-
-    --{{1}}--
-Aber es wird noch besser: Kompression!
-
-      {{1-2}}
-<div>
-
-#### Faktor 2: Kompression
-
-Temperaturen schwanken zwischen -10°C und +30°C:
-
-```ascii
-Ohne Kompression: 4252 × 8 Bytes (DOUBLE) = 34.016 Bytes
-Mit Dictionary: 40 unique values × 8 Bytes + 4252 × 1 Byte = 4.572 Bytes
-→ 87% Platzersparnis!
-→ 87% weniger Disk I/O!
-```
-
-DuckDB kombiniert:
-- **Dictionary Encoding:** Häufige Werte werden durch Index ersetzt
-- **Bit-Packing:** Werte 0-100 brauchen nur 7 Bit statt 64 Bit
-- **RLE (Run-Length):** Wiederholungen wie NULL, NULL, NULL → (NULL, 3x)
-
-**Reale Kompression:** Oft 5-10× weniger Speicher als unkomprimiert!
-
-</div>
-
-    --{{2}}--
-Und dann kommt noch Parallelisierung dazu.
-
-      {{2}}
-<div>
-
-#### Faktor 3: Parallelisierung mit Chunks
-
-DuckDB teilt Daten in Chunks (typisch 2048 Zeilen):
-
-```ascii
-CPU-Kerne:    [Core 1]  [Core 2]  [Core 3]  [Core 4]
-Chunks:       Chunk 1   Chunk 2   Chunk 3   Chunk 4
-              ↓         ↓         ↓         ↓
-              AVG()     AVG()     AVG()     AVG()
-              ↓         ↓         ↓         ↓
-              ╰─────────┴─────────┴─────────╯
-                        Merge
-```
-
-**Ergebnis:** 4× CPU-Kerne = ~4× schneller (bei CPU-bound Operations)
-
-</div>
-
----
-
-### EXPLAIN ANALYZE – Performance verstehen
-
-    --{{0}}--
-Schauen wir uns an, was DuckDB intern macht, wenn wir eine komplexe Window Function ausführen.
-
-      {{0-1}}
-<div>
-
-#### Komplexe Query analysieren
+#### Schritt 2: Nur große Abweichungen anzeigen
 
 ```sql
-EXPLAIN
-SELECT 
-  Datum,
-  Temp_2m as temp,
-  AVG(Temp_2m) OVER (
-    ORDER BY Datum
-    ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-  ) as temp_7tage_avg
-FROM weather
-WHERE Datum >= '2025-12-01';
-```
-@DuckDB.eval
-
-</div>
-
-    --{{1}}--
-Der Query-Plan zeigt Ihnen: Filter, Window-Operation, Spalten-Scan. Achten Sie auf die Ausführungszeit – selbst mit Window Functions bleibt es im Millisekunden-Bereich!
-
-      {{1}}
-> 💡 **Performance-Regel:** Column Stores sind unschlagbar bei:  
-> - Wenige Spalten aus vielen  
-> - Aggregationen & Scans  
-> - Analytics & Reporting
-
----
-
-### Row-Store vs. Column-Store: Wann was?
-
-    --{{0}}--
-Lassen Sie uns das große Bild betrachten: Wann nutzen Sie welches Paradigma?
-
-      {{0}}
-<div>
-
-| Use Case | Row-Store (PostgreSQL) | Column-Store (DuckDB) | Gewinner |
-|----------|------------------------|----------------------|----------|
-| **Zeilen-Lookup** | `WHERE id = 123` | ❌ Langsam | Row-Store |
-| **Spalten-Aggregation** | `AVG(temp)` über 1M Zeilen | ✅ Sehr schnell | Column-Store |
-| **Viele Updates** | `UPDATE ... WHERE ...` | ❌ Teuer | Row-Store |
-| **Analytics-Queries** | `GROUP BY`, Window Functions | ✅ Extrem schnell | Column-Store |
-| **Joins** | Multi-Table Joins | ✅ Gut (wenn spaltenweise) | Beide |
-| **OLTP** | Transaktionen, kleine Writes | ❌ Nicht ideal | Row-Store |
-| **OLAP** | Reporting, BI, Dashboards | ✅ Perfekt | Column-Store |
-| **Sensor-Daten** | Time-Series, IoT | ✅ Ideal | Column-Store |
-
-</div>
-
-    --{{1}}--
-Die Regel ist einfach: Wenn Sie mehr lesen als schreiben, und wenn Sie Aggregate über Spalten berechnen, sind Column Stores die richtige Wahl.
-
-      {{1}}
-> 🎯 **Faustregel:** Lesen >> Schreiben + Spalten-Aggregationen = Column Store
-
----
-
-## Teil 4: Sensor-Daten – Der perfekte Use Case
-
-    --{{0}}--
-Jetzt kombinieren wir alles: Sensor-Daten, gleitende Mittelwerte, Anomalie-Erkennung – der Paradefall für Column Stores!
-
-### Warum Sensor-Daten ideal für Column Stores sind
-
-    --{{0}}--
-Sensor-Daten haben drei Eigenschaften, die perfekt zu Column Stores passen.
-
-      {{0-1}}
-<div>
-
-#### Eigenschaft 1: Append-Only
-
-Sensoren schreiben nur neue Daten, ändern nie alte:
-
-```ascii
-Timeline:
-  t1: [sensor_1: 23.5°C]
-  t2: [sensor_1: 23.7°C]  ← Neuer Eintrag, kein Update
-  t3: [sensor_1: 23.4°C]  ← Neuer Eintrag, kein Update
-```
-
-**Vorteil für Column Stores:** Keine Updates = keine teuren Row-Reconstructions!
-
-</div>
-
-    --{{1}}--
-Eigenschaft 2: Wenige Spalten abfragen, viele Zeilen scannen.
-
-      {{1-2}}
-<div>
-
-#### Eigenschaft 2: Spalten-Fokus
-
-Typische Sensor-Query:
-
-```sql
--- Durchschnitt einer Sensor-Variable über Zeitraum
-SELECT AVG(temperature) 
-FROM sensors 
-WHERE timestamp BETWEEN '2026-01-01' AND '2026-01-31';
-```
-
-**Row-Store:** Liest alle Spalten (timestamp, sensor_id, temp, humidity, pressure, ...)  
-**Column-Store:** Liest nur `timestamp` und `temperature`
-
-**Ergebnis:** 5-10× schneller!
-
-</div>
-
-    --{{2}}--
-Eigenschaft 3: Zeitbasierte Partitionierung.
-
-      {{2}}
-<div>
-
-#### Eigenschaft 3: Zeitbasierte Partitionierung
-
-Sensoren produzieren natürliche Zeit-Partitionen:
-
-```ascii
-Partition 2025-12:  [4000 rows]
-Partition 2026-01:  [4252 rows]  ← Nur diese Partition lesen!
-Partition 2026-02:  [...]
-```
-
-**Partition Pruning:** DuckDB überspringt irrelevante Partitionen automatisch!
-
-</div>
-
----
-
-### Praktisches Beispiel: Anomalie-Erkennung
-
-    --{{0}}--
-Jetzt bauen wir etwas Cooles: Wir finden Tage, an denen die Temperatur stark vom gleitenden Durchschnitt abweicht – mögliche Anomalien!
-
-      {{0-1}}
-<div>
-
-#### Abweichungen vom gleitenden Durchschnitt
-
-```sql
-WITH moving_avg AS (
+WITH temp_analyse AS (
   SELECT 
     Datum,
-    Temp_2m as temp,
+    ROUND(Temp_2m, 2) as temp,
     ROUND(
       AVG(Temp_2m) OVER (
         ORDER BY Datum
         ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
       ),
       2
-    ) as temp_7tage_avg
+    ) as temp_7tage_avg,
+    ROUND(
+      Temp_2m - AVG(Temp_2m) OVER (
+        ORDER BY Datum
+        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+      ),
+      2
+    ) as abweichung
+  FROM weather
+)
+SELECT *
+FROM temp_analyse
+WHERE abweichung > 4 OR abweichung < -4
+ORDER BY abweichung DESC
+LIMIT 15;
+```
+@DuckDB.eval
+
+    --{{1}}--
+**Syntax-Erklärung:**
+- `WITH temp_analyse AS (...)` erstellt eine temporäre Tabelle (CTE = Common Table Expression)
+- `WHERE abweichung > 4 OR abweichung < -4` filtert Tage mit Abweichung größer als 4°C (in beide Richtungen)
+- Das sind die Ausreißer – ungewöhnlich warme oder kalte Tage!
+
+</div>
+
+    --{{2}}--
+Wir können auch Kategorien vergeben:
+
+      {{2}}
+<div>
+
+#### Schritt 3: Kategorien mit CASE
+
+```sql
+WITH temp_analyse AS (
+  SELECT 
+    Datum,
+    ROUND(Temp_2m, 2) as temp,
+    ROUND(
+      AVG(Temp_2m) OVER (
+        ORDER BY Datum
+        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+      ),
+      2
+    ) as temp_7tage_avg,
+    ROUND(
+      Temp_2m - AVG(Temp_2m) OVER (
+        ORDER BY Datum
+        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+      ),
+      2
+    ) as abweichung
   FROM weather
 )
 SELECT 
   Datum,
   temp,
   temp_7tage_avg,
-  ROUND(temp - temp_7tage_avg, 2) as abweichung,
+  abweichung,
   CASE 
-    WHEN ABS(temp - temp_7tage_avg) > 5 THEN '🔴 Anomalie'
-    WHEN ABS(temp - temp_7tage_avg) > 3 THEN '🟡 Auffällig'
-    ELSE '🟢 Normal'
-  END as status
-FROM moving_avg
-WHERE ABS(temp - temp_7tage_avg) > 3
-ORDER BY ABS(temp - temp_7tage_avg) DESC
+    WHEN abweichung > 5 THEN 'Sehr warm'
+    WHEN abweichung < -5 THEN 'Sehr kalt'
+    WHEN abweichung > 3 THEN 'Warm'
+    WHEN abweichung < -3 THEN 'Kalt'
+    ELSE 'Normal'
+  END as kategorie
+FROM temp_analyse
+WHERE abweichung > 3 OR abweichung < -3
+ORDER BY abweichung DESC
 LIMIT 15;
 ```
 @DuckDB.eval
 
-    --{{0}}--
-Tage mit Abweichung > 5°C vom Durchschnitt sind echte Ausreißer – das könnten Messfehler oder Wetterextreme sein!
+    --{{2}}--
+**CASE-Syntax:**
+- `CASE WHEN bedingung THEN wert ELSE anderer_wert END`
+- Prüft Bedingungen von oben nach unten
+- Erste erfüllte Bedingung gewinnt
+- `ELSE` ist der Standard-Wert, wenn keine Bedingung zutrifft
 
 </div>
 
-    --{{1}}--
-Diese Query kombiniert CTEs, Window Functions und CASE – und läuft trotzdem in Millisekunden. Das ist die Macht von Column Stores!
-
-      {{1}}
-> 💪 **Power-Combo:** CTE + Window Function + CASE = Flexible Analytics mit Lesbarkeit
-
 ---
 
-### Visualisierung: Temperatur-Trend
+### Zusammenfassung: Monatliche Statistiken
 
     --{{0}}--
-Zum Abschluss noch ein größeres Beispiel: Monatliche Trends mit Extremwerten.
+Zum Abschluss kombinieren wir alles: Ein kompletter Monats-Überblick mit allen wichtigen Kennzahlen!
 
       {{0}}
 <div>
 
-#### Monatliche Temperatur-Statistiken
+#### Alle Monats-Statistiken auf einen Blick
 
 ```sql
-WITH daily_stats AS (
-  SELECT 
-    DATE_TRUNC('month', Datum) as monat,
-    Temp_2m as temp,
-    Luftfeuchte as feuchte,
-    Windgeschwindigkeit as wind
-  FROM weather
-)
 SELECT 
-  monat,
+  EXTRACT(MONTH FROM Datum) as monat,
   COUNT(*) as anzahl_tage,
-  ROUND(AVG(temp), 2) as avg_temp,
-  ROUND(MIN(temp), 2) as min_temp,
-  ROUND(MAX(temp), 2) as max_temp,
-  ROUND(STDDEV(temp), 2) as stddev_temp,
-  ROUND(AVG(feuchte), 1) as avg_feuchte,
-  ROUND(AVG(wind), 2) as avg_wind
-FROM daily_stats
-GROUP BY monat
-ORDER BY monat DESC;
+  ROUND(AVG(Temp_2m), 2) as durchschnitt,
+  ROUND(MIN(Temp_2m), 2) as minimum,
+  ROUND(MAX(Temp_2m), 2) as maximum
+FROM weather
+GROUP BY EXTRACT(MONTH FROM Datum)
+ORDER BY monat;
 ```
 @DuckDB.eval
 
     --{{0}}--
-Sie sehen: Durchschnitt, Min, Max, Standardabweichung – alles in einer Query. DuckDB verarbeitet das über tausende Zeilen, als wäre es nichts.
-
-</div>
-
----
-
-## Teil 5: DuckDB Internals – Unter der Haube
-
-    --{{0}}--
-Zum Abschluss schauen wir unter die Haube: Was macht DuckDB so schnell? Drei Kern-Techniken.
-
-### Chunk-Architektur
-
-    --{{0}}--
-DuckDB organisiert Tabellen in Chunks – typischerweise 2048 Zeilen pro Chunk. Jeder Chunk ist unabhängig komprimiert und verarbeitbar.
-
-      {{0-1}}
-<div>
-
-#### Chunk-Struktur
-
-```ascii
-Tabelle "weather" (4252 Zeilen):
-  ┌──────────────────┐
-  │  Chunk 0         │  Zeilen 0-2047
-  │  - Temp: [...]   │  ← Komprimiert mit Dictionary
-  │  - Wind: [...]   │  ← Komprimiert mit RLE
-  │  - Druck: [...]  │
-  ├──────────────────┤
-  │  Chunk 1         │  Zeilen 2048-4095
-  │  - Temp: [...]   │
-  │  - Wind: [...]   │
-  ├──────────────────┤
-  │  Chunk 2         │  Zeilen 4096-4251
-  │  - Temp: [...]   │
-  └──────────────────┘
-```
-
-**Vorteile:**
-- Parallele Verarbeitung (1 Chunk pro CPU-Kern)
-- Chunk-spezifische Kompression
-- Min/Max-Statistiken pro Chunk → Pruning
+**Was wir kombiniert haben:**
+- `GROUP BY` für Gruppierung nach Monat
+- `COUNT(*)` für Anzahl Tage
+- `AVG()`, `MIN()`, `MAX()` für Statistiken
+- `ROUND()` für Lesbarkeit
+- Alles in einer einzigen Query!
 
 </div>
 
     --{{1}}--
-Chunk-Pruning ist besonders mächtig bei Zeitreihen: Wenn Sie nach "2026-01" filtern, überspringt DuckDB alle Chunks mit anderen Monaten.
+So bekommen Sie einen perfekten Überblick über das ganze Jahr!
 
       {{1}}
-<div>
-
-#### Chunk-Pruning in Aktion
-
-```sql
--- Query: WHERE Datum >= '2026-01-01'
--- DuckDB prüft Min/Max jedes Chunks:
-
-Chunk 0: Min=2025-10-01, Max=2025-11-30  → ❌ Überspringen
-Chunk 1: Min=2025-12-01, Max=2026-01-15  → ✅ Scannen (teilweise relevant)
-Chunk 2: Min=2026-01-16, Max=2026-01-31  → ✅ Scannen (komplett relevant)
-```
-
-**Ergebnis:** Nur 2 von 3 Chunks gelesen → 33% weniger I/O!
-
-</div>
+> **Das haben Sie gelernt:** Aus tausenden Zeilen haben Sie mit ein paar Zeilen SQL aussagekräftige Monats-Statistiken erstellt!
 
 ---
-
-### Vektorisierung
-
-    --{{0}}--
-DuckDB nutzt SIMD (Single Instruction, Multiple Data) – moderne CPUs können mehrere Werte gleichzeitig verarbeiten.
-
-      {{0-1}}
-<div>
-
-#### Vektorisierte Operationen
-
-**Ohne SIMD (naiv):**
-```cpp
-for (int i = 0; i < 2048; i++) {
-  result[i] = temp[i] + 273.15;  // Celsius → Kelvin
-}
-// 2048 Operationen
-```
-
-**Mit SIMD (AVX-512):**
-```cpp
-for (int i = 0; i < 2048; i += 16) {
-  result[i:i+15] = temp[i:i+15] + 273.15;  // 16 Werte auf einmal!
-}
-// 128 Operationen (16× schneller)
-```
-
-</div>
-
-    --{{1}}--
-Das funktioniert besonders gut mit Column Stores, weil alle Werte einer Spalte direkt hintereinander liegen – perfekt für SIMD!
-
-      {{1}}
-> ⚡ **Performance-Boost:** SIMD × Column-Layout × Kompression = 10-100× schneller als naive Row-Stores
-
----
-
-### Zero-Copy & Memory Mapping
-
-    --{{0}}--
-DuckDB kann Parquet-Dateien direkt lesen, ohne sie erst zu kopieren – Zero-Copy-Architektur.
-
-      {{0}}
-<div>
-
-#### Zero-Copy Data Access
-
-**Traditionell (PostgreSQL):**
-```ascii
-Disk → OS Buffer → DB Buffer → Query Engine
-     ↑           ↑           ↑
-     Copy 1      Copy 2      Copy 3
-```
-
-**Zero-Copy (DuckDB + Parquet):**
-```ascii
-Disk → Memory-Mapped File → Query Engine direkt
-     ↑                    ↑
-     OS managed          Zero-Copy!
-```
-
-**Vorteil:** Keine Kopier-Operationen = weniger CPU, weniger RAM, schneller!
-
-</div>
-
-    --{{1}}--
-Das ist besonders relevant für Data Lakes: Parquet-Files auf S3, direkt querien, ohne sie erst zu laden.
-
-      {{1}}
-> 🌊 **Data Lake Pattern:** DuckDB + Parquet = Analytics ohne ETL!
 
 ---
 
@@ -1034,40 +891,14 @@ Was für eine Session! Lassen Sie uns zusammenfassen, was Sie heute gelernt habe
 
 ### Was Sie heute gelernt haben
 
-1. **Klassische Aggregationen:** COUNT, SUM, AVG, MIN, MAX, GROUP BY, HAVING
-2. **Window Functions:** ROW_NUMBER, RANK, LAG, LEAD, FIRST_VALUE, LAST_VALUE
-3. **Gleitende Mittelwerte:** ROWS BETWEEN für flexible Fenster
-4. **Performance:** Column Stores sind 5-50× schneller bei Analytics-Queries
-5. **DuckDB Internals:** Chunks, Kompression, Vektorisierung
-6. **Sensor-Daten:** Perfekter Use Case für Column Stores (Append-Only, Spalten-Fokus)
+1. **Klassische Aggregationen:** `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING`
+2. **Window Functions:** `ROW_NUMBER`, `RANK`, `LAG`, `LEAD`, `FIRST_VALUE`, `LAST_VALUE`
+3. **Gleitende Mittelwerte:** `ROWS BETWEEN` für flexible Fenster
+4. **Zeitbasierte Analytics:** `DATE_TRUNC`, Monats-Aggregationen
+5. **Praktische Anwendungen:** Anomalie-Erkennung, Trend-Analyse
+6. **CTEs & CASE:** Kombinierte Analytics-Queries
 
 </div>
-
-    --{{1}}--
-Jetzt sind Sie dran: Testen Sie Ihr Wissen!
-
-      {{1}}
-<div>
-
-### 🤔 Reflexionsfragen
-
-1. **Warum ist DuckDB bei `SELECT AVG(temp) FROM sensors` schneller als PostgreSQL?**
-
-   [[Column-Layout + Kompression + nur relevante Spalten lesen]]
-
-2. **Wann brauchen Sie LAG/LEAD statt ROWS BETWEEN?**
-
-   [(X)] Wenn Sie explizit vorherige/nächste Zeilen brauchen (z.B. Differenz zum Vortag)
-   [( )] LAG/LEAD ist immer besser
-   [( )] ROWS BETWEEN ist veraltet
-
-3. **Was ist der Unterschied zwischen GROUP BY und Window Functions?**
-
-   [[GROUP BY kollabiert Zeilen, Window Functions behalten alle Zeilen bei]]
-
-</div>
-
----
 
 ## Praktische Übung für Sie
 
@@ -1113,36 +944,11 @@ LIMIT 10;
 
 ---
 
-## Ausblick & Nächste Schritte
-
-    --{{0}}--
-Sie haben heute mächtige Werkzeuge kennengelernt – Aggregationen und Window Functions sind das Rückgrat moderner Analytics. In den nächsten Lectures vertiefen wir SQL weiter und schauen uns andere Paradigmen an.
-
-      {{0}}
-<div>
-
-### 📚 Vorbereitung für Lecture 17
-
-- **Thema:** Graph Stores – Nodes, Edges, Cypher
-- **Überlegen:** Welche Beziehungen in Ihren Daten könnten als Graph modelliert werden?
-- **Vorwissen:** Relationale Joins vs. Graph Traversal
-
-</div>
-
-    --{{1}}--
-Und vergessen Sie nicht: Column Stores sind nicht nur für Batch-Analytics – moderne Tools wie ClickHouse oder TimescaleDB kombinieren OLTP und OLAP in hybriden Architekturen!
-
-      {{1}}
-> 🚀 **Trend:** Hybride Datenbanken = OLTP + OLAP in einem System (z.B. CockroachDB, TimescaleDB)
-
----
-
 ## Referenzen & Weiterführende Links
 
     --{{0}}--
 Zum Abschluss noch Ressourcen für Ihr Selbststudium.
 
-      {{0}}
 <div>
 
 ### Aggregationen & Window Functions
@@ -1154,29 +960,21 @@ Zum Abschluss noch Ressourcen für Ihr Selbststudium.
 ### DuckDB
 
 - [DuckDB Official Docs](https://duckdb.org/docs/)
-- [DuckDB vs. Others Performance](https://duckdb.org/why_duckdb)
-- [DuckDB Internals Blog](https://duckdb.org/docs/internals/overview)
+- [DuckDB SQL Functions](https://duckdb.org/docs/sql/functions/overview)
+- [DuckDB Window Functions](https://duckdb.org/docs/sql/window_functions)
 
-### Column Stores
+### Praktische Tutorials
 
-- [ClickHouse Architecture](https://clickhouse.com/docs/en/development/architecture/)
-- [Apache Parquet Documentation](https://parquet.apache.org/docs/)
-- [The Design and Implementation of Modern Column-Oriented Databases](https://stratos.seas.harvard.edu/files/stratos/files/columnstoresfntdbs.pdf) (Paper)
-
-### Time-Series & Analytics
-
-- [TimescaleDB Docs](https://docs.timescale.com/)
-- [Time-Series Databases Compared](https://www.timescale.com/blog/time-series-database-benchmarks/)
+- [Window Functions Explained](https://www.windowfunctions.com/)
+- [SQL for Data Analysis](https://mode.com/sql-tutorial/)
 
 </div>
-
----
 
 ## 🎓 Ende der Lecture 16
 
     --{{0}}--
-Vielen Dank! Sie haben heute einen tiefen Einblick in Analytics-SQL und Column Store Performance bekommen. Nutzen Sie dieses Wissen für Ihre Projekte – und experimentieren Sie mit DuckDB, es ist ein fantastisches Werkzeug!
+Vielen Dank! Sie haben heute mächtige SQL-Werkzeuge kennengelernt. Nutzen Sie Aggregationen und Window Functions für Ihre eigenen Datenanalysen – sie sind in fast jedem Szenario nützlich!
 
       {{0}}
 > **Bis zur nächsten Vorlesung!** 🚀  
-> **Tipp:** Installieren Sie DuckDB lokal (`pip install duckdb`) und spielen Sie mit Ihren eigenen Daten!
+> **Tipp:** Experimentieren Sie mit eigenen Daten und Window Functions – die Möglichkeiten sind endlos!
