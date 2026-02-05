@@ -65,6 +65,10 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 
 - [MCP Tutorial: KI-gestützte Datenbankabfragen](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md)
 
+### Block 4: Praxis – Datenbanken im Web
+
+- [L17: RESTful APIs & SQL: Online-Shop Backend](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/17-lecture.md)
+
 
 ### Zusätzliche Materialien
 
