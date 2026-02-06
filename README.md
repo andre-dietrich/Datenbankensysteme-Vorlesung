@@ -68,6 +68,7 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 ### Block 4: Praxis – Datenbanken im Web
 
 - [L17: RESTful APIs & SQL: Online-Shop Backend](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/17-lecture.md)
+- [L18: GraphQL & SQL – Flexible Datenabfragen](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/18-lecture.md)
 
 
 ### Zusätzliche Materialien

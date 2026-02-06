@@ -115,6 +115,70 @@ Willkommen zur achtzehnten Session! In der letzten Vorlesung haben Sie gelernt, 
     --{{1}}--
 Stellen Sie sich vor: Statt mehrere REST-Endpoints anzufragen, schreiben Sie eine einzige Query, die exakt die Daten liefert, die Sie brauchen – nicht mehr, nicht weniger. Das ist GraphQL! Und das Beste: Ihre SQL-Skills sind direkt übertragbar.
 
+## Live-Demo: SpaceX GraphQL API
+
+    --{{0}}--
+Bevor wir in die Theorie eintauchen, schauen wir uns ein echtes Beispiel an: Die öffentliche SpaceX GraphQL API!
+
+```js
+// Öffentliche SpaceX GraphQL API abfragen (keine Auth nötig!)
+const query = `
+  query {
+    company {
+      name
+      founder
+      founded
+      employees
+      ceo
+      cto
+      summary
+    }
+    rockets(limit: 3) {
+      name
+      country
+      first_flight
+      cost_per_launch
+      success_rate_pct
+      engines {
+        number
+        type
+      }
+    }
+  }
+`;
+
+const response = await fetch('https://spacex-production.up.railway.app/', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ query })
+});
+
+const result = await response.json();
+
+console.log('🚀 Company Info:');
+console.log(`   ${result.data.company.name} (gegründet ${result.data.company.founded})`);
+console.log(`   CEO: ${result.data.company.ceo}, CTO: ${result.data.company.cto}`);
+console.log(`   Mitarbeiter: ${result.data.company.employees}`);
+
+console.log('\n🚀 Raketen:');
+result.data.rockets.forEach(rocket => {
+  console.log(`\n   ${rocket.name} (${rocket.country})`);
+  console.log(`   • Erstflug: ${rocket.first_flight}`);
+  console.log(`   • Kosten: $${(rocket.cost_per_launch / 1000000).toFixed(1)}M`);
+  console.log(`   • Erfolgsrate: ${rocket.success_rate_pct}%`);
+  console.log(`   • Triebwerke: ${rocket.engines.number}× ${rocket.engines.type}`);
+});
+```
+@async.eval
+
+    --{{1}}--
+Sehen Sie? Eine Query, mehrere Ebenen tief (Company + Rockets + Engines) – bei REST wären das mindestens 4 separate Endpoints gewesen!
+
+    {{2}}
+**💡 Weitere öffentliche GraphQL APIs:** [Countries API](https://countries.trevorblades.com/), [Rick and Morty API](https://rickandmortyapi.com/graphql), [GitHub API](https://docs.github.com/graphql) (mit Token)
+
 ## Motivation: REST vs. GraphQL
 
     --{{0}}--
@@ -984,100 +1048,28 @@ Beeindruckend! Eine Query, fünf Ebenen tief – aber achten Sie auf die Anzahl 
     --{{1}}--
 Beeindruckend! Eine Query, fünf Ebenen tief – und GraphQL hat automatisch alle SQL-Queries koordiniert!
 
-## Teil 4: Interaktive Übungen
+## Teil 4: Mutations & Erweiterungen
 
     --{{0}}--
-Jetzt sind Sie dran! Erweitern Sie die GraphQL-API mit eigenen Queries.
+Bisher haben Sie nur Queries (READ) implementiert. Jetzt lernen Sie Mutations – das GraphQL-Äquivalent zu INSERT, UPDATE und DELETE!
 
-### Aufgabe 1: Query erstellen ⭐
-
-    --{{0}}--
-Schreiben Sie eine GraphQL-Query, die alle Kategorien mit den zugehörigen Produkten abruft.
-
-    {{1}}
-**Hinweis:** Sie benötigen einen neuen Field Resolver `Category.products`.
-
-    {{2}}
-<details>
-<summary>💡 Lösung anzeigen</summary>
-
-```js
-// 1. Resolver erweitern
-rootWithNested.Category = {
-  products: async (category) => {
-    const result = await db.query(`
-      SELECT p.product_id AS id,
-             p.product_name AS name,
-             p.price
-      FROM products p
-      INNER JOIN product_categories pc ON p.product_id = pc.product_id
-      WHERE pc.category_id = $1
-      ORDER BY p.product_name
-    `, [category.id]);
-    return result.rows;
-  }
-};
-
-// 2. Query ausführen
-const query = `
-  {
-    categories {
-      name
-      products {
-        name
-        price
-      }
-    }
-  }
-`;
-
-const result = await graphql({
-  schema,
-  source: query,
-  rootValue: rootWithNested
-});
-
-console.log('📂 Categories with products:');
-result.data.categories.forEach(cat => {
-  console.log(`\n${cat.name}:`);
-  cat.products.forEach(p => console.log(`  • ${p.name} (${p.price}€)`));
-});
-```
-
-</details>
-
-    {{3}}
-**Playground:**
-
-```js
-// Ihr Code hier!
-
-
-```
-@PGlite.js(online-shop)
-
-### Aufgabe 2: Filtering & Pagination ⭐⭐
+### Schema mit Mutations erweitern
 
     --{{0}}--
-Erweitern Sie das Schema, um gefilterte Produkte abzurufen (z.B. nur Produkte unter 100€).
+Mutations sind Operationen, die Daten verändern. Sie werden im Schema separat definiert.
 
-    {{1}}
-**Hinweis:** Fügen Sie dem Schema neue Query-Parameter hinzu:
-
-    {{1}}
 ```graphql
-type Query {
-  products(maxPrice: Float): [Product]
+type Mutation {
+  createProduct(name: String!, price: Float!): Product
+  updateProduct(id: Int!, name: String, price: Float): Product
+  deleteProduct(id: Int!): Boolean
 }
 ```
+<script>
+const { buildSchema } = window.graphql;
 
-    {{2}}
-<details>
-<summary>💡 Lösung anzeigen</summary>
-
-```js
-// 1. Schema mit Parametern erweitern
-const schemaWithFilter = buildSchema(`
+// Erweitertes Schema mit Mutations
+window.schemaWithMutations = buildSchema(`
   type Product {
     id: Int!
     name: String!
@@ -1089,373 +1081,326 @@ const schemaWithFilter = buildSchema(`
     id: Int!
     name: String!
     description: String
-    products: [Product]
   }
 
   type Query {
-    products(maxPrice: Float, category: String): [Product]
+    products: [Product]
     product(id: Int!): Product
     categories: [Category]
-  }
-`);
-
-// 2. Resolver anpassen
-const rootFiltered = {
-  products: async ({ maxPrice, category }) => {
-    let query = `
-      SELECT DISTINCT p.product_id AS id,
-             p.product_name AS name,
-             p.price
-      FROM products p
-    `;
-    
-    const conditions = [];
-    const params = [];
-    
-    if (category) {
-      query += `
-        INNER JOIN product_categories pc ON p.product_id = pc.product_id
-        INNER JOIN categories c ON pc.category_id = c.category_id
-      `;
-      conditions.push(`c.category_name = $${params.length + 1}`);
-      params.push(category);
-    }
-    
-    if (maxPrice) {
-      conditions.push(`p.price <= $${params.length + 1}`);
-      params.push(maxPrice);
-    }
-    
-    if (conditions.length > 0) {
-      query += ` WHERE ` + conditions.join(' AND ');
-    }
-    
-    query += ` ORDER BY p.product_name`;
-    
-    const result = await db.query(query, params);
-    return result.rows;
-  },
-  
-  // Andere Resolver von oben...
-  product: rootWithNested.product,
-  categories: rootWithNested.categories,
-  
-  Product: rootWithNested.Product,
-  Category: rootWithNested.Category
-};
-
-// 3. Testen
-const query = `
-  {
-    affordable: products(maxPrice: 100) {
-      name
-      price
-    }
-    electronics: products(category: "Electronics") {
-      name
-      price
-    }
-  }
-`;
-
-const result = await graphql({
-  schema: schemaWithFilter,
-  source: query,
-  rootValue: rootFiltered
-});
-
-console.log('💰 Affordable products (< 100€):');
-result.data.affordable.forEach(p => console.log(`  ${p.name}: ${p.price}€`));
-
-console.log('\n💻 Electronics:');
-result.data.electronics.forEach(p => console.log(`  ${p.name}: ${p.price}€`));
-```
-
-</details>
-
-    {{3}}
-**Playground:**
-
-```js
-// Ihr Code hier!
-
-
-```
-@PGlite.js(online-shop)
-
-### Aufgabe 3: Mutations (CREATE) ⭐⭐⭐
-
-    --{{0}}--
-Bisher haben wir nur Queries (READ) implementiert. Jetzt fügen Sie eine Mutation hinzu, um Produkte zu erstellen!
-
-    {{1}}
-**Hinweis:** Mutations sind wie POST-Requests in REST.
-
-    {{1}}
-```graphql
-type Mutation {
-  createProduct(name: String!, price: Float!): Product
-}
-```
-
-    {{2}}
-<details>
-<summary>💡 Lösung anzeigen</summary>
-
-```js
-// 1. Schema mit Mutation erweitern
-const schemaWithMutation = buildSchema(`
-  type Product {
-    id: Int!
-    name: String!
-    price: Float!
-  }
-
-  type Query {
-    products: [Product]
-    product(id: Int!): Product
   }
 
   type Mutation {
     createProduct(name: String!, price: Float!): Product
+    updateProduct(id: Int!, name: String, price: Float): Product
     deleteProduct(id: Int!): Boolean
   }
 `);
 
-// 2. Mutation Resolver implementieren
-const rootWithMutation = {
-  // Query Resolver
-  products: async () => {
-    const result = await db.query(`
-      SELECT product_id AS id, product_name AS name, price
-      FROM products
-      ORDER BY product_name
-    `);
-    return result.rows;
-  },
-  
-  product: async ({ id }) => {
-    const result = await db.query(`
-      SELECT product_id AS id, product_name AS name, price
-      FROM products
-      WHERE product_id = $1
-    `, [id]);
-    return result.rows[0];
-  },
+console.log('✅ Schema mit Mutations erstellt');
+</script>
 
-  // Mutation Resolver
+    --{{1}}--
+Mutations sind wie Query-Resolver – nur dass sie Daten verändern statt nur zu lesen!
+
+### Mutation Resolver implementieren
+
+    --{{0}}--
+Jetzt implementieren wir die Resolver für CREATE, UPDATE und DELETE.
+
+```js
+window.resolverWithMutations = {
+  // Query Resolver (wie vorher)
+  ...nestedResolver,
+
+  // Mutation Resolver (NEU!)
   createProduct: async ({ name, price }) => {
+    console.log(`📝 Creating product: ${name} (${price}€)`);
+    
     const result = await db.query(`
       INSERT INTO products (product_name, price)
       VALUES ($1, $2)
       RETURNING product_id AS id, product_name AS name, price
     `, [name, price]);
     
-    console.log(`✅ Created product: ${name}`);
+    console.log(`✅ Product created with ID ${result.rows[0].id}`);
+    return result.rows[0];
+  },
+
+  updateProduct: async ({ id, name, price }) => {
+    console.log(`✏️ Updating product ID ${id}...`);
+    
+    // Dynamisches UPDATE: nur Felder aktualisieren, die übergeben wurden
+    const updates = [];
+    const params = [];
+    let paramCount = 1;
+
+    if (name !== undefined) {
+      updates.push(`product_name = $${paramCount++}`);
+      params.push(name);
+    }
+    if (price !== undefined) {
+      updates.push(`price = $${paramCount++}`);
+      params.push(price);
+    }
+
+    if (updates.length === 0) {
+      throw new Error('Keine Updates angegeben');
+    }
+
+    params.push(id);
+    
+    const result = await db.query(`
+      UPDATE products
+      SET ${updates.join(', ')}
+      WHERE product_id = $${paramCount}
+      RETURNING product_id AS id, product_name AS name, price
+    `, params);
+
+    if (result.rows.length === 0) {
+      throw new Error(`Product ID ${id} nicht gefunden`);
+    }
+
+    console.log(`✅ Product updated: ${result.rows[0].name}`);
     return result.rows[0];
   },
 
   deleteProduct: async ({ id }) => {
+    console.log(`🗑️ Deleting product ID ${id}...`);
+    
+    // Erst prüfen, ob Produkt existiert
+    const checkResult = await db.query(`
+      SELECT product_name FROM products WHERE product_id = $1
+    `, [id]);
+
+    if (checkResult.rows.length === 0) {
+      throw new Error(`Product ID ${id} nicht gefunden`);
+    }
+
+    const productName = checkResult.rows[0].product_name;
+
+    // Produkt löschen
     await db.query(`
       DELETE FROM products WHERE product_id = $1
     `, [id]);
-    
-    console.log(`🗑️ Deleted product ID ${id}`);
+
+    console.log(`✅ Product "${productName}" deleted`);
     return true;
+  },
+
+  // Field-Resolver für verschachtelte Daten
+  Product: {
+    categories: async (parent) => {
+      const result = await db.query(`
+        SELECT c.category_id AS id,
+               c.category_name AS name,
+               c.description
+        FROM categories c
+        INNER JOIN product_categories pc ON c.category_id = pc.category_id
+        WHERE pc.product_id = $1
+      `, [parent.id]);
+      return result.rows;
+    }
   }
 };
 
-// 3. Mutation ausführen
-const mutation = `
-  mutation {
-    newProduct: createProduct(name: "External SSD", price: 129.99) {
-      id
-      name
-      price
-    }
-  }
-`;
-
-const result = await graphql({
-  schema: schemaWithMutation,
-  source: mutation,
-  rootValue: rootWithMutation
-});
-
-console.log('🎉 New product created:', result.data.newProduct);
-
-// 4. Überprüfen
-const checkQuery = `{ products { name price } }`;
-const checkResult = await graphql({
-  schema: schemaWithMutation,
-  source: checkQuery,
-  rootValue: rootWithMutation
-});
-
-console.log(`\n📦 Total products: ${checkResult.data.products.length}`);
+console.log('✅ Resolver mit Mutations erstellt');
+console.log('💡 Jetzt können Sie Produkte erstellen, aktualisieren und löschen!');
 ```
+@PGlite.js(online-shop)
 
-</details>
+    --{{1}}--
+Sehen Sie das Pattern? Mutations sind normale Resolver-Funktionen – aber sie führen INSERT, UPDATE oder DELETE aus statt SELECT!
 
-    {{3}}
-**Playground:**
-
-```js
-// Ihr Code hier!
-
-
-```
-<script>@async.eval</script>
-
-## Teil 5: Best Practices & Optimierung
+### Mutation: Produkt erstellen (CREATE)
 
     --{{0}}--
-GraphQL ist mächtig – aber mit großer Macht kommt große Verantwortung! Hier lernen Sie, wie Sie Performance-Probleme vermeiden.
+Testen wir die erste Mutation: Ein neues Produkt anlegen!
 
-Unsere einfache Implementierung zeigt das N+1-Problem deutlich: Verschachtelte Daten lösen kaskadierend Queries aus.
-
-    {{1}}
-**Beispiel: 3 Kunden mit je 2 Bestellungen**
-
-    {{1}}
-```
-Query: customers { orders { ... } }
-
-Queries ausgeführt:
-1. SELECT * FROM customers                    (3 Kunden)
-2. SELECT * FROM orders WHERE customer_id = 1 (Kunde 1)
-3. SELECT * FROM orders WHERE customer_id = 2 (Kunde 2)
-4. SELECT * FROM orders WHERE customer_id = 3 (Kunde 3)
-
-Total: 4 Queries (1 + N)
-```
-
-    {{2}}
-**Lösung: DataLoader Pattern (Production)**
-
-    --{{2}}--
-Professionelle GraphQL-Server nutzen "DataLoader" – ein Pattern, das Queries bündelt:
-
-    {{2}}
 ```js
-// Pseudo-Code: DataLoader sammelt IDs und bündelt Queries
-const orderLoader = new DataLoader(async (customerIds) => {
-  const result = await db.query(`
-    SELECT * FROM orders 
-    WHERE customer_id = ANY($1)
-  `, [customerIds]);
-  
-  // Gruppieren nach customer_id
-  return groupBy(result.rows, 'customer_id');
-});
-
-// Field Resolver in Production (Apollo Server)
-Customer: {
-  orders: (parent) => orderLoader.load(parent.id)
-  // GraphQL sammelt alle parent.id Werte → 1× gebündelte Query!
-}
-```
-
-    --{{3}}--
-Mit DataLoader: Nur 2 Queries für 3 Kunden! Das ist die Production-Lösung. Für unsere Übung reicht das Verständnis des Problems
-
-    --{{3}}--
-Das ist fortgeschritten! Für Produktionssysteme sollten Sie Libraries wie `dataloader` nutzen.
-
-### Problem 2: Query Depth Limiting
-
-    --{{0}}--
-Clients könnten böswillige Queries schicken:
-
-    {{1}}
-```graphql
-{
-  customer {
-    orders {
-      items {
-        product {
-          categories {
-            products {
-              categories {
-                products {
-                  # ... 100 Ebenen tief!
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+mutation {
+  createProduct(name: "External SSD 1TB", price: 129.99) {
+    id
+    name
+    price
   }
 }
 ```
+<script>
+const fieldResolver = (source, args, context, info) => {
+  const typeName = info.parentType.name;
+  const fieldName = info.fieldName;
 
-    --{{2}}--
-Das würde tausende SQL-Queries auslösen! Lösung: Max-Depth Validation.
+  if (typeName === "Query" && window.resolverWithMutations[fieldName]) {
+    return window.resolverWithMutations[fieldName](args, context, info);
+  }
+  if (typeName === "Mutation" && window.resolverWithMutations[fieldName]) {
+    return window.resolverWithMutations[fieldName](args, context, info);
+  }
 
-    {{2}}
+  const typeResolvers = window.resolverWithMutations[typeName];
+  const resolverFn = typeResolvers?.[fieldName];
+  if (resolverFn) {
+    return resolverFn(source, args, context, info);
+  }
+
+  return graphql.defaultFieldResolver(source, args, context, info);
+};
+
+setTimeout(async function() {
+try {
+  const mutation = `@input`;
+
+  const result = await graphql.graphql({
+    schema: schemaWithMutations,
+    source: mutation,
+    rootValue: resolverWithMutations,
+    fieldResolver
+  });
+
+  console.log('\n📊 Result:');
+  console.log(JSON.stringify(result, null, 2));
+} catch (error) {
+    console.error('Error executing GraphQL mutation:', error);
+}
+send.lia("LIA: stop")
+}, 100);
+
+"LIA: wait"
+</script>
+
+    --{{1}}--
+Perfekt! GraphQL hat das neue Produkt mit INSERT erstellt und die ID zurückgegeben!
+
+### Mutation: Produkt aktualisieren (UPDATE)
+
+    --{{0}}--
+Jetzt aktualisieren wir ein bestehendes Produkt. Sie können einzelne Felder oder mehrere gleichzeitig ändern!
+
 ```js
-// Depth Limiting (vereinfacht)
-const maxDepth = 5;
-
-function validateQueryDepth(query) {
-  const depth = calculateDepth(query);
-  if (depth > maxDepth) {
-    throw new Error(`Query too deep! Max: ${maxDepth}`);
+mutation {
+  updateProduct(id: 1, name: "Gaming Laptop", price: 1299.99) {
+    id
+    name
+    price
   }
 }
 ```
+<script>
+const fieldResolver = (source, args, context, info) => {
+  const typeName = info.parentType.name;
+  const fieldName = info.fieldName;
 
-### Problem 3: Caching
+  if (typeName === "Query" && window.resolverWithMutations[fieldName]) {
+    return window.resolverWithMutations[fieldName](args, context, info);
+  }
+  if (typeName === "Mutation" && window.resolverWithMutations[fieldName]) {
+    return window.resolverWithMutations[fieldName](args, context, info);
+  }
+
+  const typeResolvers = window.resolverWithMutations[typeName];
+  const resolverFn = typeResolvers?.[fieldName];
+  if (resolverFn) {
+    return resolverFn(source, args, context, info);
+  }
+
+  return graphql.defaultFieldResolver(source, args, context, info);
+};
+
+setTimeout(async function() {
+try {
+  const mutation = `@input`;
+
+  const result = await graphql.graphql({
+    schema: schemaWithMutations,
+    source: mutation,
+    rootValue: resolverWithMutations,
+    fieldResolver
+  });
+
+  console.log('\n📊 Result:');
+  console.log(JSON.stringify(result, null, 2));
+} catch (error) {
+    console.error('Error executing GraphQL mutation:', error);
+}
+send.lia("LIA: stop")
+}, 100);
+
+"LIA: wait"
+</script>
+
+    --{{1}}--
+Super! Das UPDATE hat funktioniert. Die dynamische Query erlaubt es, nur die Felder zu ändern, die Sie übergeben!
+
+### Mutation: Produkt löschen (DELETE)
 
     --{{0}}--
-REST hat einfaches HTTP-Caching. GraphQL ist komplexer:
+Zum Schluss löschen wir ein Produkt. Vorsicht: Diese Operation ist nicht umkehrbar!
 
-    {{1}}
-```graphql
-# Zwei unterschiedliche Queries, beide wollen Produkt 1
-{
-  product(id: 1) { name price }
-}
-
-{
-  product(id: 1) { name price categories { name } }
+```js
+mutation {
+  deleteProduct(id: 8)
 }
 ```
+<script>
+const fieldResolver = (source, args, context, info) => {
+  const typeName = info.parentType.name;
+  const fieldName = info.fieldName;
+
+  if (typeName === "Query" && window.resolverWithMutations[fieldName]) {
+    return window.resolverWithMutations[fieldName](args, context, info);
+  }
+  if (typeName === "Mutation" && window.resolverWithMutations[fieldName]) {
+    return window.resolverWithMutations[fieldName](args, context, info);
+  }
+
+  const typeResolvers = window.resolverWithMutations[typeName];
+  const resolverFn = typeResolvers?.[fieldName];
+  if (resolverFn) {
+    return resolverFn(source, args, context, info);
+  }
+
+  return graphql.defaultFieldResolver(source, args, context, info);
+};
+
+setTimeout(async function() {
+try {
+  const mutation = `@input`;
+
+  const result = await graphql.graphql({
+    schema: schemaWithMutations,
+    source: mutation,
+    rootValue: resolverWithMutations,
+    fieldResolver
+  });
+
+  console.log(JSON.stringify(result, null, 2));
+} catch (error) {
+    console.error('Error executing GraphQL mutation:', error);
+}
+send.lia("LIA: stop")
+}, 100);
+
+"LIA: wait"
+</script>
+
+    --{{1}}--
+Gelöscht! Der DELETE-Resolver prüft erst, ob das Produkt existiert, und löscht es dann aus der Datenbank.
+
+### GraphQL vs. SQL: Mutations
+
+    {{1}}
+**Vergleich der Operationen:**
+
+    {{1}}
+| GraphQL Mutation     | SQL Equivalent                  |
+| -------------------- | ------------------------------- |
+| `createProduct(...)`  | `INSERT INTO products ...`      |
+| `updateProduct(...)`  | `UPDATE products SET ... WHERE` |
+| `deleteProduct(...)`  | `DELETE FROM products WHERE`    |
 
     --{{2}}--
-Beide Queries treffen den gleichen `/graphql` Endpoint – HTTP-Caching funktioniert nicht! Lösung: Normalisierter Cache (Apollo Client, urql).
+Der große Vorteil: GraphQL gibt Ihnen strukturierte Responses zurück – Sie können direkt abfragen, welche Felder Sie nach der Mutation zurückhaben möchten!
 
-### Best Practices (Zusammenfassung)
-
-    {{1}}
-| Problem                 | Lösung                            |
-| ----------------------- | --------------------------------- |
-| **N+1 Queries**         | DataLoader Pattern                |
-| **Unbounded Queries**   | Query Depth & Complexity Limiting |
-| **Caching**             | Normalized Cache (Client-side)    |
-| **Overfetching**        | Schema-Design: Granulare Types    |
-| **Error Handling**      | Structured Errors in Response     |
-| **Security**            | Query Cost Analysis, Rate Limiting|
-
-## Zusammenfassung & Vergleich
-
-    --{{0}}--
-Was haben Sie heute gelernt? GraphQL als moderne Alternative zu REST – mit direktem SQL-Bezug!
-
-### REST vs. GraphQL – Recap
-
-    {{1}}
-| Aspekt                  | REST                                    | GraphQL                                        |
-| ----------------------- | --------------------------------------- | ---------------------------------------------- |
-| **Endpunkte**           | Multiple (`/products`, `/customers`)    | Single (`/graphql`)                            |
-| **Datenstruktur**       | Server-defined (fixed)                  | Client-defined (flexible)                      |
-| **Over-fetching**       | Ja (alle Felder immer)                  | Nein (nur gewünschte Felder)                   |
-| **Under-fetching**      | Multiple Requests                       | Eine Query mit Nesting                         |
-| **SQL-Übersetzung**     | Einfach (URL → WHERE)                   | Komplex (Resolver-Kette)                       |
-| **Performanz-Risiken**  | Wenige                                  | N+1 Problem, unbounded queries                 |
-| **Lernkurve**           | Einfach                                 | Mittel-Hoch                                    |
-| **Best Use Case**       | CRUD, einfache APIs                     | Komplexe Daten-Graphen, Mobile Apps            |
 
 ### GraphQL ↔ SQL Mapping (Kern-Takeaways)
 
@@ -1490,104 +1435,3 @@ Resolver Function  →  SQL Query Executor
 - Stark typgef Schnittstelle gewünscht
 - Rapid Prototyping (selbst-dokumentierendes Schema)
 
-## Ausblick: GraphQL in der Praxis
-
-    --{{0}}--
-Heute haben Sie GraphQL im Browser implementiert – aber wie sieht es in echten Systemen aus?
-
-### Production-Grade GraphQL
-
-    {{1}}
-**Typische Architektur:**
-
-    {{1}}
-```ascii
-┌────────────┐
-│   Client   │ (Apollo Client, urql)
-└─────┬──────┘
-      │ GraphQL Query
-      │
-┌─────▼────────┐
-│ GraphQL      │ (Apollo Server, Yoga)
-│ Server       │
-└─────┬────────┘
-      │
-      ├──→ DataLoader (Batch & Cache)
-      │
-      ├──→ Resolver (mit Authorization)
-      │
-┌─────▼────────┐
-│  PostgreSQL  │
-│  Database    │
-└──────────────┘
-```
-
-### Beliebte GraphQL-Frameworks
-
-    {{1}}
-| Framework        | Sprache    | Besonderheit                     |
-| ---------------- | ---------- | -------------------------------- |
-| **Apollo Server**| JavaScript | Most popular, viele Features     |
-| **GraphQL Yoga** | JavaScript | Modern, lightweight              |
-| **Hasura**       | Haskell    | Auto-generates GraphQL from DB   |
-| **Postgraphile** | JavaScript | PostgreSQL → GraphQL (auto)      |
-| **graphene**     | Python     | Django/Flask Integration         |
-
-    --{{2}}--
-Besonders spannend: Hasura und Postgraphile generieren GraphQL-APIs **automatisch** aus Ihrem Datenbankschema – ohne manuellen Resolver-Code!
-
-### Nächste Schritte
-
-    {{1}}
-Wenn Sie GraphQL vertiefen möchten:
-
-    {{1}}
-1. **Subscriptions** (Real-time Updates via WebSocket)
-2. **Fragments** (Wiederverwendbare Query-Teile)
-3. **Interfaces & Unions** (Polymorphe Typen)
-4. **Schema Stitching** (Multiple GraphQL-APIs kombinieren)
-5. **Federation** (Microservices mit GraphQL)
-
-## Aufgabe für zu Hause 🏠
-
-    --{{0}}--
-Vertiefen Sie Ihr Wissen mit dieser Hausaufgabe!
-
-**Aufgabenstellung:**
-
-1. Erweitern Sie das Schema um einen neuen Typ `Review`:
-
-```graphql
-type Review {
-  id: Int!
-  rating: Int!          # 1-5 Sterne
-  comment: String
-  createdAt: String
-  product: Product
-  customer: Customer
-}
-```
-
-2. Erstellen Sie die entsprechende SQL-Tabelle mit Constraints
-3. Implementieren Sie Resolver für:
-   - `product.reviews` (alle Reviews eines Produkts)
-   - `customer.reviews` (alle Reviews eines Kunden)
-   - Mutation `createReview(productId: Int!, customerId: Int!, rating: Int!, comment: String): Review`
-
-4. Schreiben Sie eine Query, die:
-   - Alle Produkte abruft
-   - Mit durchschnittlicher Bewertung (Aggregation!)
-   - Und den Top-3 Reviews
-
-**Bonus:** Implementieren Sie Paginierung (`limit` und `offset` Parameter).
-
----
-
-    --{{1}}--
-Das war's für heute! Sie haben gelernt, wie GraphQL funktioniert, wie Sie Resolver mit SQL verknüpfen, und welche Trade-offs es gegenüber REST gibt. GraphQL ist ein mächtiges Werkzeug – nutzen Sie es weise!
-
-    {{2}}
-**Nächste Session:** Wir schauen uns Time-Series Datenbanken an – spezialisierte Systeme für zeitbasierte Daten wie IoT-Sensoren und Logs.
-
-    {{2}}
-Viel Erfolg! 🚀
