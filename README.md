@@ -43,6 +43,7 @@ Diese Vorlesung bietet eine praxisnahe Einführung in die Welt der Datenbanken u
 - [L4: (Wide) Column Stores](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/4-lecture.md)
 - [L5: Relationale Datenbanken (SQL) – Von der Idee zum Model](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md)
 
+- [L19: Graphdatenbanken & GraphQL](https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/19-lecture.md)
 
 ### Block 2: Relationale Grundlagen
 

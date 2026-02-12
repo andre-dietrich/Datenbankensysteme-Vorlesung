@@ -29,27 +29,17 @@ Willkommen zur neunzehnten Session! Sie haben bereits Property Graphs mit Cypher
     --{{1}}--
 Stellen Sie sich vor: Die gesamte Wikipedia als strukturierte Datenbank, die Sie mit SQL-ähnlichen Queries abfragen können. Das ist DBpedia – und genau damit arbeiten wir heute!
 
-## Motivation: Vom Property Graph zum Knowledge Graph
+## Motivation: Das Semantic Web
 
     --{{0}}--
-In Lecture 17 haben Sie Property Graphs kennengelernt: Knoten mit Labels und Properties, verbunden durch Relationships. Heute lernen Sie RDF – ein anderes Graph-Modell mit einem revolutionären Ziel: das Semantic Web!
+Heute tauchen wir in die Welt der Graph-Datenbanken ein – aber nicht mit einem proprietären System, sondern mit dem offenen Standard des Semantic Web: RDF und SPARQL!
 
-### Property Graph vs. RDF
-
-    {{1}}
-**Property Graph (Neo4j, Cypher):**
+### Was ist RDF?
 
     {{1}}
-```cypher
-(:Person {name: "Alice", age: 30})
-  -[:KNOWS {since: 2020}]->
-(:Person {name: "Bob", age: 28})
-```
-
-    {{2}}
 **RDF (Resource Description Framework):**
 
-    {{2}}
+    {{1}}
 ```turtle
 <http://example.org/alice> a <http://example.org/Person> .
 <http://example.org/alice> <http://example.org/name> "Alice" .
@@ -57,8 +47,8 @@ In Lecture 17 haben Sie Property Graphs kennengelernt: Knoten mit Labels und Pro
 <http://example.org/alice> <http://example.org/knows> <http://example.org/bob> .
 ```
 
-    --{{3}}--
-Der große Unterschied? Property Graphs sind flexibel und pragmatisch. RDF ist strikt strukturiert und standardisiert – perfekt für das Web!
+    --{{2}}--
+RDF ist ein W3C-Standard für strukturierte, verlinkte Daten. Es basiert auf Triples (Subject-Predicate-Object) und ist die Grundlage des Semantic Web!
 
 ### Die Vision: Linked Open Data
 
@@ -130,6 +120,7 @@ Sehen Sie das Pattern? Jedes Triple beschreibt eine Beziehung. Zusammen bilden s
 **RDF = Flexible Tabelle:**
 
     {{2}}
+<!-- data-type="none" -->
 | Subject      | Predicate   | Object        |
 |--------------|-------------|---------------|
 | :TheBeatles  | rdf:type    | :Band         |
@@ -306,6 +297,8 @@ Jetzt seid ihr dran! Hier ist ein kleines Musik-Knowledge-Graph. Schaut euch die
   :releaseYear 1997 .
 ```
 ```sparql -SPARQL: Alle Bands
+PREFIX : <http://example.org/music#>
+
 SELECT ?band ?name ?year
 WHERE {
   ?band a :Band .
@@ -318,6 +311,107 @@ ORDER BY ?year
 
     --{{1}}--
 Perfekt! Ihr seht das Pattern? Das RDF definiert die Daten (Triples), SPARQL fragt sie ab (wie SQL SELECT). Gleich lernt ihr die SPARQL-Syntax!
+
+### RDF versteckt in HTML: Microdata & Schema.org
+
+    --{{0}}--
+Das Geniale am Semantic Web: RDF kann direkt in normalem HTML eingebettet werden! So werden Websites maschinenlesbar.
+
+    {{1}}
+**Beispiel: Person als HTML ohne Semantik**
+
+    {{1}}
+```html
+<div>
+  <h1>John Lennon</h1>
+  <p>Geboren: 9. Oktober 1940</p>
+  <p>Band: The Beatles</p>
+  <p>Beruf: Musiker, Songwriter</p>
+</div>
+```
+
+    --{{2}}--
+Für Menschen lesbar, für Maschinen nutzlos! Suchmaschinen wissen nicht, dass "John Lennon" eine Person ist.
+
+    {{2}}
+**Jetzt mit Microdata & Schema.org:**
+
+    {{2}}
+```html
+<div itemscope itemtype="https://schema.org/Person">
+  <h1 itemprop="name">John Lennon</h1>
+  <p>Geboren: <time itemprop="birthDate" datetime="1940-10-09">9. Oktober 1940</time></p>
+  <p>Band: 
+    <span itemscope itemtype="https://schema.org/MusicGroup">
+      <span itemprop="name">The Beatles</span>
+    </span>
+  </p>
+  <p>Beruf: 
+    <span itemprop="jobTitle">Musiker</span>, 
+    <span itemprop="jobTitle">Songwriter</span>
+  </p>
+</div>
+```
+
+    --{{3}}--
+Jetzt versteht Google, dass dies eine Person ist! Die `itemscope` und `itemprop`-Attribute fügen semantische Bedeutung hinzu.
+
+    {{3}}
+**Als RDF gedacht (unsichtbar für Nutzer):**
+
+    {{3}}
+```turtle
+<http://example.org/john-lennon> a schema:Person ;
+  schema:name "John Lennon" ;
+  schema:birthDate "1940-10-09"^^xsd:date ;
+  schema:memberOf [
+    a schema:MusicGroup ;
+    schema:name "The Beatles"
+  ] ;
+  schema:jobTitle "Musiker" , "Songwriter" .
+```
+
+    --{{4}}--
+Das ist das Semantic Web in Aktion! HTML für Menschen, Microdata für Maschinen – beide in einem Dokument!
+
+    {{4}}
+**Noch ein Beispiel: Produkt mit Bewertung**
+
+    {{4}}
+```html
+<div itemscope itemtype="https://schema.org/Product">
+  <h2 itemprop="name">Wireless Headphones XM4</h2>
+  <img itemprop="image" src="headphones.jpg" alt="Product Image" />
+  
+  <div itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+    <span itemprop="price" content="299.99">299,99 €</span>
+    <meta itemprop="priceCurrency" content="EUR" />
+    <link itemprop="availability" href="https://schema.org/InStock" />
+  </div>
+  
+  <div itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
+    Bewertung: 
+    <span itemprop="ratingValue">4.5</span> von 
+    <span itemprop="bestRating">5</span> Sternen
+    (<span itemprop="ratingCount">127</span> Bewertungen)
+  </div>
+</div>
+```
+
+    --{{5}}--
+Solche Annotationen nutzt Google für Rich Snippets in Suchergebnissen – Sterne, Preise, Verfügbarkeit direkt sichtbar!
+
+    {{5}}
+**Warum ist das wichtig?**
+
+    {{5}}
+- **SEO:** Bessere Platzierung in Suchmaschinen
+- **Rich Snippets:** Attraktivere Suchergebnisse
+- **Knowledge Graph:** Google kann Fakten extrahieren
+- **Linked Data:** Websites werden vernetzbar
+
+    --{{6}}--
+Jede moderne Website sollte Microdata nutzen. Es ist unsichtbar für Nutzer, aber macht das Web maschinenlesbar!
 
 ## Teil 2: SPARQL – Die Query Language
 
@@ -365,11 +459,15 @@ SPARQL funktioniert durch Pattern Matching. Variables (`?variable`) werden an pa
 
     {{1}}
 ```turtle +Daten (RDF)
+@prefix : <http://example.org/music#> .
+
 :TheBeatles :hasMember :JohnLennon .
 :TheBeatles :hasMember :PaulMcCartney .
 :PinkFloyd :hasMember :DavidGilmour .
 ```
 ```sparql -Query (SPARQL)
+PREFIX : <http://example.org/music#>
+
 SELECT ?member
 WHERE {
   :TheBeatles :hasMember ?member .
@@ -390,15 +488,23 @@ Mehrere Patterns in einer Query? Das ist ein JOIN – nur implizit durch gemeins
 
     {{1}}
 ```turtle +Daten
-:TheBeatles :hasMember :JohnLennon .
-:JohnLennon :name "John Lennon" .
-:JohnLennon :birthYear 1940 .
+@prefix : <http://example.org/music#> .
 
-:TheBeatles :hasMember :PaulMcCartney .
-:PaulMcCartney :name "Paul McCartney" .
-:PaulMcCartney :birthYear 1942 .
+:TheBeatles a :Band ;
+  :name "The Beatles" ;
+  :hasMember :JohnLennon , :PaulMcCartney .
+
+:JohnLennon
+  :name "John Lennon" ;
+  :birthYear 1940 .
+
+:PaulMcCartney
+  :name "Paul McCartney" ;
+  :birthYear 1942 .
 ```
 ```sparql -Query: Band-Mitglieder mit Geburtsjahr
+PREFIX : <http://example.org/music#>
+
 SELECT ?bandName ?memberName ?birthYear
 WHERE {
   ?band a :Band .
@@ -453,6 +559,8 @@ Mit FILTER schränken Sie Ergebnisse ein – wie SQL WHERE nach dem JOIN!
 :Nirvana a :Band ; :name "Nirvana" ; :foundedIn 1987 .
 ```
 ```sparql -Query: Bands vor 1970
+PREFIX : <http://example.org/music#>
+
 SELECT ?name ?year
 WHERE {
   ?band a :Band .
@@ -480,6 +588,8 @@ Manchmal fehlen Daten. OPTIONAL macht ein Pattern optional – wie LEFT JOIN!
 :Radiohead a :Band ; :name "Radiohead" .
 ```
 ```sparql -Query: Alle Bands, Genre optional
+PREFIX : <http://example.org/music#>
+
 SELECT ?name ?genre
 WHERE {
   ?band a :Band .
@@ -505,6 +615,8 @@ Wie in SQL können Sie aggregieren und gruppieren!
 :Radiohead a :Band ; :name "Radiohead" ; :album :A7 , :A8 , :A9 .
 ```
 ```sparql -Query: Anzahl Alben pro Band
+PREFIX : <http://example.org/music#>
+
 SELECT ?name (COUNT(?album) AS ?albumCount)
 WHERE {
   ?band a :Band .
@@ -549,10 +661,10 @@ LIMIT 20
     --{{1}}--
 Interessant! Viele Solo-Projekte nutzen den Begriff "Band". Die Query gruppiert nach Band, zählt Mitglieder und filtert mit HAVING – wie in SQL!
 
-### Showcase 2: Filme eines Regisseurs
+### Showcase 2: Filme mit mehreren Sprachen
 
     --{{0}}--
-Christopher Nolan ist bekannt für komplexe Filme. Wie viele hat er gemacht?
+Welche Filme wurden in mehreren Sprachen veröffentlicht? Schauen wir uns die mehrsprachigsten Filme an!
 
 ```sparql
 # format: table
@@ -561,24 +673,23 @@ Christopher Nolan ist bekannt für komplexe Filme. Wie viele hat er gemacht?
 PREFIX dbo: <http://dbpedia.org/ontology/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?filmName ?releaseYear
+SELECT ?filmName (COUNT(DISTINCT ?language) AS ?languageCount)
 WHERE {
-  ?director rdfs:label "Christopher Nolan"@en .
-  ?film dbo:director ?director .
+  ?film a dbo:Film .
   ?film rdfs:label ?filmName .
-  ?film dbo:releaseDate ?releaseDate .
+  ?film dbo:language ?language .
   
   FILTER(LANG(?filmName) = "en")
-  
-  BIND(YEAR(?releaseDate) AS ?releaseYear)
 }
-ORDER BY ?releaseYear
-LIMIT 30
+GROUP BY ?filmName
+HAVING (COUNT(DISTINCT ?language) > 2)
+ORDER BY DESC(?languageCount)
+LIMIT 20
 ```
 @Comunica.SPARQL
 
     --{{1}}--
-Sehen Sie die neuen Features? `LANG()` filtert nach Sprache (nur englische Labels), `BIND()` erstellt neue Variablen, `YEAR()` extrahiert das Jahr!
+Interessant! Die Query zeigt Filme mit den meisten Sprachen. `COUNT(DISTINCT ...)` zählt eindeutige Werte, `HAVING` filtert nach der Aggregation – genau wie in SQL!
 
 ### Showcase 3: Größte Städte in Deutschland
 
@@ -671,34 +782,46 @@ LIMIT 20
     --{{1}}--
 Optional könnten Sie hier auch `OPTIONAL { ?film dbo:gross ?gross }` nutzen, falls manche Filme kein Einspielergebnis haben. Dann würden sie trotzdem erscheinen!
 
-### Showcase 6: Property Paths – Tiefe Beziehungen
+### Showcase 6: Property Paths – Alle Alphabet-Unternehmen
 
     --{{0}}--
-Property Paths sind ein SPARQL-Feature ohne SQL-Äquivalent! Sie traversieren Graphen in beliebiger Tiefe.
+Property Paths sind ein SPARQL-Feature ohne SQL-Äquivalent! Sie traversieren Graphen in beliebiger Tiefe. Finden wir alle Unternehmen, die zu Alphabet gehören:
 
 ```sparql
 # format: table
 # source: https://dbpedia.org/sparql
 
 PREFIX dbo: <http://dbpedia.org/ontology/>
-PREFIX dbr: <http://dbpedia.org/resource/>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dbp: <http://dbpedia.org/property/>
 
-SELECT ?personName
+SELECT DISTINCT ?sub ?p
+FROM <http://dbpedia.org>
 WHERE {
-  dbr:The_Beatles dbo:bandMember ?member .
-  ?member dbo:associatedBand/dbo:bandMember ?person .
-  ?person rdfs:label ?personName .
-  
-  FILTER(?person != ?member)
-  FILTER(LANG(?personName) = "en")
+  ?sub ?p <http://dbpedia.org/resource/Alphabet_Inc.> .
+  FILTER(?p IN (dbo:owner, dbp:owner, dbp:parent))
 }
-LIMIT 30
+LIMIT 50
 ```
 @Comunica.SPARQL
 
     --{{1}}--
-Das `/` bedeutet "folge dem Pfad": Beatles-Mitglied → andere Band → deren Mitglieder. Das ist Graph-Traversal – in SQL bräuchten Sie rekursive CTEs!
+Das `+` ist der Property Path Operator! `dbo:parentCompany+` bedeutet "folge parentCompany ein oder mehrere Male": Google → Alphabet, YouTube → Google → Alphabet, und so weiter. Rekursives Graph-Traversal – in SQL bräuchten Sie `WITH RECURSIVE` CTEs!
+
+    {{2}}
+**Property Path Operatoren:**
+
+    {{2}}
+<!-- data-type="none" -->
+| Operator | Bedeutung              | Beispiel                                     |
+| -------- | ---------------------- | -------------------------------------------- |
+| `/`      | Pfad folgen (genau 1×) | `?person dbo:spouse/dbo:birthPlace ?city`    |
+| `+`      | Ein oder mehrere Male  | `?company dbo:parentCompany+ ?topCompany`    |
+| `*`      | Null oder mehrere Male | `?company dbo:parentCompany* ?anyCompany`    |
+| `?`      | Optional (0 oder 1×)   | `?person dbo:spouse? ?partner`               |
+| `|`      | Alternative Pfade      | `?person dbo:birthPlace|dbo:hometown ?place` |
+
+    --{{3}}--
+Das ist die Power von Graph-Datenbanken: Beliebig tiefe Traversierungen ohne komplexe Queries!
 
 ### Showcase 7: Federated Queries
 
@@ -818,23 +941,44 @@ RDF ist keine akademische Spielerei – es steckt überall, wo strukturierte Dat
     --{{2}}--
 Jeder Endpoint ist wie eine öffentliche SQL-Datenbank – nur standardisiert mit SPARQL!
 
-### RDF vs. Property Graphs: Der Vergleich
+### RDF-Technologien im Überblick
 
     {{1}}
-| Aspekt                | RDF (Semantic Web)            | Property Graph (Neo4j)          |
-|-----------------------|-------------------------------|---------------------------------|
-| **Modell**            | Triples (S-P-O)               | Nodes + Relationships           |
-| **Standardisierung**  | W3C Standard                  | Vendor-spezifisch               |
-| **Schema**            | RDFS, OWL (optional)          | Schema-frei                     |
-| **Query Language**    | SPARQL (Standard)             | Cypher / Gremlin (proprietär)   |
-| **Flexibilität**      | Starr (Triples only)          | Flexibel (Properties auf allem) |
-| **Linked Data**       | ✅ Core Feature                | ❌ Nicht vorgesehen              |
-| **Performance**       | Langsamer (viele Joins)       | Schneller (Index-free adjacency)|
-| **Use Case**          | Knowledge Graphs, Integration | Social Networks, Recommendations|
-| **Tooling**           | Reif (Jena, Virtuoso)         | Sehr gut (Neo4j, ArangoDB)      |
+**Das RDF-Ökosystem:**
+
+    {{1}}
+| Technologie       | Zweck                                   | Beispiel                            |
+| ----------------- | --------------------------------------- | ----------------------------------- |
+| **RDF**           | Datenmodell (Triples)                   | Turtle, RDF/XML, JSON-LD            |
+| **RDFS**          | Schema-Definition (Klassen, Properties) | `rdfs:subClassOf`, `rdfs:domain`    |
+| **OWL**           | Ontologien mit Logik                    | `owl:sameAs`, `owl:equivalentClass` |
+| **SPARQL**        | Query Language                          | `SELECT`, `CONSTRUCT`, `ASK`        |
+| **Schema.org**    | Vokabular für Websites                  | `Person`, `Product`, `Event`        |
+| **Microdata**     | HTML-Einbettung                         | `itemscope`, `itemprop`             |
+| **JSON-LD**       | RDF als JSON                            | `@context`, `@type`, `@id`          |
+| **Triple Stores** | Datenbanken für RDF                     | Virtuoso, GraphDB, Jena             |
 
     --{{2}}--
-Es gibt kein "besser" – nur "besser für X"! RDF für offene, verlinkte Daten. Property Graphs für Performance und Flexibilität.
+RDF ist nicht eine Technologie, sondern ein ganzes Ökosystem für das Semantic Web!
+
+    {{2}}
+**Wann RDF nutzen?**
+
+    {{2}}
+- ✅ **Knowledge Graphs** – vernetzte Wissensbasen
+- ✅ **Linked Open Data** – öffentliche, verlinkte Daten
+- ✅ **SEO & Microdata** – strukturierte Daten für Suchmaschinen
+- ✅ **Integration** – verschiedene Datenquellen verknüpfen
+- ✅ **Ontologien** – komplexe Domänenmodelle mit Reasoning
+
+    {{3}}
+**Wann NICHT RDF?**
+
+    {{3}}
+- ❌ **Hohe Performance** – relationale DBs sind schneller
+- ❌ **einfache Anwendungen** – JSON reicht oft
+- ❌ **proprietäre Systeme** – wenn Linked Data nicht wichtig ist
+- ❌ **komplexe Aggregationen** – SQL ist mächtiger
 
 ## Wrap-up & Quiz
 
@@ -845,11 +989,17 @@ Sie haben heute eine komplett neue Welt kennengelernt: das Semantic Web mit RDF 
 
     {{1}}
 ✅ **RDF-Konzept:** Triples, URIs, Turtle-Syntax  
+
 ✅ **SPARQL-Syntax:** SELECT, WHERE, FILTER, OPTIONAL, GROUP BY  
+
 ✅ **Pattern Matching:** Implizite JOINs durch gemeinsame Variablen  
+
 ✅ **DBpedia:** Real-world Knowledge Graph mit 15M Entities  
+
 ✅ **Linked Data:** Vision des maschinenlesbaren Webs  
+
 ✅ **Property Paths:** Graph-Traversal ohne SQL-Rekursion  
+
 ✅ **Federated Queries:** Multiple Endpoints in einer Query
 
 ### Quiz: RDF & SPARQL
@@ -899,63 +1049,6 @@ Sie haben heute eine komplett neue Welt kennengelernt: das Semantic Web mit RDF 
 - [(X)] Web-Ressourcen verknüpft mit URIs und RDF
 - [( )] GraphQL-APIs mit Nested Queries
 
-### Reflexion
-
-    {{1}}
-**1-Minute-Paper:**
-
-    {{1}}
-?[Was ist der größte Vorteil von RDF gegenüber Property Graphs – und was ist der größte Nachteil?]
-
-    {{2}}
-**Diskussion:**
-
-    {{2}}
-Wann würdet ihr für ein Projekt RDF/SPARQL wählen, wann Neo4j/Cypher? Begründet eure Wahl mit Use Cases!
-
-## Ausblick & Vertiefung
-
-    --{{0}}--
-RDF und SPARQL sind ein Einstieg in eine größere Welt!
-
-### Nächste Schritte
-
-    {{1}}
-**Wenn ihr tiefer einsteigen wollt:**
-
-    {{1}}
-- **Tools ausprobieren:**
-  - Apache Jena (Java RDF Framework)
-  - Virtuoso (High-Performance Triple Store)
-  - GraphDB (kommerzielle Lösung)
-  - Stardog (Knowledge Graph Platform)
-
-    {{1}}
-- **Ontologien lernen:**
-  - RDFS (Schema-Layer für RDF)
-  - OWL (Web Ontology Language – Logik & Reasoning)
-  - SHACL (Schema-Validation für RDF)
-
-    {{1}}
-- **Datasets erkunden:**
-  - Wikidata Query Service (benutzerfreundlich!)
-  - Bio2RDF (Life Sciences)
-  - GeoNames (Geografische Daten)
-
-### Graph-Paradigmen im Vergleich
-
-    {{1}}
-**Die drei Graph-Welten:**
-
-    {{1}}
-| Paradigma          | Beispiel        | Use Case                      |
-|--------------------|-----------------|-------------------------------|
-| **Property Graph** | Neo4j (Cypher)  | Social Networks, Fraud        |
-| **RDF Graph**      | DBpedia (SPARQL)| Knowledge Graphs, Linked Data |
-| **Hypergraph**     | TigerGraph      | Multi-dimensional Relations   |
-
-    --{{2}}--
-Ihr habt jetzt beide Hauptparadigmen gesehen: Property Graphs (L17) und RDF (heute). Nächste Session: Wie man beide in einer Architektur nutzt!
 
 ### Resources
 

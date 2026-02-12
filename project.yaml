@@ -115,6 +115,15 @@ collection:
       - ER-Modell
       - Datenmodellierung
 
+  - url: https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/19-lecture.md
+    title: "L19: Graphdatenbanken & Semantic Web"
+    tags:
+      - Graphdatenbanken
+      - RDF
+      - SPARQL
+      - Semantic Web
+      - Wissensgraphen
+
   # Block 2: Relationale Grundlagen (coming soon)
   - html: >
       <hr>
