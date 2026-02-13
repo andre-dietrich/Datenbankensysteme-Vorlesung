@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <title>Databases Unlocked: A Beginner's Journey</title>
+        <script type="application/ld+json">
+            {
+                "@context": "http://schema.org/",
+                    "@type": "ItemList",
+                    "itemListElement": [{
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/0-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "andre.dietrich@informatik.tu-freiberg.de",
+                            "name": "André Dietrich; ; GitHub CoPilot"
+                    },
+                        "description": "Persönliche Vorstellung des Dozenten: Von der Promotion in Robotik über NoSQL-Systeme (Cassandra), deklarative Abfragesprachen (SelectScript), Remote Labs (Industrial eLab) bis zur Entwicklung von LiaScript und Edrys-Lite. Diese Session erklärt den Hintergrund der Vorlesung, warum Browser-basierte Technologien (IndexedDB, DuckDB-Wasm, SQLite-Wasm) im Fokus stehen und wie GitHub Copilot als Co-Autor für interaktive OER-Materialien eingesetzt wird.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/0-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 0 – Vorstellung: Mein Weg zu Datenbanken & interaktivem OER",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/0-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/1-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "name": "André Dietrich; GitHub CoPilot"
+                    },
+                        "description": "Grundlagen der Datenspeicherung: Von der DIKW-Pyramide (Daten → Informationen → Wissen → Weisheit) über Serialisierungsformate (CSV, JSON, YAML, XML) bis zur praktischen Motivation für Datenbanksysteme. Hands-on Ad-hoc-Analyse von CSV/JSON-Daten direkt im Browser.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/1-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Daten & Serialisierung + DIKW + Vergleichsachsen Teaser",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/1-lecture.md",
+                        "version": "0.0.1"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/2-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "name": "André Dietrich; GitHub CoPilot"
+                    },
+                        "description": "Key-Value Stores als Lösung für das O(n)-Suchproblem: Von Hash-Maps über TTL (Time-To-Live) bis zu Atomic Operations. Praktische Patterns für Session-Storage, Caching und Rate-Limiting mit Redis-Beispielen. Einführung in Big-O-Notation zur Performance-Analyse. Trade-offs: O(1) Zugriff vs. fehlende Bereichsabfragen und limitierte Ausdrucksstärke. Hands-on mit Redis im Browser und JavaScript Map/Set APIs.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/2-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 2: Key-Value Stores (kompakt)",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/2-lecture.md",
+                        "version": "0.0.1"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "Grundlagen und Besonderheiten von Document Stores wie PouchDB und CouchDB. Sie lernen, wie strukturierte JSON-Dokumente effizient gespeichert, durchsucht und synchronisiert werden. Der Kurs behandelt Vorteile gegenüber Key-Value Stores, Mango-Queries, Index-Strategien, Schema-Evolution, Offline-First und typische Einsatzszenarien.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/3-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Document Stores: JSON Persistenz, Queries & Offline-Sync",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md",
+                        "version": "0.0.1"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/4-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Column Stores – Analytics-Power durch spaltenorientierte Speicherung",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/4-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Column Stores – Analytics mit Spalten-Power",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/4-lecture.md",
+                        "version": "0.2.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "Einführung in das relationale Modell: Tabellen, Zeilen, Spalten, Primär-/Fremdschlüssel, Normalisierung und Integritätsbedingungen. Diese Session liefert das konzeptionelle Fundament für die SQL-Praxis ab L7.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/5-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Relationales Modell: Tabellen, Keys, Integrität und SQL",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/19-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Graph-Datenbanken & Semantic Web – RDF, SPARQL und DBpedia. Von Triples über interaktive SPARQL-Queries bis zu echten Knowledge Graphs.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/19-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "L19: Graph-Datenbanken & Semantic Web",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/19-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/7-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 7 – SQL Introduction & SELECT Statements",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture.md",
+                        "version": "1.0.1"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/7-lecture-full.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 7 – SQL Introduction & SELECT Statements (Komplettlösung)",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/8-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 8 – SQL Data Definition (DDL) & Manipulation (DML)",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md",
+                        "version": "2.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture-full.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/8-lecture-full.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 8 – SQL Data Definition (DDL) & Manipulation (DML)",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture-full.md",
+                        "version": "2.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Interaktive Session zur Datenbank-Normalisierung und ER-Modellierung: Studierende lernen ER-Diagramm-Basics (Entitäten, Beziehungen, Kardinalitäten 1:1, 1:N, N:M), entwickeln schrittweise ein normalisiertes Online-Shop-Schema (0NF → 1NF → 2NF → 3NF) mit Visualisierung via dbdiagram.io und bauen gemeinsam ein Twitter-Datenmodell von Grund auf (User, Follower, Tweets, Likes, Many-to-Many-Beziehungen). Hands-on Didaktik: Anomalien werden live erlebbar gemacht.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/9-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 9 – Normalisierung & ER-Diagramme",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md",
+                        "version": "0.1.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture-full.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Interaktive Session zur Datenbank-Normalisierung und ER-Modellierung: Studierende lernen ER-Diagramm-Basics (Entitäten, Beziehungen, Kardinalitäten 1:1, 1:N, N:M), entwickeln schrittweise ein normalisiertes Online-Shop-Schema (0NF → 1NF → 2NF → 3NF) mit Visualisierung via dbdiagram.io und bauen gemeinsam ein Twitter-Datenmodell von Grund auf (User, Follower, Tweets, Likes, Many-to-Many-Beziehungen). Hands-on Didaktik: Anomalien werden live erlebbar gemacht.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/9-lecture-full.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 9 – Database Normalization & Schema Design",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture-full.md",
+                        "version": "0.1.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "Diese Session erschließt die wahre Macht relationaler Datenbanken: das Kombinieren von Daten über Tabellengrenzen hinweg. Sie lernen vier Techniken kennen – vom kartesischen Produkt über Subqueries und CTEs bis zu expliziten JOINs (INNER, LEFT, RIGHT, FULL, CROSS) – und verstehen, wann welcher Ansatz optimal ist. Praxisnah am E-Commerce-Schema mit 7 normalisierten Tabellen erleben Sie, wie Foreign Keys Beziehungen herstellen, wie Anti-Joins fehlende Daten aufspüren, und wie Set-Operationen (UNION, INTERSECT, EXCEPT) Ergebnisse vertikal kombinieren. Am Ende beherrschen Sie Multi-Table-Queries – das Herzstück von SQL in Produktion.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/10-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "L10: Daten über Tabellengrenzen hinweg kombinieren – Von Subqueries zu CTEs zu Joins",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md",
+                        "version": "2.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture-full.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "Diese Session erschließt die wahre Macht relationaler Datenbanken: das Kombinieren von Daten über Tabellengrenzen hinweg. Sie lernen vier Techniken kennen – vom kartesischen Produkt über Subqueries und CTEs bis zu expliziten JOINs (INNER, LEFT, RIGHT, FULL, CROSS) – und verstehen, wann welcher Ansatz optimal ist. Praxisnah am E-Commerce-Schema mit 7 normalisierten Tabellen erleben Sie, wie Foreign Keys Beziehungen herstellen, wie Anti-Joins fehlende Daten aufspüren, und wie Set-Operationen (UNION, INTERSECT, EXCEPT) Ergebnisse vertikal kombinieren. Am Ende beherrschen Sie Multi-Table-Queries – das Herzstück von SQL in Produktion.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/10-lecture-full.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "L10: Daten über Tabellengrenzen hinweg kombinieren – Von Subqueries zu CTEs zu Joins",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture-full.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/12-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "andre.dietrich@ovgu.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Session 12: Indexe & Performance – Praktische Optimierung mit PGlite",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/12-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 12: Indexe & Performance",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/12-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/13-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Advanced SQL: SET Operations & Views – Mengenlehre und Abstraktion für wiederverwendbare Queries im E-Commerce-Kontext",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/13-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "L13: Advanced SQL – SET Operations & Views",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/13-lecture.md",
+                        "version": "2.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/14-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "andre.dietrich@informatik.tu-freiberg.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Transaktionen & ACID – Szenariobasierte Einführung in Transaktionssteuerung, ACID-Eigenschaften und Isolation Levels. Von Geldüberweisungen bis Ticketbuchungen: Warum Transaktionen unverzichtbar sind für konsistente Datenbanksysteme. Mit Live-Demos zu BEGIN/COMMIT/ROLLBACK und praktischen Beispielen zu Dirty Reads, Lost Updates und Deadlocks.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/14-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 14 – Transaktionen & ACID",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/14-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/15-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "andre.dietrich@informatik.tu-freiberg.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Functions & Trigger – Server-seitige Logik in der Datenbank. Von einfachen Stored Functions mit IF/CASE bis zu automatischen Triggern für Timestamps, Audit-Logging und Validierung. Alle Konzepte mit interaktiven PGlite-Demos: Schreiben Sie wiederverwendbare Funktionen und lassen Sie die Datenbank auf Änderungen reagieren!",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/15-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Session 15 – Functions & Trigger",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/15-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/16-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Aggregationen & Window Functions – Praktische SQL-Analytik mit Wetterdaten",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/16-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "Aggregationen & Window Functions",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/16-lecture.md",
+                        "version": "0.1.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/17-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "RESTful APIs & SQL – HTTP-Requests in SQL-Queries übersetzen. Hands-on Übungen mit simulierter Browser-API für praktische CRUD-Operationen im E-Commerce-Kontext.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/17-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "L17: RESTful APIs & SQL – Online-Shop Backend",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/17-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/18-lecture.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "GraphQL & SQL – Flexible Datenabfragen mit Schema, Resolver und PGlite. Hands-on Übungen mit interaktiven GraphQL-Queries im E-Commerce-Kontext.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/18-lecture.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "L18: GraphQL & SQL – Flexible Datenabfragen",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/18-lecture.md",
+                        "version": "1.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "andre.dietrich@ovgu.de",
+                            "name": "André Dietrich"
+                    },
+                        "description": "Hands-on Tutorial: KI-gestützte Datenbankabfragen mit MCP (Model Context Protocol) auf der IMDB-Datenbank in VS Code.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/mcp-tutorial.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "MCP & Datenbanken: KI als Database Co-Pilot",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md",
+                        "version": "0.1.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/sql-cheat-sheet.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "LiaScript@web.de",
+                            "name": "André Dietrich; GitHub Copilot"
+                    },
+                        "description": "Erweiterte SQL-Referenz: Von SELECT-Grundlagen über DDL/DML, Joins und Normalisierung bis zu SET Operations, Views, Transaktionen (ACID), Stored Functions und Triggern. Basiert auf Sessions 7-10, 13-15 der Datenbankensysteme-Vorlesung.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/sql-cheat-sheet.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "SQL Cheat-Sheet – Quick Reference",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/sql-cheat-sheet.md",
+                        "version": "2.0.0"
+                }, {
+                    "@id": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md",
+                        "@type": "Course",
+                        "author": {
+                        "@type": "Person",
+                            "email": "andre.dietrich@informatik.tu-freiberg.de",
+                            "name": "GitHub CoPilot; André Dietrich"
+                    },
+                        "description": "Kompakter JavaScript-Primer für Studierende ohne JS-Vorkenntnisse: Variablen (const/let), Datentypen (primitiv & komplex), Kontrollstrukturen (if/loops), Funktionen (klassisch & Arrow), Objekte & Arrays (mit wichtigen Methoden wie map/filter/reduce), Asynchronität (async/await, Promises, fetch), JSON-Parsing und Classes. Fokus auf Code-Verständnis für Browser-basierte Datenbankbeispiele – keine Frontend-Entwicklung, keine Frameworks. Alle Beispiele direkt ausführbar in der Browser Console.",
+                        "image": {
+                        "@type": "ImageObject",
+                            "url": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/assets/img/logo/javascript-primer.jpg"
+                    },
+                        "inLanguage": "de",
+                        "license": "https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/LICENSE",
+                        "name": "JavaScript Essentials – Ein Primer für Database-Beispiele",
+                        "url": "https://LiaScript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md",
+                        "version": "1.0.0"
+                }],
+                    "name": "Databases Unlocked: A Beginner's Journey",
+                    "description": "Interactive Database Systems Course with LiaScript"
+            }
+        </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script>
+            // Globale Variable zum Speichern der ausgewählten Kategorien
+            window.selectedCategories = []
+
+            // Fügt einen Chip hinzu, wenn eine Kategorie gewählt wurde
+            function addCategoryChip(category) {
+                if (!category) return // falls "All categories" gewählt wurde, nichts tun
+                if (window.selectedCategories.indexOf(category) === -1) {
+                    window.selectedCategories.push(category)
+                    // Option im Select-Menü deaktivieren
+                    document.querySelector('#categorySelect option[value="' + category + '"]').disabled = true
+                    updateChipsDisplay()
+                    filterCards()
+                }
+                // Setze das Select-Element zurück
+                document.getElementById('categorySelect').value = ''
+            }
+
+            // Entfernt einen Chip
+            function removeCategoryChip(category) {
+                const index = window.selectedCategories.indexOf(category)
+                if (index > -1) {
+                    window.selectedCategories.splice(index, 1)
+                    // Option im Select-Menü wieder aktivieren
+                    document.querySelector('#categorySelect option[value="' + category + '"]').disabled = false
+                    updateChipsDisplay()
+                    filterCards()
+                }
+            }
+
+            // Aktualisiert die Anzeige der Chips
+            function updateChipsDisplay() {
+                const chipsContainer = document.getElementById('chipsContainer')
+                chipsContainer.innerHTML = ''
+                window.selectedCategories.forEach(function (cat) {
+                    const chip = document.createElement('span')
+                    chip.className = 'badge rounded-pill bg-primary me-2'
+                    chip.style.cursor = 'pointer'
+                    chip.style.fontSize = '1rem'
+                    chip.textContent = cat + ' ×'
+                    chip.onclick = function () {
+                        removeCategoryChip(cat)
+                    }
+                    chipsContainer.appendChild(chip)
+                })
+            }
+
+            function filterCards() {
+                const cards = document.querySelectorAll('div[data-category]')
+                cards.forEach(function (card) {
+                    // Falls keine Filterkategorien ausgewählt wurden, zeige alle Karten
+                    if (window.selectedCategories.length === 0) {
+                        card.parentNode.style.display = "block";
+                        return
+                    }
+                    // Zerlege die im data-Attribut hinterlegten Kategorien
+                    const cardCategories = card.dataset.category.split('|')
+                    // Prüfe, ob alle ausgewählten Kategorien in der Karte vorhanden sind
+                    const show = window.selectedCategories.every(function (cat) {
+                        return cardCategories.indexOf(cat) !== -1
+                    })
+                    if (show) {
+                        card.parentNode.style.display = "block";
+                    } else {
+                        card.parentNode.style.display = "none";
+                    }
+                })
+            }
+        </script>
+    </head>
+    
+    <body>
+        <main>
+            <div class="container-fluid" style="background-size: cover; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/main.jpg'); background-position: center center; background-repeat: no-repeat;">
+                <section class="py-5 text-center container">
+                    <div class="row py-lg-5">
+                        <div class="col-lg-6 col-md-8 mx-auto">
+                             <h1 class="fw-light"><span style="background-color: rgba(11, 110, 117, 0.75); padding: 10px; color: white; border-radius: 5px;">
+  Databases Unlocked: A Beginner's Journey
+</span>
+</h1>
+
+                            <p class="lead text-muted">
+                                <br> <span style="background-color: rgba(255, 140, 66, 0.75); padding: 8px; color: white; border-radius: 5px;">
+  Interactive Database Systems Course with LiaScript
+</span>
+
+                            </p>
+                            <select id="categorySelect" class="form-select" aria-label="Default select example" onchange="addCategoryChip(this.value)">
+                                <option value="" selected>All categories</option>
+                                <option value="1nf">1nf</option>
+                                <option value="2nf">2nf</option>
+                                <option value="3nf">3nf</option>
+                                <option value="abfragen">abfragen</option>
+                                <option value="acid">acid</option>
+                                <option value="aggregationen">aggregationen</option>
+                                <option value="alter">alter</option>
+                                <option value="analyse">analyse</option>
+                                <option value="analytics">analytics</option>
+                                <option value="automatisierung">automatisierung</option>
+                                <option value="backend">backend</option>
+                                <option value="browser">browser</option>
+                                <option value="cache">cache</option>
+                                <option value="column store">column store</option>
+                                <option value="create">create</option>
+                                <option value="csv">csv</option>
+                                <option value="ctes">ctes</option>
+                                <option value="datenmodellierung">datenmodellierung</option>
+                                <option value="ddl">ddl</option>
+                                <option value="delete">delete</option>
+                                <option value="dikw">dikw</option>
+                                <option value="dml">dml</option>
+                                <option value="document store">document store</option>
+                                <option value="duckdb">duckdb</option>
+                                <option value="e-commerce">e-commerce</option>
+                                <option value="einführung">einführung</option>
+                                <option value="er-diagramme">er-diagramme</option>
+                                <option value="er-modell">er-modell</option>
+                                <option value="funktionen">funktionen</option>
+                                <option value="github copilot">github copilot</option>
+                                <option value="graphdatenbanken">graphdatenbanken</option>
+                                <option value="graphql">graphql</option>
+                                <option value="grundlagen">grundlagen</option>
+                                <option value="hands-on">hands-on</option>
+                                <option value="imdb">imdb</option>
+                                <option value="index">index</option>
+                                <option value="indizes">indizes</option>
+                                <option value="insert">insert</option>
+                                <option value="isolation">isolation</option>
+                                <option value="javascript">javascript</option>
+                                <option value="joins">joins</option>
+                                <option value="json">json</option>
+                                <option value="key-value">key-value</option>
+                                <option value="ki">ki</option>
+                                <option value="konsistenz">konsistenz</option>
+                                <option value="live-session">live-session</option>
+                                <option value="mcp">mcp</option>
+                                <option value="model context protocol">model context protocol</option>
+                                <option value="mongodb">mongodb</option>
+                                <option value="mutation">mutation</option>
+                                <option value="n+1 problem">n+1 problem</option>
+                                <option value="normalisierung">normalisierung</option>
+                                <option value="nosql">nosql</option>
+                                <option value="olap">olap</option>
+                                <option value="online-shop">online-shop</option>
+                                <option value="organisatorisches">organisatorisches</option>
+                                <option value="performance">performance</option>
+                                <option value="pouchdb">pouchdb</option>
+                                <option value="praxis">praxis</option>
+                                <option value="primer">primer</option>
+                                <option value="query">query</option>
+                                <option value="rdf">rdf</option>
+                                <option value="redis">redis</option>
+                                <option value="relationale datenbanken">relationale datenbanken</option>
+                                <option value="resolver">resolver</option>
+                                <option value="restful apis">restful apis</option>
+                                <option value="schema">schema</option>
+                                <option value="select">select</option>
+                                <option value="semantic web">semantic web</option>
+                                <option value="serialisierung">serialisierung</option>
+                                <option value="set operations">set operations</option>
+                                <option value="spacex api">spacex api</option>
+                                <option value="spaltenorientiert">spaltenorientiert</option>
+                                <option value="sparql">sparql</option>
+                                <option value="sql">sql</option>
+                                <option value="sqlite">sqlite</option>
+                                <option value="subqueries">subqueries</option>
+                                <option value="synchronisation">synchronisation</option>
+                                <option value="transaktionen">transaktionen</option>
+                                <option value="trigger">trigger</option>
+                                <option value="tutorial">tutorial</option>
+                                <option value="update">update</option>
+                                <option value="views">views</option>
+                                <option value="window functions">window functions</option>
+                                <option value="wissensgraphen">wissensgraphen</option>
+                                <option value="yaml">yaml</option>
+                                <option value="übersicht">übersicht</option>
+                            </select>
+                            <div id="chipsContainer" class="mt-3"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="album py-5 bg-light">
+                <div class="container">
+                    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-xl-3 g-3">
+                        <div class='col-12'>
+                            <div style="padding: 20px; background-color: rgba(11, 110, 117, 0.1); border-radius: 8px; margin: 20px 0;">
+                                 <h2>📚 Über diesen Kurs</h2>
+
+                                <p>Diese Vorlesung bietet eine <strong>praxisnahe Einführung in die Welt der Datenbanken</strong> und vermittelt einen systematischen Überblick über unterschiedliche Paradigmen und ihre Einsatzszenarien.</p>
+                                <p>Beginnend bei einfachen Datenquellen wie Textdateien, CSV, JSON, YAML oder TOML werden schrittweise moderne Systeme vorgestellt – von Key-Value Stores über Object Stores und Column Stores bis hin zu <strong>relationalen Datenbanken mit SQL</strong> und graphbasierten Ansätzen.</p>
+                                <p> <strong>Besonderheit:</strong> Alle Paradigmen werden mit Hands-on-Beispielen direkt im Browser erlebbar (über LiaScript und DBMS wie DuckDB-Wasm, SQLite-Wasm, IndexedDB, PouchDB).</p>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="einführung|übersicht|organisatorisches">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/0-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/0-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">Session 0 – Vorstellung: Mein Weg zu Datenbanken & interaktivem OER</h5>
+        </a>
+
+                                    <p class="card-text">Persönliche Vorstellung des Dozenten: Von der Promotion in Robotik über NoSQL-Systeme (Cassandra), deklarative Abfragesprachen (SelectScript), Remote Labs (Industrial eLab) bis zur Entwicklung von LiaScript und Edrys-Lite. Diese Session erklärt den Hintergrund der Vorlesung, warum Browser-basierte Technologien (IndexedDB, DuckDB-Wasm, SQLite-Wasm) im Fokus stehen und wie GitHub Copilot als Co-Autor für interaktive OER-Materialien eingesetzt wird.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Einführung</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Übersicht</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Organisatorisches</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/7e373188.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/7e373188.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-12'>
+                            <hr>
+                             <h2 style="color: #0B6E75;">Block 1: Daten-Paradigmen – Vom File zum Column Store</h2> 
+                            <p>In diesem Block lernen Sie verschiedene Datenbank-Paradigmen kennen: Von einfachen Dateiformaten über Key-Value und Document Stores bis zu Column Stores. Jedes Paradigma wird mit praktischen Beispielen im Browser demonstriert.</p>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="csv|json|yaml|serialisierung|dikw|grundlagen">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/1-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/1-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L1: Daten & Serialisierung + DIKW</h5>
+        </a>
+
+                                    <p class="card-text">Grundlagen der Datenspeicherung: Von der DIKW-Pyramide (Daten → Informationen → Wissen → Weisheit) über Serialisierungsformate (CSV, JSON, YAML, XML) bis zur praktischen Motivation für Datenbanksysteme. Hands-on Ad-hoc-Analyse von CSV/JSON-Daten direkt im Browser.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">CSV</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">JSON</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">YAML</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Serialisierung</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DIKW</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Grundlagen</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/0e4213df.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/0e4213df.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="key-value|redis|nosql|cache|performance">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/2-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/2-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L2: Key-Value Stores</h5>
+        </a>
+
+                                    <p class="card-text">Key-Value Stores als Lösung für das O(n)-Suchproblem: Von Hash-Maps über TTL (Time-To-Live) bis zu Atomic Operations. Praktische Patterns für Session-Storage, Caching und Rate-Limiting mit Redis-Beispielen. Einführung in Big-O-Notation zur Performance-Analyse. Trade-offs: O(1) Zugriff vs. fehlende Bereichsabfragen und limitierte Ausdrucksstärke. Hands-on mit Redis im Browser und JavaScript Map/Set APIs.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Key-Value</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Redis</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">NoSQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Cache</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Performance</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/1bdd28ba.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/1bdd28ba.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="document store|mongodb|pouchdb|indizes|abfragen|nosql|synchronisation">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/3-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/3-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L3: Document Stores</h5>
+        </a>
+
+                                    <p class="card-text">Grundlagen und Besonderheiten von Document Stores wie PouchDB und CouchDB. Sie lernen, wie strukturierte JSON-Dokumente effizient gespeichert, durchsucht und synchronisiert werden. Der Kurs behandelt Vorteile gegenüber Key-Value Stores, Mango-Queries, Index-Strategien, Schema-Evolution, Offline-First und typische Einsatzszenarien.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Document Store</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">MongoDB</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">PouchDB</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Indizes</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Abfragen</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">NoSQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Synchronisation</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/04d71912d.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/04d71912d.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="column store|duckdb|analytics|olap|spaltenorientiert">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/4-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/4-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L4: Column Stores</h5>
+        </a>
+
+                                    <p class="card-text">Column Stores – Analytics-Power durch spaltenorientierte Speicherung</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Column Store</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DuckDB</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Analytics</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">OLAP</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Spaltenorientiert</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/071e44d54.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/071e44d54.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="relationale datenbanken|sql|normalisierung|er-modell|datenmodellierung">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/5-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/5-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L5: Relationale Datenbanken (SQL) – Von der Idee zum Model</h5>
+        </a>
+
+                                    <p class="card-text">Einführung in das relationale Modell: Tabellen, Zeilen, Spalten, Primär-/Fremdschlüssel, Normalisierung und Integritätsbedingungen. Diese Session liefert das konzeptionelle Fundament für die SQL-Praxis ab L7.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Relationale Datenbanken</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Normalisierung</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">ER-Modell</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Datenmodellierung</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/29651245.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/29651245.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="graphdatenbanken|rdf|sparql|semantic web|wissensgraphen">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/19-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/19-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L19: Graphdatenbanken & Semantic Web</h5>
+        </a>
+
+                                    <p class="card-text">Graph-Datenbanken & Semantic Web – RDF, SPARQL und DBpedia. Von Triples über interaktive SPARQL-Queries bis zu echten Knowledge Graphs.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Graphdatenbanken</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">RDF</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SPARQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Semantic Web</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Wissensgraphen</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/4364fe58.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/4364fe58.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-12'>
+                            <hr>
+                             <h2 style="color: #0B6E75;">Block 2: Relationale Grundlagen</h2> 
+                            <p> <strong>Block 2 startet mit einer interaktiven Live-Session (L7):</strong>
+
+                                <br> <span style="color: #FF8C42; font-weight: bold;">SQL Introduction & Query Data (SELECT)</span> – Hands-on, direkt im Browser.
+                                <br>Relationales Modell, Relationale Algebra und weitere SQL-Themen folgen schrittweise.
+                                <br>Die Materialien für Block 2 werden nach und nach ergänzt.</p>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|hands-on|live-session|select|query|praxis">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/7-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L7: SQL Introduction & Query Data (SELECT)</h5>
+        </a>
+
+                                    <p class="card-text">Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Hands-on</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Live-Session</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SELECT</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Query</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Praxis</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/4ea1d6f7.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/4ea1d6f7.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|select|query|praxis">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/7-lecture-full.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/7-lecture-full.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L7: SQL Introduction & Query Data (SELECT) – Vollversion</h5>
+        </a>
+
+                                    <p class="card-text">Interaktiver SQL-Kurs mit Fokus auf praxisnahen Aufgaben, Live-Hands-on-Session und direkter Anwendung von SELECT-Statements in SQL. Studierende lernen, eigenständig Abfragen zu formulieren und Datenbankkonzepte praktisch umzusetzen.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SELECT</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Query</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Praxis</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/4bd606a9.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/4bd606a9.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|ddl|dml|alter|create|insert|update|delete">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/8-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L8: SQL Data Definition (DDL) & Manipulation (DML)</h5>
+        </a>
+
+                                    <p class="card-text">In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DDL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DML</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">ALTER</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">CREATE</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">INSERT</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">UPDATE</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DELETE</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/7866e8a0.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/7866e8a0.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|ddl|dml|alter|create|insert|update|delete">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/8-lecture-full.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/8-lecture-full.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L8-Complete: SQL Data Definition (DDL) & Manipulation (DML)</h5>
+        </a>
+
+                                    <p class="card-text">In dieser Session lernen Sie die Grundlagen der SQL Data Definition Language (DDL) und Data Manipulation Language (DML) kennen. Sie erfahren, wie Sie Tabellen und Schemata mit CREATE, ALTER und DROP definieren, wie Sie Daten mit INSERT, UPDATE und DELETE manipulieren und wie Constraints wie PRIMARY KEY, FOREIGN KEY, UNIQUE, CHECK und DEFAULT die Datenintegrität sichern. Praxisnahe Beispiele, Best Practices und interaktive Aufgaben helfen Ihnen, die Konzepte direkt anzuwenden und typische Fehler zu vermeiden. Am Ende sind Sie in der Lage, eigene Datenbankschemata zu entwerfen, zu verändern und sicher zu verwalten.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DDL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DML</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">ALTER</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">CREATE</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">INSERT</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">UPDATE</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DELETE</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/5746ff26.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/5746ff26.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="normalisierung|er-diagramme|1nf|2nf|3nf|hands-on|live-session">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/9-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L9: Normalisierung & ER-Diagramme</h5>
+        </a>
+
+                                    <p class="card-text">Interaktive Session zur Datenbank-Normalisierung und ER-Modellierung: Studierende lernen ER-Diagramm-Basics (Entitäten, Beziehungen, Kardinalitäten 1:1, 1:N, N:M), entwickeln schrittweise ein normalisiertes Online-Shop-Schema (0NF → 1NF → 2NF → 3NF) mit Visualisierung via dbdiagram.io und bauen gemeinsam ein Twitter-Datenmodell von Grund auf (User, Follower, Tweets, Likes, Many-to-Many-Beziehungen). Hands-on Didaktik: Anomalien werden live erlebbar gemacht.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Normalisierung</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">ER-Diagramme</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">1NF</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">2NF</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">3NF</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Hands-on</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Live-Session</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/6caab539.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/6caab539.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="normalisierung|er-diagramme|1nf|2nf|3nf|hands-on|live-session">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/9-lecture-full.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/9-lecture-full.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L9-Complete: Normalisierung & ER-Diagramme</h5>
+        </a>
+
+                                    <p class="card-text">Interaktive Session zur Datenbank-Normalisierung und ER-Modellierung: Studierende lernen ER-Diagramm-Basics (Entitäten, Beziehungen, Kardinalitäten 1:1, 1:N, N:M), entwickeln schrittweise ein normalisiertes Online-Shop-Schema (0NF → 1NF → 2NF → 3NF) mit Visualisierung via dbdiagram.io und bauen gemeinsam ein Twitter-Datenmodell von Grund auf (User, Follower, Tweets, Likes, Many-to-Many-Beziehungen). Hands-on Didaktik: Anomalien werden live erlebbar gemacht.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Normalisierung</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">ER-Diagramme</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">1NF</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">2NF</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">3NF</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Hands-on</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Live-Session</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/069822729.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/069822729.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="joins|sql|subqueries|ctes|hands-on|live-session">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/10-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L10: Mehr FROM Subqueries, CTEs, Joins</h5>
+        </a>
+
+                                    <p class="card-text">Diese Session erschließt die wahre Macht relationaler Datenbanken: das Kombinieren von Daten über Tabellengrenzen hinweg. Sie lernen vier Techniken kennen – vom kartesischen Produkt über Subqueries und CTEs bis zu expliziten JOINs (INNER, LEFT, RIGHT, FULL, CROSS) – und verstehen, wann welcher Ansatz optimal ist. Praxisnah am E-Commerce-Schema mit 7 normalisierten Tabellen erleben Sie, wie Foreign Keys Beziehungen herstellen, wie Anti-Joins fehlende Daten aufspüren, und wie Set-Operationen (UNION, INTERSECT, EXCEPT) Ergebnisse vertikal kombinieren. Am Ende beherrschen Sie Multi-Table-Queries – das Herzstück von SQL in Produktion.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Joins</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Subqueries</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">CTEs</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Hands-on</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Live-Session</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/4d6f7609.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/4d6f7609.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="joins|sql|subqueries|ctes|hands-on|live-session">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/10-lecture-full.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/10-lecture-full.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L10-Complete: Mehr FROM Subqueries, CTEs, Joins</h5>
+        </a>
+
+                                    <p class="card-text">Diese Session erschließt die wahre Macht relationaler Datenbanken: das Kombinieren von Daten über Tabellengrenzen hinweg. Sie lernen vier Techniken kennen – vom kartesischen Produkt über Subqueries und CTEs bis zu expliziten JOINs (INNER, LEFT, RIGHT, FULL, CROSS) – und verstehen, wann welcher Ansatz optimal ist. Praxisnah am E-Commerce-Schema mit 7 normalisierten Tabellen erleben Sie, wie Foreign Keys Beziehungen herstellen, wie Anti-Joins fehlende Daten aufspüren, und wie Set-Operationen (UNION, INTERSECT, EXCEPT) Ergebnisse vertikal kombinieren. Am Ende beherrschen Sie Multi-Table-Queries – das Herzstück von SQL in Produktion.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Joins</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Subqueries</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">CTEs</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Hands-on</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Live-Session</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/01ef39079.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/01ef39079.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|index|imdb|performance|analyse">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/12-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/12-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L12: Indexe & Performance</h5>
+        </a>
+
+                                    <p class="card-text">Session 12: Indexe & Performance – Praktische Optimierung mit PGlite</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Index</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">IMDB</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Performance</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Analyse</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/1657837b.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/1657837b.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|set operations|views|e-commerce">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/13-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/13-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L13: Advanced SQL – SET Operations & Views</h5>
+        </a>
+
+                                    <p class="card-text">Advanced SQL: SET Operations & Views – Mengenlehre und Abstraktion für wiederverwendbare Queries im E-Commerce-Kontext</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SET Operations</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Views</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">E-Commerce</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/4c53562.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/4c53562.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|transaktionen|acid|isolation|konsistenz">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/14-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/14-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L14: Transaktionen & ACID</h5>
+        </a>
+
+                                    <p class="card-text">Transaktionen & ACID – Szenariobasierte Einführung in Transaktionssteuerung, ACID-Eigenschaften und Isolation Levels. Von Geldüberweisungen bis Ticketbuchungen: Warum Transaktionen unverzichtbar sind für konsistente Datenbanksysteme. Mit Live-Demos zu BEGIN/COMMIT/ROLLBACK und praktischen Beispielen zu Dirty Reads, Lost Updates und Deadlocks.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Transaktionen</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">ACID</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Isolation</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Konsistenz</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/04249da53.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/04249da53.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|funktionen|trigger|automatisierung|konsistenz">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/15-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/15-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L15: Funktionen & Trigger</h5>
+        </a>
+
+                                    <p class="card-text">Functions & Trigger – Server-seitige Logik in der Datenbank. Von einfachen Stored Functions mit IF/CASE bis zu automatischen Triggern für Timestamps, Audit-Logging und Validierung. Alle Konzepte mit interaktiven PGlite-Demos: Schreiben Sie wiederverwendbare Funktionen und lassen Sie die Datenbank auf Änderungen reagieren!</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Funktionen</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Trigger</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Automatisierung</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Konsistenz</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/0547deeec.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/0547deeec.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|aggregationen|window functions|analyse">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/16-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/16-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L16: Aggregationen & Window Functions</h5>
+        </a>
+
+                                    <p class="card-text">Aggregationen & Window Functions – Praktische SQL-Analytik mit Wetterdaten</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Aggregationen</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Window Functions</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Analyse</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/039c48761.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/039c48761.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|restful apis|online-shop|backend|praxis">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/17-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/17-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L17: RESTful APIs & SQL: Online-Shop Backend</h5>
+        </a>
+
+                                    <p class="card-text">RESTful APIs & SQL – HTTP-Requests in SQL-Queries übersetzen. Hands-on Übungen mit simulierter Browser-API für praktische CRUD-Operationen im E-Commerce-Kontext.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">RESTful APIs</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Online-Shop</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Backend</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Praxis</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/6d06f286.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/6d06f286.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|graphql|schema|resolver|query|mutation|n+1 problem|spacex api|praxis">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/18-lecture.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/18-lecture.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">L18: GraphQL & SQL – Flexible Datenabfragen</h5>
+        </a>
+
+                                    <p class="card-text">GraphQL & SQL – Flexible Datenabfragen mit Schema, Resolver und PGlite. Hands-on Übungen mit interaktiven GraphQL-Queries im E-Commerce-Kontext.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">GraphQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Schema</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Resolver</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Query</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Mutation</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">N+1 Problem</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SpaceX API</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Praxis</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/0171e6e8f.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/0171e6e8f.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-12'>
+                            <hr>
+                             <h2 style="color: #0B6E75;">Block 3: Technologien – Datenbankzugriff über APIs & KI</h2> 
+                            <p>In diesem Block lernen Sie moderne Technologien kennen, um auf Datenbanken zuzugreifen: Von <strong>KI-gestützten Abfragen mit MCP</strong> über klassische <strong>REST-APIs</strong>
+bis zu <strong>GraphQL</strong> für flexible Datenabfragen.</p>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="mcp|model context protocol|ki|github copilot|imdb|sqlite|tutorial|hands-on">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/mcp-tutorial.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/mcp-tutorial.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">MCP Tutorial: KI-gestützte Datenbankabfragen</h5>
+        </a>
+
+                                    <p class="card-text">Hands-on Tutorial: KI-gestützte Datenbankabfragen mit MCP (Model Context Protocol) auf der IMDB-Datenbank in VS Code.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">MCP</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Model Context Protocol</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">KI</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">GitHub Copilot</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">IMDB</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQLite</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Tutorial</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Hands-on</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/2cadd446.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/2cadd446.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-12'>
+                            <hr>
+                             <h2 style="color: #FF8C42;">📖 Zusatzmaterialien</h2> 
+                            <p>Weitere Ressourcen und Primer für die Vorlesung</p>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="sql|primer|grundlagen|abfragen|ddl|dml|sql">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/sql-cheat-sheet.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/sql-cheat-sheet.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">SQL Cheat Sheet</h5>
+        </a>
+
+                                    <p class="card-text">Erweiterte SQL-Referenz: Von SELECT-Grundlagen über DDL/DML, Joins und Normalisierung bis zu SET Operations, Views, Transaktionen (ACID), Stored Functions und Triggern. Basiert auf Sessions 7-10, 13-15 der Datenbankensysteme-Vorlesung.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Primer</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Grundlagen</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Abfragen</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DDL</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">DML</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">SQL</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/2441be23.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/2441be23.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col'>
+                            <div class="card shadow-sm m-1" style="height: 100%" data-category="javascript|primer|grundlagen|browser">
+                                <div class="card-img-top" style="background-size: cover; height: 175px; background-image: url('https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/assets/img/logo/javascript-primer.jpg'); background-position: center center; background-repeat: no-repeat;"></div>
+                                <div class="card-body" style="transform: rotate(0);"> <a href="https://liascript.github.io/course/?https://raw.githubusercontent.com/andre-dietrich/Datenbankensysteme-Vorlesung/refs/heads/main/materials/javascript-primer.md" target="_blank" class="link-dark stretched-link">
+            <h5 class="card-title">JavaScript Primer</h5>
+        </a>
+
+                                    <p class="card-text">Kompakter JavaScript-Primer für Studierende ohne JS-Vorkenntnisse: Variablen (const/let), Datentypen (primitiv & komplex), Kontrollstrukturen (if/loops), Funktionen (klassisch & Arrow), Objekte & Arrays (mit wichtigen Methoden wie map/filter/reduce), Asynchronität (async/await, Promises, fetch), JSON-Parsing und Classes. Fokus auf Code-Verständnis für Browser-basierte Datenbankbeispiele – keine Frontend-Entwicklung, keine Frameworks. Alle Beispiele direkt ausführbar in der Browser Console.</p>
+                                    <p><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">JavaScript</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Primer</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Grundlagen</span><span style="display: inline; white-space: break-spaces;" class="badge rounded-pill bg-light text-dark">Browser</span>
+
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="dropdown"> <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+      Download as ...
+    </a>
+
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="">
+                                            <li><a class="dropdown-item btn-sm" target="_blank" href="assets/pdf/69a23486.pdf">PDF</a>
+
+                                            </li>
+                                            <li><a class="dropdown-item btn-sm" href="assets/scorm2004/69a23486.zip">SCORM 2004</a>
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-12'>
+                            <hr>
+                            <div style="padding: 20px; background-color: rgba(255, 140, 66, 0.1); border-radius: 8px; margin: 20px 0;">
+                                 <h2>🎯 Lernziele</h2>
+
+                                <p>Nach Abschluss der Vorlesung können Sie:</p>
+                                <ol>
+                                    <li><strong>Grundlagen der Datenbank-Paradigmen</strong> verstehen und typische Einsatzszenarien erklären</li>
+                                    <li><strong>Relationale Datenbanken mit SQL anwenden</strong>, einschließlich Datenmodellierung und Normalisierung</li>
+                                    <li><strong>Praktische Erfahrung sammeln</strong> mit verschiedenen Datenbanksystemen direkt im Browser</li>
+                                    <li><strong>Kernkonzepte wie ACID und Transaktionen</strong> analysieren und vergleichen</li>
+                                    <li><strong>Stärken und Schwächen</strong> unterschiedlicher Ansätze kritisch beurteilen</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="text-muted py-3">
+            <div class="container">
+                <p class="float-end"> <a href="#">Back to top</a>
+
+                </p>
+                <p>
+                    <hr>
+                    <p> <strong>Databases Unlocked</strong> – Eine praxisnahe Einführung in die Welt der Datenbanken
+                        <br>Bachelor-Studierende der Informatik (3.–5. Semester)
+                        <br>
+                        <br>Erstellt mit <a href="https://liascript.github.io" target="_blank">LiaScript</a> – Markup für interaktive Open Educational Resources</p>
+                </p>
+            </div>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    </body>
+
+</html>
