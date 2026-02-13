@@ -9,7 +9,7 @@ comment:  Diese Session erschließt die wahre Macht relationaler Datenbanken: da
 
 edit:     true
 
-logo:     ../assets/images/logo/10-lecture-full.jpg
+logo:     ../assets/img/logo/10-lecture-full.jpg
 
 @style
 .lia-effect__circle {
